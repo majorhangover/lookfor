@@ -10,6 +10,7 @@ import Logo from "./Logo";
 import ChristmasTree from "./ChristmasTree";
 import Face from "./Face";
 import Present from "./Present";
+import EmptySack from "./EmptySack";
 import { useLocalState } from "./useLocalState";
 import { useHostVoice } from "./useHostVoice";
 import { applyProfileUpdate } from "@/lib/profile";
@@ -493,10 +494,19 @@ export default function LookforApp() {
           <div className="flex min-w-0 flex-col self-start [grid-area:gifts]">
           {giftSets.length === 0 && (
             <section className="hidden rounded-2xl border-2 border-dashed border-white/40 p-6 text-center text-white/90 lg:block">
+              {tree && (
+                <div className="mx-auto mb-2 h-28 w-44">
+                  <EmptySack />
+                </div>
+              )}
               <p className="mt-1 font-semibold">
-                {tree ? "Presents will appear here, under the tree." : "Gift ideas will appear here."}
+                {tree ? "Santa\u2019s sack is empty… for now!" : "Gift ideas will appear here."}
               </p>
-              <p className="text-sm opacity-80">Tell {character.id === "santa" ? "Santa" : character.name} who you&apos;re shopping for in the chat.</p>
+              <p className="text-sm opacity-80">
+                {tree
+                  ? "Tell Santa who you\u2019re shopping for, and he\u2019ll pop the ideas under the tree."
+                  : `Tell ${character.name} who you\u2019re shopping for in the chat.`}
+              </p>
             </section>
           )}
           {giftSets.length > 0 && (
