@@ -48,7 +48,10 @@ function Eye() {
 
 export default function Logo() {
   return (
-    <div className="relative mx-auto h-36 w-full max-w-5xl select-none sm:h-44">
+    // A full page load (not a client-side link) so clicking the logo always
+    // returns to the default home page: today's occasion and a fresh chat.
+    // eslint-disable-next-line @next/next/no-html-link-for-pages
+    <a href="/" aria-label="Lookfor home" className="relative mx-auto block h-36 w-full max-w-5xl select-none sm:h-44">
       {FACES.map((f, i) => (
         <div
           key={f.id}
@@ -79,6 +82,6 @@ export default function Logo() {
           </p>
         </div>
       </div>
-    </div>
+    </a>
   );
 }
