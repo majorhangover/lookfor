@@ -10,6 +10,7 @@ import Character from "./Character";
 import Logo from "./Logo";
 import ChristmasTree from "./ChristmasTree";
 import Face from "./Face";
+import Flag from "./Flag";
 import Present from "./Present";
 import EmptySack from "./EmptySack";
 import { useLocalState } from "./useLocalState";
@@ -47,6 +48,7 @@ export default function LookforApp() {
   // Off by default: saves voice costs and avoids surprising anyone with loud speakers.
   const [voiceOn, setVoiceOn] = useLocalState("lookfor.voiceOn", false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [regionOpen, setRegionOpen] = useState(false);
   const voice = useHostVoice(region, character.id, character.voicePitch);
   const firstName = character.name.split(" ")[0];
   const chatted = turns.some((t) => t.role === "user");
@@ -246,6 +248,47 @@ export default function LookforApp() {
     <div className="min-h-screen transition-colors" style={bg}>
       <header className="relative mx-auto flex max-w-6xl justify-end gap-2 px-4 pt-3 text-white">
         <div className="flex items-center gap-2 text-sm">
+          {/* Country: shows which Amazon store the gift links go to, and switches it. */}
+          <div className="relative">
+            <button
+              aria-expanded={regionOpen}
+              aria-label={`Shopping on Amazon ${region}. Change country`}
+              title={`Gift links go to Amazon ${region}`}
+              className="flex items-center gap-1 rounded-full bg-white/20 px-3 py-1 font-semibold text-white shadow hover:bg-white/30"
+              onClick={() => setRegionOpen(!regionOpen)}
+            >
+              <Flag region={region} />
+              {region} <span aria-hidden className="text-xs">▾</span>
+            </button>
+            {regionOpen && (
+              <>
+                <button
+                  aria-label="Close"
+                  className="fixed inset-0 z-10 cursor-default"
+                  onClick={() => setRegionOpen(false)}
+                />
+                <div className="absolute left-0 top-full z-20 mt-2 w-56 rounded-2xl bg-white p-2 text-slate-800 shadow-2xl">
+                  <p className="px-2 pb-1 text-xs text-slate-500">Shop gifts from</p>
+                  {(["UK", "US"] as const).map((r) => (
+                    <button
+                      key={r}
+                      className={`flex w-full items-center gap-2 rounded-xl px-2 py-2 text-left hover:bg-slate-100 ${
+                        r === region ? "font-semibold" : ""
+                      }`}
+                      onClick={() => {
+                        setRegion(r);
+                        setRegionOpen(false);
+                      }}
+                    >
+                      <Flag region={r} className="h-4 w-6" />
+                      <span className="flex-1">{r === "UK" ? "United Kingdom" : "United States"}</span>
+                      {r === region && <span className="text-emerald-600">✓</span>}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
           <a
             href="/about"
             target="_blank"
