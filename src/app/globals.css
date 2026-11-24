@@ -71,6 +71,13 @@ body {
 .ask-glow {
   animation: ask-glow 2.4s ease-in-out infinite;
 }
+.ask-nudge {
+  animation: ask-flash 0.7s ease-in-out 3, ask-glow 2.4s ease-in-out 2.1s infinite;
+}
+@keyframes ask-flash {
+  0%, 100% { box-shadow: 0 0 24px rgba(252, 211, 77, 0.25); border-color: rgba(252, 211, 77, 0.7); }
+  50% { box-shadow: 0 0 64px rgba(252, 211, 77, 0.9); border-color: rgba(253, 230, 138, 1); }
+}
 @keyframes ask-glow {
   0%, 100% { box-shadow: 0 0 24px rgba(252, 211, 77, 0.25); }
   50% { box-shadow: 0 0 48px rgba(252, 211, 77, 0.6); }
@@ -128,7 +135,7 @@ body {
   100% { transform: translateY(130px) rotate(10deg); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .char-body, .char-pompom, .char-hand.char-waving, .char-point, .tree-light, .tree-star-lit, .ask-glow, .gift-drop, .gift-celebrate, .tree-shake { animation: none; }
+  .char-body, .char-pompom, .char-hand.char-waving, .char-point, .tree-light, .tree-star-lit, .ask-glow, .ask-nudge, .gift-drop, .gift-celebrate, .tree-shake { animation: none; }
   .gift-confetti { display: none; }
   .tree-sparkle { animation: none; opacity: 0.8; }
   .char-motion { display: none; }
