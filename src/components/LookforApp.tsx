@@ -59,11 +59,53 @@ export default function LookforApp() {
     // A new host starts a fresh conversation; the family list is kept.
     setTurns([{ role: "assistant", content: next.greeting }]);
   };
-  const bottom = useRef<HTMLDivElement>(null);
+  const chatBox = useRef<HTMLDivElement>(null);
+  const giftsRef = useRef<HTMLElement>(null);
 
+  // Keep the chat box scrolled to its newest message without moving the page.
   useEffect(() => {
-    bottom.current?.scrollIntoView({ behavior: "smooth" });
-  }, [turns]);
+    const box = chatBox.current;
+    if (box) box.scrollTo({ top: box.scrollHeight, behavior: "smooth" });
+  }, [turns, busy, pending.length]);
+
+  const giftSets = turns.filter((t) => t.gifts && t.gifts.length > 0);
+  const latestGifts = giftSets[giftSets.length - 1]?.gifts ?? [];
+  const earlierGifts = giftSets.slice(0, -1).reverse();
+
+  const giftCard = (g: GiftIdea, j: number) => (
+    <div key={j} className="rounded-xl border border-slate-200 bg-white p-3 text-sm">
+      <div className="flex items-start justify-between gap-2">
+        <b>{g.title}</b>
+        <span className="shrink-0 text-slate-500">{g.priceBand}</span>
+      </div>
+      <div className="text-slate-500">For {g.forPerson}</div>
+      <p className="mt-1">{g.reason}</p>
+      <a
+        href={g.url}
+        target="_blank"
+        rel="sponsored nofollow noopener noreferrer"
+        onClick={() => account.logGifts("clicked", [g], occasionId)}
+        className="mt-2 inline-block rounded-full bg-amber-400 px-3 py-1 font-semibold text-slate-900 hover:bg-amber-500"
+      >
+        See options on Amazon
+      </a>
+      <span className="ml-2 text-xs text-slate-500">Ad · affiliate link</span>
+    </div>
+  );
+
+  const showGifts = () => {
+    const el = giftsRef.current;
+    if (!el) return;
+    // Bring the gift ideas up to the middle of the screen, so they can't be missed.
+    const top = el.getBoundingClientRect().top;
+    const target = window.innerHeight * 0.35;
+    if (top > target) window.scrollBy({ top: top - target, behavior: "smooth" });
+  };
+
+  // When new ideas arrive, nudge the page so the ideas come into view.
+  useEffect(() => {
+    if (giftSets.length > 0) setTimeout(showGifts, 150);
+  }, [giftSets.length]);
 
   const send = async (text: string) => {
     const content = text.trim();
@@ -147,7 +189,15 @@ export default function LookforApp() {
             <h1 className="text-2xl font-bold">
               Lookfor <span className="text-base font-normal opacity-80">· gift ideas for everyone</span>
             </h1>
-            <div className="text-sm">
+            <div className="flex items-center gap-2 text-sm">
+              <a
+                href="/about"
+                target="_blank"
+                rel="noopener"
+                className="rounded-full bg-white/20 px-3 py-1 font-semibold text-white shadow hover:bg-white/30"
+              >
+                How it works
+              </a>
               <button
                 aria-expanded={menuOpen}
                 title={account.email ? `Signed in as ${account.email}` : undefined}
@@ -240,7 +290,7 @@ export default function LookforApp() {
             </button>
           </div>
 
-          <div className="flex-1 space-y-3 overflow-y-auto rounded-2xl bg-white/90 p-4 text-slate-800 shadow-lg max-h-[45vh]">
+          <div ref={chatBox} className="flex-1 space-y-3 overflow-y-auto rounded-2xl bg-white/90 p-4 text-slate-800 shadow-lg max-h-[45vh]">
             {turns.map((t, i) => (
               <div key={i} className={t.role === "user" ? "text-right" : ""}>
                 <div
@@ -254,27 +304,14 @@ export default function LookforApp() {
                   {t.content}
                 </div>
                 {t.gifts && t.gifts.length > 0 && (
-                  <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                    {t.gifts.map((g, j) => (
-                      <div key={j} className="rounded-xl border border-slate-200 bg-white p-3 text-sm">
-                        <div className="flex items-start justify-between gap-2">
-                          <b>{g.title}</b>
-                          <span className="shrink-0 text-slate-500">{g.priceBand}</span>
-                        </div>
-                        <div className="text-slate-500">For {g.forPerson}</div>
-                        <p className="mt-1">{g.reason}</p>
-                        <a
-                          href={g.url}
-                          target="_blank"
-                          rel="sponsored nofollow noopener noreferrer"
-                          onClick={() => account.logGifts("clicked", [g], occasionId)}
-                          className="mt-2 inline-block rounded-full bg-amber-400 px-3 py-1 font-semibold text-slate-900 hover:bg-amber-500"
-                        >
-                          See options on Amazon
-                        </a>
-                        <span className="ml-2 text-xs text-slate-500">Ad · affiliate link</span>
-                      </div>
-                    ))}
+                  <div className="mt-1">
+                    <button
+                      className="rounded-full px-3 py-1 text-sm font-semibold text-white hover:opacity-90"
+                      style={{ background: character.theme.accent }}
+                      onClick={showGifts}
+                    >
+                      🎁 {t.gifts.length} gift ideas below ↓
+                    </button>
                   </div>
                 )}
               </div>
@@ -370,7 +407,6 @@ export default function LookforApp() {
               </div>
             )}
             {busy && <div className="text-slate-500 italic">{character.name} is thinking…</div>}
-            <div ref={bottom} />
           </div>
 
           <form
@@ -405,6 +441,23 @@ export default function LookforApp() {
               Send
             </button>
           </form>
+
+          {giftSets.length > 0 && (
+            <section ref={giftsRef} className="scroll-mt-4 rounded-2xl bg-white/90 p-4 text-slate-800 shadow-lg">
+              <h2 className="mb-2 text-lg font-bold">🎁 Gift ideas</h2>
+              <div className="grid gap-2 sm:grid-cols-2">{latestGifts.map(giftCard)}</div>
+              {earlierGifts.length > 0 && (
+                <details className="mt-3">
+                  <summary className="cursor-pointer text-sm font-semibold text-slate-600">
+                    Earlier ideas ({earlierGifts.reduce((n, t) => n + (t.gifts?.length ?? 0), 0)})
+                  </summary>
+                  <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                    {earlierGifts.flatMap((t) => t.gifts ?? []).map(giftCard)}
+                  </div>
+                </details>
+              )}
+            </section>
+          )}
         </div>
 
         <aside className="flex flex-col gap-4">
@@ -431,6 +484,10 @@ export default function LookforApp() {
       <footer className="mx-auto max-w-6xl px-4 pb-6 text-center text-xs text-white/70">
         AI characters: check age ratings and details before you buy. As an Amazon Associate we earn from qualifying
         purchases. ·{" "}
+        <a className="underline hover:text-white" href="/about" target="_blank" rel="noopener">
+          How it works
+        </a>{" "}
+        ·{" "}
         <a className="underline hover:text-white" href="/privacy" target="_blank" rel="noopener">
           Privacy
         </a>
