@@ -12,12 +12,32 @@ export default function Character({
   id,
   mouth,
   listening,
+  speaking = false,
+  thinking = false,
+  waveKey = 0,
 }: {
   id: CharacterId;
   mouth: number;
   listening: boolean;
+  speaking?: boolean;
+  thinking?: boolean;
+  /** Change this number to make the character wave. */
+  waveKey?: number;
 }) {
   const [blink, setBlink] = useState(false);
+  const [waving, setWaving] = useState(false);
+  const [lastWave, setLastWave] = useState(0);
+
+  // Wave whenever waveKey changes (adjusting state during render, per React docs).
+  if (waveKey !== lastWave) {
+    setLastWave(waveKey);
+    setWaving(true);
+  }
+  useEffect(() => {
+    if (!waving) return;
+    const t = setTimeout(() => setWaving(false), 1800);
+    return () => clearTimeout(t);
+  }, [waving]);
 
   useEffect(() => {
     let t: ReturnType<typeof setTimeout>;
@@ -34,6 +54,15 @@ export default function Character({
 
   const open = Math.max(0, Math.min(1, mouth));
   const eyeRy = blink ? 1 : 9;
+  const lookUp = thinking ? -4 : 0;
+  const browLift = speaking ? -3 - open * 4 : thinking ? -5 : 0;
+  const hand = {
+    santa: { sleeve: "#d62828", cuff: "#fff", mitt: "#1f7a3a" },
+    bear: { sleeve: "#c08552", cuff: "#c08552", mitt: "#e8b98a" },
+    bunny: { sleeve: "#f8f4f0", cuff: "#f8f4f0", mitt: "#f9b4c8" },
+    cupid: { sleeve: "#ffe0c7", cuff: "#ffe0c7", mitt: "#ffe0c7" },
+    lou: { sleeve: "#0d9488", cuff: "#0d9488", mitt: "#f1c27d" },
+  }[id];
   const skin = { santa: "#ffd9b8", bear: "#c08552", bunny: "#f8f4f0", cupid: "#ffe0c7", lou: "#f1c27d" }[id];
 
   const mouthY = id === "santa" ? 213 : 205;
@@ -50,6 +79,18 @@ export default function Character({
       <circle cx="150" cy="175" r="140" fill={listening ? "#fde68a" : "transparent"} opacity="0.35">
         {listening && <animate attributeName="r" values="132;142;132" dur="1.4s" repeatCount="indefinite" />}
       </circle>
+
+      {id === "santa" && (
+        <g fill="#fff" opacity="0.8" className="char-motion">
+          {[30, 75, 230, 270, 120, 200].map((x, i) => (
+            <circle key={i} cx={x} cy={-10} r={2 + (i % 3)}>
+              <animate attributeName="cy" from="-10" to="330" dur={`${5 + i}s`} begin={`${i * 0.9}s`} repeatCount="indefinite" />
+            </circle>
+          ))}
+        </g>
+      )}
+
+      <g className={`char-body ${speaking ? "char-speaking" : ""}`}>
 
       {/* Behind the head */}
       {id === "bunny" && (
@@ -77,7 +118,7 @@ export default function Character({
       {id === "santa" && (
         <g>
           <path d="M70 120 Q95 20 190 30 Q250 40 262 110 L240 118 Q225 70 185 62 Q120 60 100 125 Z" fill="#d62828" />
-          <circle cx="262" cy="118" r="20" fill="#fff" />
+          <circle cx="262" cy="118" r="20" fill="#fff" className="char-pompom" />
         </g>
       )}
 
@@ -113,15 +154,34 @@ export default function Character({
 
       {/* Eyebrows (Santa) */}
       {id === "santa" && (
-        <g>
+        <g style={{ transform: `translateY(${browLift}px)`, transition: "transform 120ms" }}>
           <path d="M100 140 Q118 128 134 140" stroke="#fff" strokeWidth="9" fill="none" strokeLinecap="round" />
           <path d="M166 140 Q182 128 200 140" stroke="#fff" strokeWidth="9" fill="none" strokeLinecap="round" />
         </g>
       )}
+      {id !== "santa" && (
+        <g
+          style={{ transform: `translateY(${browLift}px)`, transition: "transform 120ms" }}
+          stroke={id === "bunny" ? "#9ca3af" : "#3b2314"}
+          strokeWidth="4"
+          strokeLinecap="round"
+          fill="none"
+          opacity={id === "lou" ? 0 : 0.7}
+        >
+          <path d="M106 138 Q118 132 130 138" />
+          <path d="M170 138 Q182 132 194 138" />
+        </g>
+      )}
 
       {/* Eyes */}
-      <ellipse cx="118" cy="160" rx="7" ry={eyeRy} fill="#2b2b2b" />
-      <ellipse cx="182" cy="160" rx="7" ry={eyeRy} fill="#2b2b2b" />
+      <ellipse cx="118" cy={160 + lookUp} rx="7" ry={eyeRy} fill="#2b2b2b" />
+      <ellipse cx="182" cy={160 + lookUp} rx="7" ry={eyeRy} fill="#2b2b2b" />
+      {!blink && (
+        <g fill="#fff">
+          <circle cx="120.5" cy={156 + lookUp} r="2.2" />
+          <circle cx="184.5" cy={156 + lookUp} r="2.2" />
+        </g>
+      )}
 
       {/* Cheeks */}
       <circle cx="98" cy="190" r="20" fill="url(#cheek)" />
@@ -135,9 +195,21 @@ export default function Character({
         />
       )}
 
-      {/* Mouth */}
-      <ellipse cx="150" cy={mouthY} rx={14 + open * 4} ry={3 + open * 13} fill="#7a1f1f" />
-      {open > 0.35 && <ellipse cx="150" cy={mouthY + 3 + open * 6} rx="8" ry={open * 5} fill="#e76f6f" />}
+      {/* Mouth: a smile at rest, opening with speech */}
+      {open < 0.08 && !speaking ? (
+        <path
+          d={`M${136} ${mouthY - 2} Q150 ${mouthY + 10} ${164} ${mouthY - 2}`}
+          stroke="#7a1f1f"
+          strokeWidth="4"
+          fill="none"
+          strokeLinecap="round"
+        />
+      ) : (
+        <>
+          <ellipse cx="150" cy={mouthY} rx={14 + open * 4} ry={3 + open * 13} fill="#7a1f1f" />
+          {open > 0.35 && <ellipse cx="150" cy={mouthY + 3 + open * 6} rx="8" ry={open * 5} fill="#e76f6f" />}
+        </>
+      )}
 
       {/* Moustache and noses */}
       {id === "santa" && (
@@ -153,6 +225,29 @@ export default function Character({
         </g>
       )}
       {id === "lou" && <path d="M95 236 Q150 262 205 236 L215 262 Q150 285 85 262 Z" fill="#0d9488" />}
+      </g>
+
+      {/* Waving hand */}
+      <g className={`char-hand ${waving ? "char-waving" : ""}`}>
+        <path d="M215 320 L232 262 L258 268 L248 320 Z" fill={hand.sleeve} />
+        <rect x="226" y="252" width="36" height="16" rx="8" fill={hand.cuff} transform="rotate(12 244 260)" />
+        <ellipse cx="248" cy="236" rx="19" ry="22" fill={hand.mitt} />
+        <ellipse cx="229" cy="242" rx="7" ry="11" fill={hand.mitt} transform="rotate(-35 229 242)" />
+      </g>
+
+      {/* Thinking dots */}
+      {thinking && (
+        <g fill="#fff">
+          <circle cx="62" cy="62" r="18" opacity="0.95" />
+          {[50, 62, 74].map((x, i) => (
+            <circle key={x} cx={x} cy="62" r="3.5" fill="#64748b">
+              <animate attributeName="opacity" values="0.2;1;0.2" dur="1.2s" begin={`${i * 0.2}s`} repeatCount="indefinite" />
+            </circle>
+          ))}
+          <circle cx="84" cy="90" r="6" opacity="0.9" />
+          <circle cx="94" cy="104" r="3.5" opacity="0.85" />
+        </g>
+      )}
     </svg>
   );
 }
