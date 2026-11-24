@@ -73,12 +73,12 @@ export function useHostVoice(region: Region, character: CharacterId, pitch: numb
   );
 
   const speak = useCallback(
-    (text: string) => {
+    (text: string, speaker: CharacterId = character) => {
       stop();
       // Stream the voice: the <audio> element starts playing as soon as the
       // first chunk arrives. A 204 (no voice set up) or any error falls back
       // to the browser's own voice.
-      const params = new URLSearchParams({ text, character });
+      const params = new URLSearchParams({ text, character: speaker });
       const audio = new Audio();
       audio.preload = "auto";
       audioRef.current = audio;
