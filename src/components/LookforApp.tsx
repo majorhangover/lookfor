@@ -110,18 +110,31 @@ export default function LookforApp() {
     );
   }
 
+  const openSignUp = () => {
+    document.getElementById("account-panel")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    document.getElementById("account-email")?.focus({ preventScroll: true });
+  };
+
   const showSavePrompt =
     account.enabled && !account.email && !savePromptHidden && turns.some((t) => t.gifts && t.gifts.length > 0);
 
   return (
     <div className="min-h-screen transition-colors" style={bg}>
-      <main className="mx-auto grid max-w-6xl gap-4 p-4 md:grid-cols-[1fr_320px]">
-        <div className="flex flex-col gap-3">
+      <main className="mx-auto grid max-w-6xl grid-cols-1 gap-4 p-4 md:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="flex min-w-0 flex-col gap-3">
           <header className="flex flex-wrap items-center justify-between gap-2 text-white">
             <h1 className="text-2xl font-bold">
               Lookfor <span className="text-base font-normal opacity-80">· gift ideas for every occasion</span>
             </h1>
-            <div className="flex items-center gap-2 text-sm">
+            <div className="flex flex-wrap items-center gap-2 text-sm">
+              {account.enabled && !account.email && (
+                <button
+                  className="rounded-full bg-amber-400 px-3 py-1 font-semibold text-slate-900 shadow hover:bg-amber-300"
+                  onClick={openSignUp}
+                >
+                  ✨ Free account
+                </button>
+              )}
               <label className="flex items-center gap-1">
                 Shop
                 <select
@@ -216,11 +229,7 @@ export default function LookforApp() {
                 <div className="mt-2 flex gap-3">
                   <button
                     className="rounded-full bg-slate-800 px-3 py-1 font-semibold text-white"
-                    onClick={() => {
-                      const el = document.getElementById("account-email");
-                      el?.scrollIntoView({ behavior: "smooth", block: "center" });
-                      el?.focus();
-                    }}
+                    onClick={openSignUp}
                   >
                     Save my people
                   </button>
@@ -252,7 +261,7 @@ export default function LookforApp() {
               </button>
             )}
             <input
-              className="flex-1 rounded-full bg-white px-4 py-3 text-slate-800 shadow"
+              className="min-w-0 flex-1 rounded-full bg-white px-4 py-3 text-slate-800 shadow"
               placeholder={`e.g. Ideas for my 7 year old who loves dinosaurs, about ${region === "UK" ? "£" : "$"}30`}
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -286,8 +295,9 @@ export default function LookforApp() {
               </ul>
             </section>
           )}
+          {!account.email && <AccountPanel account={account} />}
           <FamilyPanel family={family} setFamily={setFamily} pending={pending} setPending={setPending} />
-          <AccountPanel account={account} />
+          {account.email && <AccountPanel account={account} />}
           <p className="rounded-2xl bg-white/80 p-3 text-xs text-slate-700">
             Our characters are AI and their suggestions are generated automatically. Check age ratings and details
             before you buy. As an Amazon Associate we earn from qualifying purchases. Your family list is stored on this
