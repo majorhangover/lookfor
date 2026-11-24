@@ -1,18 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import type { Person, ProfileUpdate } from "@/lib/types";
+import type { Person } from "@/lib/types";
+import { EMPTY_PERSON as EMPTY } from "@/lib/profile";
 
-const EMPTY: Omit<Person, "id"> = {
-  nickname: "",
-  relationship: "",
-  age: "",
-  birthday: "",
-  interests: "",
-  dislikes: "",
-  sizes: "",
-  notes: "",
-};
 
 const FIELDS: { key: keyof Omit<Person, "id">; label: string; placeholder: string }[] = [
   { key: "nickname", label: "Nickname", placeholder: "e.g. Sam (no full names)" },
@@ -28,13 +19,9 @@ const FIELDS: { key: keyof Omit<Person, "id">; label: string; placeholder: strin
 export default function FamilyPanel({
   family,
   setFamily,
-  pending,
-  setPending,
 }: {
   family: Person[];
   setFamily: (f: Person[]) => void;
-  pending: ProfileUpdate[];
-  setPending: (p: ProfileUpdate[]) => void;
 }) {
   const [editing, setEditing] = useState<Person | null>(null);
 
@@ -43,17 +30,6 @@ export default function FamilyPanel({
     const exists = family.some((p) => p.id === editing.id);
     setFamily(exists ? family.map((p) => (p.id === editing.id ? editing : p)) : [...family, editing]);
     setEditing(null);
-  };
-
-  const applyUpdate = (u: ProfileUpdate) => {
-    const idx = family.findIndex((p) => p.nickname.toLowerCase() === u.personNickname.toLowerCase());
-    const base: Person = idx >= 0 ? family[idx] : { id: crypto.randomUUID(), ...EMPTY, nickname: u.personNickname };
-    const current = base[u.field];
-    const merged =
-      ["interests", "dislikes", "notes"].includes(u.field) && current ? `${current}, ${u.value}` : u.value;
-    const next = { ...base, [u.field]: merged };
-    setFamily(idx >= 0 ? family.map((p, i) => (i === idx ? next : p)) : [...family, next]);
-    setPending(pending.filter((p) => p !== u));
   };
 
   return (
@@ -68,31 +44,9 @@ export default function FamilyPanel({
         </button>
       </div>
 
-      {pending.length > 0 && (
-        <div className="mb-3 rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm">
-          <p className="font-semibold mb-1">Noted from your chat. Save them?</p>
-          {pending.map((u, i) => (
-            <div key={i} className="flex items-center justify-between gap-2 py-1">
-              <span>
-                {u.isNewPerson ? "New: " : ""}
-                <b>{u.personNickname}</b> {u.field}: {u.value}
-              </span>
-              <span className="flex gap-1 shrink-0">
-                <button className="rounded bg-emerald-700 px-2 text-white" onClick={() => applyUpdate(u)}>
-                  Save
-                </button>
-                <button className="rounded bg-slate-200 px-2" onClick={() => setPending(pending.filter((p) => p !== u))}>
-                  Skip
-                </button>
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
-
       {family.length === 0 && !editing && (
         <p className="text-sm text-slate-500">
-          Add the people you&apos;re buying for, or just mention them in the chat and we&apos;ll offer to remember.
+          Add the people you&apos;re buying for, or just tell me about them in the chat.
         </p>
       )}
 

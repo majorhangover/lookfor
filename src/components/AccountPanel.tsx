@@ -19,7 +19,11 @@ export default function AccountPanel({ account }: { account: Account }) {
       <section className="rounded-2xl bg-white/90 p-4 text-sm text-slate-800 shadow-lg">
         <h2 className="mb-1 font-bold">Your account</h2>
         <p>
-          Signed in as <b>{account.email}</b>. {account.synced ? "Your list is saved." : "Saving your list…"}
+          Signed in as <b>{account.email}</b>. {account.saveError
+            ? "Sorry, we couldn't save your list just now. It's still on this device."
+            : account.synced
+              ? "Your list is saved."
+              : "Saving your list…"}
         </p>
         <label className="mt-2 flex items-start gap-2">
           <input

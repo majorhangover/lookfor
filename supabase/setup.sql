@@ -35,3 +35,26 @@ $$;
 
 revoke all on function public.delete_my_account() from public, anon;
 grant execute on function public.delete_my_account() to authenticated;
+
+-- Gift ideas shown to, and clicked by, signed-in users (helps improve suggestions).
+create table if not exists public.gift_events (
+  id bigint generated always as identity primary key,
+  user_id uuid not null references auth.users (id) on delete cascade,
+  kind text not null check (kind in ('shown', 'clicked')),
+  occasion text,
+  region text,
+  for_person text,
+  title text,
+  search_query text,
+  price_band text,
+  created_at timestamptz not null default now()
+);
+
+alter table public.gift_events enable row level security;
+grant select, insert on public.gift_events to authenticated;
+
+drop policy if exists "own events insert" on public.gift_events;
+drop policy if exists "own events select" on public.gift_events;
+create policy "own events insert" on public.gift_events for insert to authenticated with check ((select auth.uid()) = user_id);
+create policy "own events select" on public.gift_events for select to authenticated using ((select auth.uid()) = user_id);
+create index if not exists gift_events_user_idx on public.gift_events (user_id, created_at desc);

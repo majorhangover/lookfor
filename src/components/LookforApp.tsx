@@ -9,8 +9,19 @@ import { useAccount } from "./useAccount";
 import Character from "./Character";
 import { useLocalState } from "./useLocalState";
 import { useHostVoice } from "./useHostVoice";
+import { applyProfileUpdate } from "@/lib/profile";
 import { CHARACTERS, OCCASIONS, getOccasion, seasonalOccasion, upcomingBirthdays } from "@/lib/occasions";
 import type { ChatMessage, GiftIdea, Person, ProfileUpdate, Region, HostResponse } from "@/lib/types";
+
+const FIELD_LABELS: Record<ProfileUpdate["field"], string> = {
+  age: "age",
+  birthday: "birthday",
+  interests: "loves",
+  dislikes: "not keen on",
+  sizes: "sizes",
+  notes: "note:",
+  relationship: "is your",
+};
 
 interface Turn extends ChatMessage {
   gifts?: GiftIdea[];
@@ -77,6 +88,7 @@ export default function LookforApp() {
       setTurns([...next, { role: "assistant", content: data.reply, gifts: data.gifts }]);
       if (data.gifts?.length) setWaveKey((k) => k + 1);
       if (data.profileUpdates?.length) setPending((p) => [...p, ...data.profileUpdates]);
+      if (data.gifts?.length) account.logGifts("shown", data.gifts, occasionId);
       if (voiceOn) voice.speak(data.reply);
     } catch (e) {
       setTurns([
@@ -211,6 +223,7 @@ export default function LookforApp() {
                           href={g.url}
                           target="_blank"
                           rel="sponsored nofollow noopener noreferrer"
+                          onClick={() => account.logGifts("clicked", [g], occasionId)}
                           className="mt-2 inline-block rounded-full bg-amber-400 px-3 py-1 font-semibold text-slate-900 hover:bg-amber-500"
                         >
                           See options on Amazon
@@ -222,6 +235,49 @@ export default function LookforApp() {
                 )}
               </div>
             ))}
+            {pending.length > 0 && !busy && (
+              <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-3 text-sm">
+                <b>Shall I remember this for next time?</b>
+                <ul className="mt-1 space-y-1">
+                  {pending.map((u, i) => (
+                    <li key={i} className="flex items-center justify-between gap-2">
+                      <span>
+                        <b>{u.personNickname}</b>
+                        {u.isNewPerson ? " (new)" : ""}: {FIELD_LABELS[u.field]} {u.value}
+                      </span>
+                      <span className="flex shrink-0 gap-1">
+                        <button
+                          className="rounded-full bg-emerald-700 px-2 text-white"
+                          onClick={() => {
+                            setFamily(applyProfileUpdate(family, u));
+                            setPending(pending.filter((p) => p !== u));
+                          }}
+                        >
+                          Save
+                        </button>
+                        <button
+                          className="rounded-full bg-slate-200 px-2"
+                          onClick={() => setPending(pending.filter((p) => p !== u))}
+                        >
+                          Skip
+                        </button>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                {pending.length > 1 && (
+                  <button
+                    className="mt-2 rounded-full bg-emerald-700 px-3 py-1 font-semibold text-white"
+                    onClick={() => {
+                      setFamily(pending.reduce(applyProfileUpdate, family));
+                      setPending([]);
+                    }}
+                  >
+                    Save all
+                  </button>
+                )}
+              </div>
+            )}
             {showSavePrompt && !busy && (
               <div className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm">
                 <b>Want me to remember everyone for next time?</b> Save your people and get reminders before birthdays.
@@ -296,7 +352,7 @@ export default function LookforApp() {
             </section>
           )}
           {!account.email && <AccountPanel account={account} />}
-          <FamilyPanel family={family} setFamily={setFamily} pending={pending} setPending={setPending} />
+          <FamilyPanel family={family} setFamily={setFamily} />
           {account.email && <AccountPanel account={account} />}
           <p className="rounded-2xl bg-white/80 p-3 text-xs text-slate-700">
             Our characters are AI and their suggestions are generated automatically. Check age ratings and details
