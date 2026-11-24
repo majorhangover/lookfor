@@ -4,10 +4,9 @@ import { useId } from "react";
  * A cartoon Christmas tree drawn behind Santa's chat. Santa's head sits at the
  * top, the chat hangs in the branches, and the trunk ends below the message box,
  * right above the presents. Stretches to fit whatever height the chat is.
- * `baseOnly` draws just the lowest branches and trunk, for wide screens.
  */
-export default function ChristmasTree({ baseOnly = false }: { baseOnly?: boolean }) {
-  // Each tree needs its own gradient id: a hidden copy would otherwise blank the other.
+export default function ChristmasTree() {
+  // Each tree needs its own gradient id, or a hidden copy could blank the other.
   const green = `tree-green-${useId().replace(/:/g, "")}`;
   const tiers = [
     { top: 0, base: 70, half: 38 },
@@ -23,7 +22,7 @@ export default function ChristmasTree({ baseOnly = false }: { baseOnly?: boolean
   ] as const;
   return (
     <svg
-      viewBox={baseOnly ? "0 190 200 110" : "0 0 200 300"}
+      viewBox="0 0 200 300"
       preserveAspectRatio="none"
       className="pointer-events-none absolute inset-0 h-full w-full"
       aria-hidden

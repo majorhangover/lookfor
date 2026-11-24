@@ -272,8 +272,8 @@ export default function LookforApp() {
       <div className="px-4">
         <Logo />
       </div>
-      {/* Phones: one column. Wide screens: people on the left, the character and gifts in the middle, chat on the right. */}
-      <main className="mx-auto grid max-w-7xl grid-cols-1 gap-x-5 gap-y-3 p-4 [grid-template-areas:'nav'_'stage'_'chat'_'gifts'_'people'] lg:grid-cols-[280px_minmax(0,1fr)_380px] lg:grid-rows-[auto_auto_1fr] lg:[grid-template-areas:'people_nav_stage'_'people_treebase_stage'_'people_gifts_chat']">
+      {/* Phones: one column. Wide screens: people on the left, the character and chat in the middle, gifts on the right. */}
+      <main className="mx-auto grid max-w-7xl grid-cols-1 gap-x-5 gap-y-3 p-4 [grid-template-areas:'nav'_'stage'_'chat'_'gifts'_'people'] lg:grid-cols-[280px_minmax(0,1fr)_340px] lg:grid-rows-[auto_auto_1fr] lg:[grid-template-areas:'people_nav_gifts'_'people_stage_gifts'_'people_chat_gifts']">
           <nav className="flex flex-wrap gap-2 [grid-area:nav]" aria-label="Occasion">
             {OCCASIONS.map((o) => (
               <button
@@ -291,18 +291,13 @@ export default function LookforApp() {
           {tree && (
             <div
               aria-hidden
-              className="pointer-events-none relative [grid-column:stage] [grid-row:stage-start/chat-end] lg:hidden"
+              className="pointer-events-none relative [grid-column:stage] [grid-row:stage-start/chat-end]"
             >
               <ChristmasTree />
             </div>
           )}
-          {tree && (
-            <div aria-hidden className="pointer-events-none relative hidden h-28 self-end [grid-area:treebase] lg:block">
-              <ChristmasTree baseOnly />
-            </div>
-          )}
           <div className="relative z-10 flex flex-col items-center [grid-area:stage]">
-          <div className="mx-auto h-52 w-52 md:h-60 md:w-60 lg:h-48 lg:w-48">
+          <div className="mx-auto h-52 w-52 md:h-60 md:w-60">
             <Character
               id={character.id}
               mouth={voice.mouth}
@@ -325,10 +320,10 @@ export default function LookforApp() {
           </div>
 
           <div
-            className={`relative z-10 flex min-w-0 flex-col gap-3 [grid-area:chat] lg:self-start ${tree ? "pb-16 lg:pb-0" : ""}`}
+            className={`relative z-10 flex min-w-0 flex-col gap-3 [grid-area:chat] ${tree ? "pb-16" : ""}`}
           >
 
-          <div ref={chatBox} className={`min-h-0 flex-1 space-y-3 overflow-y-auto rounded-2xl bg-white/90 p-4 text-slate-800 shadow-lg max-h-[45vh] lg:h-[calc(100vh-34rem)] lg:max-h-none lg:min-h-64 lg:flex-none ${tree ? "mx-auto w-full max-w-xl lg:max-w-none" : ""}`}>
+          <div ref={chatBox} className={`min-h-0 flex-1 space-y-3 overflow-y-auto rounded-2xl bg-white/90 p-4 text-slate-800 shadow-lg max-h-[45vh] ${tree ? "mx-auto w-full max-w-xl" : ""}`}>
             {turns.map((t, i) => (
               <div key={i} className={t.role === "user" ? "text-right" : ""}>
                 <div
@@ -448,7 +443,7 @@ export default function LookforApp() {
           </div>
 
           <form
-            className={`flex gap-2 ${tree ? "mx-auto w-full max-w-xl lg:max-w-none" : ""}`}
+            className={`flex gap-2 ${tree ? "mx-auto w-full max-w-xl" : ""}`}
             onSubmit={(e) => {
               e.preventDefault();
               send(input);
@@ -481,9 +476,15 @@ export default function LookforApp() {
           </form>
           </div>
 
+          <div className="flex min-w-0 flex-col self-start [grid-area:gifts]">
+          {tree && (
+            <div aria-hidden className="relative mx-auto hidden h-40 w-44 lg:block">
+              <ChristmasTree />
+            </div>
+          )}
           {giftSets.length === 0 && (
-            <section className="hidden self-start rounded-2xl border-2 border-dashed border-white/40 p-6 text-center text-white/90 [grid-area:gifts] lg:block">
-              <div className="text-3xl">{tree ? "🎄" : "🎁"}</div>
+            <section className={`hidden rounded-2xl border-2 border-dashed border-white/40 p-6 text-center text-white/90 lg:block ${tree ? "mt-2" : ""}`}>
+              {!tree && <div className="text-3xl">🎁</div>}
               <p className="mt-1 font-semibold">
                 {tree ? "Presents will appear here, under the tree." : "Gift ideas will appear here."}
               </p>
@@ -493,22 +494,23 @@ export default function LookforApp() {
           {giftSets.length > 0 && (
             <section
               ref={giftsRef}
-              className={`scroll-mt-4 self-start rounded-2xl p-4 text-slate-800 shadow-lg [grid-area:gifts] ${tree ? "-mt-3 bg-white/95 ring-4 ring-red-700/70" : "bg-white/90"}`}
+              className={`scroll-mt-4 rounded-2xl p-4 text-slate-800 shadow-lg ${tree ? "-mt-3 bg-white/95 ring-4 ring-red-700/70 lg:mt-1" : "bg-white/90"}`}
             >
               <h2 className="mb-2 text-lg font-bold">{tree ? "🎄 Under the tree" : "🎁 Gift ideas"}</h2>
-              <div className="grid gap-2 sm:grid-cols-2">{latestGifts.map(giftCard)}</div>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">{latestGifts.map(giftCard)}</div>
               {earlierGifts.length > 0 && (
                 <details className="mt-3">
                   <summary className="cursor-pointer text-sm font-semibold text-slate-600">
                     Earlier ideas ({earlierGifts.reduce((n, t) => n + (t.gifts?.length ?? 0), 0)})
                   </summary>
-                  <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                  <div className="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
                     {earlierGifts.flatMap((t) => t.gifts ?? []).map(giftCard)}
                   </div>
                 </details>
               )}
             </section>
           )}
+          </div>
 
         <aside className="flex flex-col gap-4 self-start [grid-area:people]">
           {birthdays.length > 0 && (
