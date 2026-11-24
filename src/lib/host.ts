@@ -17,7 +17,7 @@ export const HostSchema = z.object({
         reason: z.string().describe("One short sentence on why it suits them"),
       }),
     )
-    .describe("0 to 4 gift ideas. Only include when the user wants ideas and you know enough."),
+    .describe("0 to 6 gift ideas (aim for 6 when suggesting). Only include when the user wants ideas and you know enough."),
   profileUpdates: z
     .array(
       z.object({
