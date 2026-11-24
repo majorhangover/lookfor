@@ -33,6 +33,13 @@ body {
 .char-hand.char-waving {
   animation: char-wave 1.8s ease-in-out;
 }
+.ask-glow {
+  animation: ask-glow 2.4s ease-in-out infinite;
+}
+@keyframes ask-glow {
+  0%, 100% { box-shadow: 0 0 24px rgba(252, 211, 77, 0.25); }
+  50% { box-shadow: 0 0 48px rgba(252, 211, 77, 0.6); }
+}
 .tree-light {
   animation: tree-light 1.6s ease-in-out infinite;
 }
@@ -86,7 +93,7 @@ body {
   100% { transform: translateY(130px) rotate(10deg); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .char-body, .char-pompom, .char-hand.char-waving, .char-point, .tree-light, .tree-star-lit { animation: none; }
+  .char-body, .char-pompom, .char-hand.char-waving, .char-point, .tree-light, .tree-star-lit, .ask-glow { animation: none; }
   .tree-sparkle { animation: none; opacity: 0.8; }
   .char-motion { display: none; }
 }

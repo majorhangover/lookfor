@@ -1,5 +1,6 @@
 "use client";
 
+import { Outfit } from "next/font/google";
 import { useEffect, useRef, useState } from "react";
 import AccountPanel from "./AccountPanel";
 import Welcome from "./Welcome";
@@ -16,6 +17,8 @@ import { useHostVoice } from "./useHostVoice";
 import { applyProfileUpdate, isSaved, toggleSavedGift } from "@/lib/profile";
 import { CHARACTERS, OCCASIONS, getOccasion, seasonalOccasion, upcomingBirthdays } from "@/lib/occasions";
 import type { ChatMessage, GiftIdea, Person, ProfileUpdate, Region, HostResponse } from "@/lib/types";
+
+const outfit = Outfit({ subsets: ["latin"], weight: ["800"] });
 
 const FIELD_LABELS: Record<ProfileUpdate["field"], string> = {
   age: "age",
@@ -54,6 +57,8 @@ export default function LookforApp() {
   const [voiceOn, setVoiceOn] = useLocalState("lookfor.voiceOn", false);
   const [menuOpen, setMenuOpen] = useState(false);
   const voice = useHostVoice(region, character.id, character.voicePitch);
+  const firstName = character.name.split(" ")[0];
+  const chatted = turns.some((t) => t.role === "user");
   const birthdays = upcomingBirthdays(family);
   const account = useAccount(family, setFamily, region);
 
@@ -313,9 +318,20 @@ export default function LookforApp() {
             ))}
           </nav>
 
-          <div className="[grid-area:ask] lg:mt-2">
-            <label htmlFor="ask" className="mb-1.5 block text-center text-sm font-semibold text-white lg:text-base">
-              💬 Talk to {character.name.split(" ")[0]} here
+          <div
+            className={`rounded-3xl border-2 border-amber-300/70 bg-white/10 p-3 shadow-[0_0_40px_rgba(252,211,77,0.25)] backdrop-blur-sm [grid-area:ask] sm:p-4 lg:mt-2 ${
+              chatted ? "" : "ask-glow"
+            }`}
+          >
+            <label htmlFor="ask" className="mb-3 block text-center text-white">
+              <span
+                className={`${outfit.className} block bg-gradient-to-r from-amber-200 via-yellow-300 to-amber-200 bg-clip-text text-2xl leading-tight text-transparent drop-shadow sm:text-3xl lg:text-4xl`}
+              >
+                ✨ Talk to {firstName}! ✨
+              </span>
+              <span className="mt-1 block text-sm text-white/90 lg:text-base">
+                Tell {firstName} who you’re shopping for, and the gift ideas will appear like magic.
+              </span>
             </label>
             <form
               className="flex gap-2"
@@ -336,18 +352,22 @@ export default function LookforApp() {
               )}
               <input
                 id="ask"
-                className="min-w-0 flex-1 rounded-full bg-white px-4 py-3 text-slate-800 shadow lg:px-6 lg:py-4 lg:text-lg"
+                className="min-w-0 flex-1 rounded-full bg-white px-4 py-3 text-slate-800 shadow-lg outline-none ring-4 ring-amber-300/60 focus:ring-amber-300 lg:px-6 lg:py-4 lg:text-lg"
                 placeholder={`e.g. Ideas for my 7 year old who loves dinosaurs, about ${region === "UK" ? "£" : "$"}30`}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 maxLength={2000}
               />
               <button
-                className="rounded-full px-5 font-semibold text-white hover:opacity-90 disabled:opacity-50"
-                style={{ background: character.theme.accent }}
+                aria-label={`Ask ${firstName}`}
+                className="shrink-0 rounded-full bg-gradient-to-b from-amber-300 to-amber-500 px-5 font-bold text-slate-900 shadow-lg ring-2 ring-white/70 transition hover:scale-105 disabled:cursor-not-allowed disabled:hover:scale-100 lg:px-7 lg:text-lg"
                 disabled={busy || !input.trim()}
               >
-                Send
+                {busy ? "…" : (
+                  <>
+                    <span className="hidden sm:inline">Ask {firstName} </span>🎁
+                  </>
+                )}
               </button>
             </form>
           </div>
@@ -362,7 +382,7 @@ export default function LookforApp() {
                 speaking={voice.speaking}
                 thinking={busy}
                 waveKey={waveKey}
-                pointUp={!turns.some((t) => t.role === "user")}
+                pointUp={!chatted}
               />
             </div>
           </div>
@@ -381,7 +401,7 @@ export default function LookforApp() {
           </div>
           <div
             aria-hidden
-            className={`flex h-44 justify-center self-end [grid-area:treeicon] md:h-48 ${giftSets.length ? "" : "hidden lg:flex"}`}
+            className={`mt-6 flex h-44 justify-center self-end [grid-area:treeicon] md:h-48 lg:mt-0 ${giftSets.length ? "" : "hidden lg:flex"}`}
           >
             <div className="relative h-full w-36 md:w-40">
               {tree ? <ChristmasTree lit={giftSets.length > 0} /> : <Present color={character.theme.accent} />}
