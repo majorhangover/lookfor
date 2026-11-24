@@ -15,6 +15,7 @@ export default function Character({
   speaking = false,
   thinking = false,
   waveKey = 0,
+  pointUp = false,
 }: {
   id: CharacterId;
   mouth: number;
@@ -23,6 +24,8 @@ export default function Character({
   thinking?: boolean;
   /** Change this number to make the character wave. */
   waveKey?: number;
+  /** Point up at the chat bar (wide screens only, where the bar is above). */
+  pointUp?: boolean;
 }) {
   const [blink, setBlink] = useState(false);
   const [waving, setWaving] = useState(false);
@@ -234,6 +237,22 @@ export default function Character({
         <ellipse cx="248" cy="236" rx="19" ry="22" fill={hand.mitt} />
         <ellipse cx="229" cy="242" rx="7" ry="11" fill={hand.mitt} transform="rotate(-35 229 242)" />
       </g>
+
+      {/* Pointing up at the chat bar, until the first message */}
+      {pointUp && !waving && !thinking && (
+        <g className="char-point hidden lg:inline">
+          <path d="M18 320 L34 200 L62 204 L56 320 Z" fill={hand.sleeve} />
+          <rect x="28" y="190" width="38" height="16" rx="8" fill={hand.cuff} transform="rotate(4 47 198)" />
+          <ellipse cx="48" cy="172" rx="20" ry="19" fill={hand.mitt} />
+          {/* Index finger up at the thumb side, other fingers curled */}
+          <rect x="50" y="118" width="14" height="50" rx="7" fill={hand.mitt} />
+          <g stroke="#000" strokeOpacity="0.18" strokeWidth="2.5" strokeLinecap="round" fill="none">
+            <path d="M30 164 Q38 158 47 164" />
+            <path d="M30 175 Q38 169 47 175" />
+          </g>
+          <ellipse cx="50" cy="183" rx="13" ry="6" fill={hand.mitt} stroke="#000" strokeOpacity="0.15" strokeWidth="2" />
+        </g>
+      )}
 
       {/* Thinking dots */}
       {thinking && (

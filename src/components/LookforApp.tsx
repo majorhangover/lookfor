@@ -362,6 +362,7 @@ export default function LookforApp() {
                 speaking={voice.speaking}
                 thinking={busy}
                 waveKey={waveKey}
+                pointUp={!turns.some((t) => t.role === "user")}
               />
             </div>
           </div>
@@ -383,7 +384,7 @@ export default function LookforApp() {
             className={`flex h-44 justify-center self-end [grid-area:treeicon] md:h-48 ${giftSets.length ? "" : "hidden lg:flex"}`}
           >
             <div className="relative h-full w-36 md:w-40">
-              {tree ? <ChristmasTree /> : <Present color={character.theme.accent} />}
+              {tree ? <ChristmasTree lit={giftSets.length > 0} /> : <Present color={character.theme.accent} />}
             </div>
           </div>
 
