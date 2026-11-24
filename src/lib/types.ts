@@ -10,6 +10,10 @@ export interface Person {
   dislikes: string;
   sizes: string;
   notes: string;
+  /** Rough gift budget, as typed (e.g. "£30"). */
+  budget?: string;
+  /** Year of birth, when a full date of birth was given, so the age stays right. */
+  birthYear?: string;
 }
 
 export interface GiftIdea {
@@ -23,7 +27,7 @@ export interface GiftIdea {
 
 export interface ProfileUpdate {
   personNickname: string;
-  field: "age" | "birthday" | "interests" | "dislikes" | "sizes" | "notes" | "relationship";
+  field: "age" | "birthday" | "interests" | "dislikes" | "sizes" | "notes" | "relationship" | "budget";
   value: string;
   isNewPerson: boolean;
 }

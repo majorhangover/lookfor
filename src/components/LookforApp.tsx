@@ -21,6 +21,7 @@ const FIELD_LABELS: Record<ProfileUpdate["field"], string> = {
   sizes: "sizes",
   notes: "note:",
   relationship: "is your",
+  budget: "budget",
 };
 
 interface Turn extends ChatMessage {
@@ -74,24 +75,25 @@ export default function LookforApp() {
   const earlierGifts = giftSets.slice(0, -1).reverse();
 
   const giftCard = (g: GiftIdea, j: number) => (
-    <div key={j} className="rounded-xl border border-slate-200 bg-white p-3 text-sm">
+    <a
+      key={j}
+      href={g.url}
+      target="_blank"
+      rel="sponsored nofollow noopener noreferrer"
+      onClick={() => account.logGifts("clicked", [g], occasionId)}
+      className="group block rounded-xl border border-slate-200 bg-white p-3 text-sm transition hover:-translate-y-0.5 hover:border-amber-400 hover:shadow-md"
+    >
       <div className="flex items-start justify-between gap-2">
-        <b>{g.title}</b>
+        <b className="group-hover:underline">{g.title}</b>
         <span className="shrink-0 text-slate-500">{g.priceBand}</span>
       </div>
       <div className="text-slate-500">For {g.forPerson}</div>
       <p className="mt-1">{g.reason}</p>
-      <a
-        href={g.url}
-        target="_blank"
-        rel="sponsored nofollow noopener noreferrer"
-        onClick={() => account.logGifts("clicked", [g], occasionId)}
-        className="mt-2 inline-block rounded-full bg-amber-400 px-3 py-1 font-semibold text-slate-900 hover:bg-amber-500"
-      >
+      <span className="mt-2 inline-block rounded-full bg-amber-400 px-3 py-1 font-semibold text-slate-900 group-hover:bg-amber-500">
         See options on Amazon
-      </a>
+      </span>
       <span className="ml-2 text-xs text-slate-500">Ad · affiliate link</span>
-    </div>
+    </a>
   );
 
   const showGifts = () => {
@@ -479,7 +481,7 @@ export default function LookforApp() {
               </ul>
             </section>
           )}
-          <FamilyPanel family={family} setFamily={setFamily} />
+          <FamilyPanel family={family} setFamily={setFamily} currency={region === "UK" ? "£" : "$"} />
         </aside>
       </main>
       <footer className="mx-auto max-w-6xl px-4 pb-6 text-center text-xs text-white/70">
