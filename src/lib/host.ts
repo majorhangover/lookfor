@@ -1,3 +1,4 @@
+import { formatBirthday } from "./birthday";
 import { z } from "zod";
 import { CHARACTERS, getOccasion } from "./occasions";
 import type { Person, Region } from "./types";
@@ -22,7 +23,7 @@ export const HostSchema = z.object({
       z.object({
         personNickname: z.string(),
         field: z.enum(["age", "birthday", "interests", "dislikes", "sizes", "notes", "relationship"]),
-        value: z.string().describe("The new fact, short. For interests, just the new interest. For birthday, YYYY-MM or the month number."),
+        value: z.string().describe("The new fact, short. For interests, just the new interest. For birthday, the day and month as MM-DD (e.g. 11-24), or just MM if only the month is known. Work out real dates for words like 'today' or 'next Friday' using today's date."),
         isNewPerson: z.boolean(),
       }),
     )
@@ -42,7 +43,7 @@ How you help:
 - Suggest specific, age-appropriate, safe gift ideas that fit the occasion, their interests and budget. Mix popular picks with thoughtful ones. Avoid repeating ideas already suggested.
 - Prices: give only rough bands in ${currency}. Never claim an exact price or that an item is in stock.
 - When you suggest gifts, put them in "gifts" and mention them briefly in "reply". The app shows shopping links; never write URLs.
-- When the user tells you a new fact about someone (including a birthday month), add it to "profileUpdates" so they can confirm it.
+- When the user tells you a new fact about someone (including a birthday), add it to "profileUpdates" so they can confirm it.
 
 Rules:
 - This service is for adults only. If the person seems to be a child, kindly say Lookfor is for grown-ups and ask them to fetch a parent. Do not ask them anything else.
@@ -51,14 +52,15 @@ Rules:
 - Stay on gifts and celebrations. Politely steer back if asked about other things.`;
 }
 
-export function familyContext(family: Person[]): string {
-  if (family.length === 0) return "The user has not added any family members yet.";
+export function familyContext(family: Person[], now = new Date()): string {
+  const today = `Today is ${now.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "Europe/London" })}.`;
+  if (family.length === 0) return `${today}\nThe user has not added any family members yet.`;
   const lines = family.map((p) =>
     [
       `- ${p.nickname}`,
       p.relationship && `(${p.relationship})`,
       p.age && `age ${p.age}`,
-      p.birthday && `birthday ${p.birthday}`,
+      p.birthday && `birthday ${formatBirthday(p.birthday)}`,
       p.interests && `likes: ${p.interests}`,
       p.dislikes && `dislikes: ${p.dislikes}`,
       p.sizes && `sizes: ${p.sizes}`,
@@ -67,5 +69,5 @@ export function familyContext(family: Person[]): string {
       .filter(Boolean)
       .join(" "),
   );
-  return `People the user has saved:\n${lines.join("\n")}`;
+  return `${today}\nPeople the user has saved:\n${lines.join("\n")}`;
 }

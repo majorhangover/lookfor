@@ -1,3 +1,4 @@
+import { formatBirthday, nextBirthday } from "./birthday";
 export type CharacterId = "santa" | "bear" | "bunny" | "cupid" | "lou";
 
 export interface Occasion {
@@ -92,23 +93,31 @@ export function seasonalOccasion(now = new Date()): string {
   return "birthday";
 }
 
-/** Upcoming birthdays from "YYYY-MM" values, soonest first. */
-export function upcomingBirthdays(
-  people: { nickname: string; birthday: string }[],
-  now = new Date(),
-): { nickname: string; monthsAway: number; monthName: string }[] {
-  const thisMonth = now.getMonth();
+export interface UpcomingBirthday {
+  nickname: string;
+  /** e.g. "today", "tomorrow", "in 5 days", "24 December", "this month", "March" */
+  when: string;
+}
+
+/** The next few birthdays, soonest first. */
+export function upcomingBirthdays(people: { nickname: string; birthday: string }[], now = new Date()): UpcomingBirthday[] {
   return people
     .map((p) => {
-      const match = /^(\d{4})-(\d{1,2})$/.exec(p.birthday.trim()) || /^(\d{1,2})$/.exec(p.birthday.trim());
-      if (!match) return null;
-      const month = Number(match[match.length - 1]) - 1;
-      if (month < 0 || month > 11) return null;
-      const monthsAway = (month - thisMonth + 12) % 12;
-      const monthName = new Date(2000, month, 1).toLocaleString("en-GB", { month: "long" });
-      return { nickname: p.nickname, monthsAway, monthName };
+      const next = p.birthday ? nextBirthday(p.birthday, now) : null;
+      if (!next) return null;
+      const { daysAway, monthsAway } = next;
+      let when: string;
+      if (daysAway === null) when = monthsAway === 0 ? "this month" : formatBirthday(p.birthday);
+      else if (daysAway === 0) when = "today 🎂";
+      else if (daysAway === 1) when = "tomorrow";
+      else if (daysAway <= 14) when = `in ${daysAway} days`;
+      else when = formatBirthday(p.birthday);
+      // Sort by days; month-only birthdays count from the middle of their month.
+      const sortKey = daysAway ?? monthsAway * 30.5 + 15;
+      return { nickname: p.nickname, when, sortKey };
     })
-    .filter((x): x is { nickname: string; monthsAway: number; monthName: string } => x !== null)
-    .sort((a, b) => a.monthsAway - b.monthsAway)
-    .slice(0, 3);
+    .filter((x): x is UpcomingBirthday & { sortKey: number } => x !== null)
+    .sort((a, b) => a.sortKey - b.sortKey)
+    .slice(0, 3)
+    .map(({ nickname, when }) => ({ nickname, when }));
 }

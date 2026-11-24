@@ -354,7 +354,7 @@ export default function LookforApp() {
                 {birthdays.map((b) => (
                   <li key={b.nickname} className="flex items-center justify-between py-0.5">
                     <span>
-                      {b.nickname}&apos;s birthday · {b.monthsAway === 0 ? "this month" : b.monthName}
+                      {b.nickname}&apos;s birthday · {b.when}
                     </span>
                     <button className="underline" onClick={() => changeOccasion("birthday")}>
                       Find gifts
