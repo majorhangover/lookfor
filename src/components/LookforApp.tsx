@@ -8,9 +8,12 @@ import { useAccount } from "./useAccount";
 import Character from "./Character";
 import Logo from "./Logo";
 import ChristmasTree from "./ChristmasTree";
+import Face from "./Face";
+import Present from "./Present";
+import EmptySack from "./EmptySack";
 import { useLocalState } from "./useLocalState";
 import { useHostVoice } from "./useHostVoice";
-import { applyProfileUpdate } from "@/lib/profile";
+import { applyProfileUpdate, isSaved, toggleSavedGift } from "@/lib/profile";
 import { CHARACTERS, OCCASIONS, getOccasion, seasonalOccasion, upcomingBirthdays } from "@/lib/occasions";
 import type { ChatMessage, GiftIdea, Person, ProfileUpdate, Region, HostResponse } from "@/lib/types";
 
@@ -77,47 +80,71 @@ export default function LookforApp() {
 
   const tree = character.id === "santa";
 
-  const giftCard = (g: GiftIdea, j: number) => (
-    <a
-      key={j}
-      href={g.url}
-      target="_blank"
-      rel="sponsored nofollow noopener noreferrer"
-      onClick={() => account.logGifts("clicked", [g], occasionId)}
-      className={`group relative block rounded-xl border border-slate-200 bg-white p-3 text-sm transition hover:-translate-y-0.5 hover:border-amber-400 hover:shadow-md ${tree ? "overflow-visible pt-6" : ""}`}
-    >
-      {tree && (
-        <>
-          <span
-            aria-hidden
-            className="absolute inset-x-0 top-0 h-3 rounded-t-xl"
-            style={{ background: ["#b91c1c", "#15803d", "#ca8a04", "#7c3aed"][j % 4] }}
-          />
-          <span aria-hidden className="absolute -top-3 left-1/2 -translate-x-1/2 text-2xl">
-            🎀
-          </span>
-        </>
-      )}
-      <div className="flex items-start justify-between gap-2">
-        <b className="group-hover:underline">{g.title}</b>
-        <span className="shrink-0 text-slate-500">{g.priceBand}</span>
+  const giftCard = (g: GiftIdea, j: number) => {
+    const saved = isSaved(family, g);
+    return (
+      <div
+        key={j}
+        className={`group relative rounded-xl border border-slate-200 bg-white p-3 text-sm transition hover:-translate-y-0.5 hover:border-amber-400 hover:shadow-md ${tree ? "pt-6" : ""}`}
+      >
+        {/* The whole card opens Amazon; the save button sits above the link. */}
+        <a
+          href={g.url}
+          target="_blank"
+          rel="sponsored nofollow noopener noreferrer"
+          onClick={() => account.logGifts("clicked", [g], occasionId)}
+          className="absolute inset-0 z-0 rounded-xl"
+          aria-label={`${g.title}: see options on Amazon`}
+        />
+        {tree && (
+          <>
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 top-0 h-3 rounded-t-xl"
+              style={{ background: ["#b91c1c", "#15803d", "#ca8a04", "#7c3aed"][j % 4] }}
+            />
+            <span aria-hidden className="pointer-events-none absolute -top-3 left-1/2 -translate-x-1/2 text-2xl">
+              🎀
+            </span>
+          </>
+        )}
+        <div className="pointer-events-none relative">
+          <div className="flex items-start justify-between gap-2">
+            <b className="group-hover:underline">{g.title}</b>
+            <span className="shrink-0 text-slate-500">{g.priceBand}</span>
+          </div>
+          <div className="text-slate-500">For {g.forPerson}</div>
+          <p className="mt-1">{g.reason}</p>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <span className="inline-block rounded-full bg-amber-400 px-3 py-1 font-semibold text-slate-900 group-hover:bg-amber-500">
+              See options on Amazon
+            </span>
+            <button
+              type="button"
+              aria-pressed={saved}
+              onClick={() => setFamily(toggleSavedGift(family, g, occasionId))}
+              className={`pointer-events-auto relative z-10 rounded-full border px-3 py-1 font-semibold ${
+                saved ? "border-rose-600 bg-rose-50 text-rose-700" : "border-slate-300 text-slate-700 hover:border-rose-400"
+              }`}
+            >
+              {saved ? `♥ Saved for ${g.forPerson}` : `♡ Save for ${g.forPerson}`}
+            </button>
+          </div>
+          <span className="mt-1 block text-xs text-slate-500">Ad · affiliate link</span>
+        </div>
       </div>
-      <div className="text-slate-500">For {g.forPerson}</div>
-      <p className="mt-1">{g.reason}</p>
-      <span className="mt-2 inline-block rounded-full bg-amber-400 px-3 py-1 font-semibold text-slate-900 group-hover:bg-amber-500">
-        See options on Amazon
-      </span>
-      <span className="ml-2 text-xs text-slate-500">Ad · affiliate link</span>
-    </a>
-  );
+    );
+  };
 
   const showGifts = () => {
     const el = giftsRef.current;
     if (!el) return;
     // Bring the gift ideas up to the middle of the screen, so they can't be missed.
     const top = el.getBoundingClientRect().top;
+    // Already in view (as on wide screens): leave the page where it is.
+    if (top < window.innerHeight * 0.75) return;
     const target = window.innerHeight * 0.35;
-    if (top > target) window.scrollBy({ top: top - target, behavior: "smooth" });
+    window.scrollBy({ top: top - target, behavior: "smooth" });
   };
 
   // When new ideas arrive, nudge the page so the ideas come into view.
@@ -270,10 +297,9 @@ export default function LookforApp() {
       <div className="px-4">
         <Logo />
       </div>
-      <main className="mx-auto grid max-w-6xl grid-cols-1 gap-4 p-4 md:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="flex min-w-0 flex-col gap-3">
-
-          <nav className="flex flex-wrap gap-2" aria-label="Occasion">
+      {/* Phones: one column. Wide screens: occasions across the top, then three columns (people, chat, gifts), each with its picture above it, all in one row. */}
+      <main className="mx-auto grid max-w-7xl grid-cols-1 gap-x-5 gap-y-3 p-4 [grid-template-areas:'nav'_'stage'_'name'_'chat'_'treeicon'_'gifts'_'peopleicon'_'people'] lg:grid-cols-[300px_minmax(0,1fr)_340px] lg:grid-rows-[auto_auto_auto_1fr] lg:[grid-template-areas:'nav_nav_nav'_'peopleicon_stage_treeicon'_'._name_.'_'people_chat_gifts']">
+          <nav className="flex flex-wrap gap-2 [grid-area:nav]" aria-label="Occasion">
             {OCCASIONS.map((o) => (
               <button
                 key={o.id}
@@ -287,19 +313,42 @@ export default function LookforApp() {
             ))}
           </nav>
 
-          <div className={tree ? "relative flex flex-col gap-3 pb-16" : "contents"}>
-          {tree && <ChristmasTree />}
-          <div className="relative z-10 mx-auto h-52 w-52 md:h-60 md:w-60">
-            <Character
-              id={character.id}
-              mouth={voice.mouth}
-              listening={voice.listening}
-              speaking={voice.speaking}
-              thinking={busy}
-              waveKey={waveKey}
-            />
+          {/* The three pictures share one row on wide screens, all the same height. */}
+          <div className="flex justify-center self-end [grid-area:stage]">
+            <div className="h-52 w-52 md:h-56 md:w-56">
+              <Character
+                id={character.id}
+                mouth={voice.mouth}
+                listening={voice.listening}
+                speaking={voice.speaking}
+                thinking={busy}
+                waveKey={waveKey}
+              />
+            </div>
           </div>
-          <div className="relative z-10 -mt-2 flex items-center justify-center gap-2 text-sm text-white/90">
+          <div aria-hidden className="flex h-44 items-end justify-center self-end [grid-area:peopleicon] md:h-48">
+            <div className="grid grid-cols-4 place-items-center">
+              {(["grandma", "dad", "girl", "grandad", "mum", "boy", "baby", "friend"] as const).map((id, i) => (
+                <div
+                  key={id}
+                  className={`-m-1 h-16 w-16 md:h-[4.5rem] md:w-[4.5rem] ${i >= 4 ? "-mt-3 translate-x-6" : ""}`}
+                  style={{ rotate: `${((i * 5) % 3) * 6 - 6}deg` }}
+                >
+                  <Face id={id} />
+                </div>
+              ))}
+            </div>
+          </div>
+          <div
+            aria-hidden
+            className={`flex h-44 justify-center self-end [grid-area:treeicon] md:h-48 ${giftSets.length ? "" : "hidden lg:flex"}`}
+          >
+            <div className="relative h-full w-36 md:w-40">
+              {tree ? <ChristmasTree /> : <Present color={character.theme.accent} />}
+            </div>
+          </div>
+
+          <div className="-mt-2 flex items-center justify-center gap-2 text-sm text-white/90 [grid-area:name]">
             <span className="font-medium">{character.name}</span>
             <button
               className="rounded-full bg-white/20 px-2 py-0.5 text-xs hover:bg-white/30"
@@ -309,8 +358,9 @@ export default function LookforApp() {
               {voiceOn ? "🔊 Voice on" : "🔇 Hear my voice"}
             </button>
           </div>
+          <div className="flex min-w-0 flex-col gap-3 [grid-area:chat]">
 
-          <div ref={chatBox} className={`relative z-10 flex-1 space-y-3 overflow-y-auto rounded-2xl bg-white/90 p-4 text-slate-800 shadow-lg max-h-[45vh] ${tree ? "mx-auto w-full max-w-xl" : ""}`}>
+          <div ref={chatBox} className={`min-h-0 flex-1 space-y-3 overflow-y-auto rounded-2xl bg-white/90 p-4 text-slate-800 shadow-lg max-h-[45vh]`}>
             {turns.map((t, i) => (
               <div key={i} className={t.role === "user" ? "text-right" : ""}>
                 <div
@@ -430,7 +480,7 @@ export default function LookforApp() {
           </div>
 
           <form
-            className={`relative z-10 flex gap-2 ${tree ? "mx-auto w-full max-w-xl" : ""}`}
+            className="flex gap-2"
             onSubmit={(e) => {
               e.preventDefault();
               send(input);
@@ -463,28 +513,46 @@ export default function LookforApp() {
           </form>
           </div>
 
+          <div className="flex min-w-0 flex-col self-start [grid-area:gifts]">
+          {giftSets.length === 0 && (
+            <section className="hidden rounded-2xl border-2 border-dashed border-white/40 p-6 text-center text-white/90 lg:block">
+              {tree && (
+                <div className="mx-auto mb-2 h-28 w-44">
+                  <EmptySack />
+                </div>
+              )}
+              <p className="mt-1 font-semibold">
+                {tree ? "Santa\u2019s sack is empty… for now!" : "Gift ideas will appear here."}
+              </p>
+              <p className="text-sm opacity-80">
+                {tree
+                  ? "Tell Santa who you\u2019re shopping for, and he\u2019ll pop the ideas under the tree."
+                  : `Tell ${character.name} who you\u2019re shopping for in the chat.`}
+              </p>
+            </section>
+          )}
           {giftSets.length > 0 && (
             <section
               ref={giftsRef}
-              className={`scroll-mt-4 rounded-2xl p-4 text-slate-800 shadow-lg ${tree ? "-mt-3 bg-white/95 ring-4 ring-red-700/70" : "bg-white/90"}`}
+              className={`scroll-mt-4 rounded-2xl p-4 text-slate-800 shadow-lg ${tree ? "bg-white/95 ring-4 ring-red-700/70" : "bg-white/90"}`}
             >
               <h2 className="mb-2 text-lg font-bold">{tree ? "🎄 Under the tree" : "🎁 Gift ideas"}</h2>
-              <div className="grid gap-2 sm:grid-cols-2">{latestGifts.map(giftCard)}</div>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">{latestGifts.map(giftCard)}</div>
               {earlierGifts.length > 0 && (
                 <details className="mt-3">
                   <summary className="cursor-pointer text-sm font-semibold text-slate-600">
                     Earlier ideas ({earlierGifts.reduce((n, t) => n + (t.gifts?.length ?? 0), 0)})
                   </summary>
-                  <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                  <div className="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
                     {earlierGifts.flatMap((t) => t.gifts ?? []).map(giftCard)}
                   </div>
                 </details>
               )}
             </section>
           )}
-        </div>
+          </div>
 
-        <aside className="flex flex-col gap-4">
+        <aside className="flex flex-col gap-4 self-start [grid-area:people]">
           {birthdays.length > 0 && (
             <section className="rounded-2xl bg-white/90 p-4 text-sm text-slate-800 shadow-lg">
               <h2 className="mb-1 font-bold">Coming up</h2>

@@ -14,6 +14,17 @@ export interface Person {
   budget?: string;
   /** Year of birth, when a full date of birth was given, so the age stays right. */
   birthYear?: string;
+  /** Gift ideas the user saved for this person. */
+  savedGifts?: SavedGift[];
+}
+
+export interface SavedGift {
+  title: string;
+  url?: string;
+  priceBand: string;
+  reason: string;
+  occasion?: string;
+  savedAt: string;
 }
 
 export interface GiftIdea {
