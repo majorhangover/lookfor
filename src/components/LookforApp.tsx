@@ -270,6 +270,23 @@ export default function LookforApp() {
                 )}
               </div>
             ))}
+            {turns.length === 1 && account.enabled && !account.email && !account.linkSentTo && (
+              <div>
+                <div className="inline-block max-w-[85%] rounded-2xl px-3 py-2" style={{ background: character.theme.bubble }}>
+                  Psst… {character.id === "santa" ? "Santa" : character.name} never forgets! Make a free account with
+                  just your email, and I&apos;ll remember everyone you buy for, plus their birthdays.
+                  <div className="mt-2">
+                    <button
+                      className="rounded-full px-3 py-1 text-sm font-semibold text-white hover:opacity-90"
+                      style={{ background: character.theme.accent }}
+                      onClick={openSignUp}
+                    >
+                      Make my free account
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
             {pending.length > 0 && !busy && (
               <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-3 text-sm">
                 <b>Shall I remember this for next time?</b>

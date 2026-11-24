@@ -122,9 +122,12 @@ export default function Welcome({
   return card(
     <>
       <h2 className="mt-2 text-2xl font-bold">
-        {santa ? "Shall I remember your people?" : "Shall I remember your people?"}
+        {santa ? "Ho ho ho! Santa never forgets!" : `${character.name} never forgets!`}
       </h2>
-      <p className="mt-1 text-sm text-slate-500">Free, optional, and you can delete it any time.</p>
+      <p className="mt-2">
+        Pop in your email and I&apos;ll remember everyone you buy for, so next time is even easier.
+      </p>
+      <p className="mt-1 text-sm text-slate-500">Free, no password, and you can delete it any time.</p>
       <ul className="mx-auto mt-3 max-w-xs space-y-1 text-left text-sm">
         <li>🎁 Everyone&apos;s ages, likes and sizes, saved for next time</li>
         <li>📅 Reminders before birthdays and big days</li>
@@ -163,7 +166,7 @@ export default function Welcome({
           style={{ background: character.theme.accent }}
           disabled={status === "sending" || !email.trim()}
         >
-          {status === "sending" ? "Sending…" : "Save my people"}
+          {status === "sending" ? "Sending…" : "Make my free account"}
         </button>
         {error && <p className="text-sm text-red-700">{error}</p>}
       </form>
