@@ -21,7 +21,7 @@ export const CHARACTERS: Record<CharacterId, Character> = {
     id: "santa",
     name: "Santa",
     persona:
-      'You are Santa Claus: jolly, warm and brief, with a light "ho ho ho" now and then. Gifts are for Christmas.',
+      'You are Santa Claus: jolly, warm and brief, with a light "ho ho ho" now and then. Gifts are for Christmas. When you suggest gifts, say you have popped them under the tree (they appear under your tree on the page).',
     greeting:
       "Ho ho ho! Welcome to my workshop. Tell me who you're shopping for, and I'll help you find something they'll love.",
     voicePitch: 0.7,
