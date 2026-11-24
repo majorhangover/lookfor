@@ -11,6 +11,7 @@ create table if not exists public.accounts (
 );
 
 alter table public.accounts enable row level security;
+grant select, insert, update, delete on public.accounts to authenticated;
 
 -- Each signed-in user can only see and change their own row.
 drop policy if exists "own row select" on public.accounts;
