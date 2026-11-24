@@ -280,14 +280,27 @@ export default function LookforApp() {
             )}
             {showSavePrompt && !busy && (
               <div className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm">
-                <b>Want me to remember everyone for next time?</b> Save your people and get reminders before birthdays.
-                It&apos;s free.
+                {account.linkSentTo ? (
+                  <>
+                    <b>Nearly there!</b> Open the sign-in link we sent to {account.linkSentTo} in this browser, and
+                    I&apos;ll save your people.
+                  </>
+                ) : (
+                  <>
+                    <b>Want me to remember everyone for next time?</b> Save your people and get reminders before
+                    birthdays. It&apos;s free.
+                  </>
+                )}
                 <div className="mt-2 flex gap-3">
                   <button
                     className="rounded-full bg-slate-800 px-3 py-1 font-semibold text-white"
-                    onClick={openSignUp}
+                    onClick={() => {
+                      if (account.linkSentTo) account.clearLinkSent();
+                      // Wait for the sign-up form to replace the "check your email" card before focusing it.
+                      setTimeout(openSignUp, 0);
+                    }}
                   >
-                    Save my people
+                    {account.linkSentTo ? "Use a different email" : "Save my people"}
                   </button>
                   <button className="underline" onClick={() => setSavePromptHidden(true)}>
                     No thanks
