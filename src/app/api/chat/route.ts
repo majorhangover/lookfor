@@ -35,7 +35,7 @@ const client = process.env.ANTHROPIC_API_KEY ? new Anthropic() : null;
 const MODEL = process.env.CHAT_MODEL || "claude-haiku-5-5";
 
 export async function POST(request: Request) {
-  if (rateLimited(request)) {
+  if (rateLimited(request, "chat")) {
     return Response.json({ error: "You're going a bit fast! Please wait a few minutes and try again." }, { status: 429 });
   }
   const parsed = RequestSchema.safeParse(await request.json().catch(() => null));

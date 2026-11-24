@@ -17,7 +17,7 @@ const Query = z.object({
  * browser falls back to its built-in speech voice.
  */
 export async function GET(request: Request) {
-  if (rateLimited(request)) return new Response(null, { status: 429 });
+  if (rateLimited(request, "tts")) return new Response(null, { status: 429 });
   const key = process.env.ELEVENLABS_API_KEY?.trim();
   if (!key) return new Response(null, { status: 204 });
 

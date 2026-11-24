@@ -4,11 +4,11 @@
  * hard cap, also set a monthly spend limit in the Anthropic console.
  */
 const WINDOW_MS = 10 * 60 * 1000; // 10 minutes
-const MAX_REQUESTS = 60; // per visitor per window (a chat turn with voice uses 2)
+const MAX_REQUESTS = 40; // per visitor, per route, per window
 const hits = new Map<string, number[]>();
 
-export function rateLimited(request: Request): boolean {
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+export function rateLimited(request: Request, bucket = "default"): boolean {
+  const ip = `${bucket}:${request.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown"}`;
   const now = Date.now();
   const recent = (hits.get(ip) ?? []).filter((t) => now - t < WINDOW_MS);
   recent.push(now);
