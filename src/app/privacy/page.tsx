@@ -20,7 +20,7 @@ export default function Privacy() {
         </p>
         <p>
           If you choose to sign in, we also store your email address and your list in your account, so you can use
-          it on any device. Our database provider is Supabase. You can delete your account and everything in it at
+          it on any device. Our database provider is Supabase, and your account is stored on their servers in London. Only you can see your saved list. You can delete your account and everything in it at
           any time with &quot;Delete my account&quot;.
         </p>
         <p>Please use nicknames, not full names, and do not add addresses, schools or photos.</p>

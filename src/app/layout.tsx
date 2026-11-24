@@ -5,8 +5,8 @@ import "./globals.css";
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Lookfor · gift ideas for every occasion",
-  description: "Chat with a friendly AI character to find gift ideas for every occasion. For adults.",
+  title: "Lookfor · gift ideas for everyone",
+  description: "Chat with a friendly AI character to find gift ideas for everyone you buy for, whatever the occasion. For adults.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
