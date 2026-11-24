@@ -16,13 +16,13 @@ export async function POST(request: Request) {
   if (rateLimited(request)) {
     return Response.json({ error: "You're going a bit fast! Please wait a few minutes and try again." }, { status: 429 });
   }
-  const key = process.env.ELEVENLABS_API_KEY;
+  const key = process.env.ELEVENLABS_API_KEY?.trim();
   if (!key) return new Response(null, { status: 204 });
 
   const parsed = Body.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return Response.json({ error: "Invalid request" }, { status: 400 });
   const voice =
-    process.env[`ELEVENLABS_VOICE_${parsed.data.character.toUpperCase()}`] || process.env.ELEVENLABS_VOICE_ID;
+    (process.env[`ELEVENLABS_VOICE_${parsed.data.character.toUpperCase()}`] || process.env.ELEVENLABS_VOICE_ID)?.trim();
   if (!voice) return new Response(null, { status: 204 });
 
   const upstream = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voice)}`, {
@@ -30,6 +30,9 @@ export async function POST(request: Request) {
     headers: { "xi-api-key": key, "Content-Type": "application/json", Accept: "audio/mpeg" },
     body: JSON.stringify({ text: parsed.data.text, model_id: process.env.ELEVENLABS_MODEL || "eleven_flash_v2_5" }),
   });
-  if (!upstream.ok || !upstream.body) return new Response(null, { status: 204 });
+  if (!upstream.ok || !upstream.body) {
+    console.error("ElevenLabs TTS failed", upstream.status, (await upstream.text()).slice(0, 300));
+    return new Response(null, { status: 204 });
+  }
   return new Response(upstream.body, { headers: { "Content-Type": "audio/mpeg" } });
 }
