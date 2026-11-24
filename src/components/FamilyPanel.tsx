@@ -1,117 +1,194 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { Person } from "@/lib/types";
 import { EMPTY_PERSON as EMPTY } from "@/lib/profile";
-import { formatBirthday, normaliseBirthday } from "@/lib/birthday";
+import { birthYearFrom, displayAge, formatBirthday, normaliseBirthday } from "@/lib/birthday";
 
+type Field = { key: keyof Omit<Person, "id" | "birthYear">; label: string; placeholder: string };
 
-const FIELDS: { key: keyof Omit<Person, "id">; label: string; placeholder: string }[] = [
-  { key: "nickname", label: "Nickname", placeholder: "e.g. Sam (no full names)" },
-  { key: "relationship", label: "Relationship", placeholder: "e.g. son, niece, Dad" },
-  { key: "age", label: "Age", placeholder: "e.g. 7" },
-  { key: "birthday", label: "Birthday", placeholder: "e.g. 24 Nov, or just a month" },
-  { key: "interests", label: "Loves", placeholder: "e.g. dinosaurs, Lego, drawing" },
+/** The few things that make the biggest difference to gift ideas. */
+const QUICK: Field[] = [
+  { key: "nickname", label: "Name", placeholder: "e.g. Sam, Mum, Grandad (first names only)" },
+  { key: "birthday", label: "Date of birth", placeholder: "e.g. 24/11/2015, or just 24 Nov" },
+  { key: "interests", label: "Likes", placeholder: "e.g. dinosaurs, Lego, drawing" },
+  { key: "budget", label: "Budget", placeholder: "e.g. 30" },
+];
+
+const MORE: Field[] = [
+  { key: "relationship", label: "Relationship", placeholder: "e.g. son, niece, best friend" },
+  { key: "age", label: "Age (if you don't know the year of birth)", placeholder: "e.g. 7" },
   { key: "dislikes", label: "Not keen on", placeholder: "e.g. loud toys" },
   { key: "sizes", label: "Sizes", placeholder: "e.g. clothes 7-8, shoes 13" },
   { key: "notes", label: "Notes", placeholder: "e.g. already has a scooter" },
 ];
 
+const blank = (): Person => ({ id: crypto.randomUUID(), ...EMPTY });
+
 export default function FamilyPanel({
   family,
   setFamily,
+  currency = "£",
 }: {
   family: Person[];
   setFamily: (f: Person[]) => void;
+  currency?: string;
 }) {
   const [editing, setEditing] = useState<Person | null>(null);
+  const [showMore, setShowMore] = useState(false);
   const [birthdayError, setBirthdayError] = useState(false);
+  const [justAdded, setJustAdded] = useState<string | null>(null);
+  const nameInput = useRef<HTMLInputElement>(null);
 
-  const save = () => {
-    if (!editing || !editing.nickname.trim()) return;
-    const birthday = normaliseBirthday(editing.birthday);
+  const start = (p: Person | null) => {
+    setEditing(p);
+    setBirthdayError(false);
+    setShowMore(false);
+    setJustAdded(null);
+    if (p) setTimeout(() => nameInput.current?.focus(), 0);
+  };
+
+  const save = (addAnother: boolean) => {
+    if (!editing || !editing.nickname.trim()) {
+      nameInput.current?.focus();
+      return;
+    }
+    const birthday = normaliseBirthday(editing.birthday ?? "");
     if (birthday === null) {
       setBirthdayError(true);
       return;
     }
-    setBirthdayError(false);
-    const person = { ...editing, birthday };
+    let budget = (editing.budget ?? "").trim();
+    if (/^\d/.test(budget)) budget = currency + budget;
+    const person: Person = {
+      ...editing,
+      nickname: editing.nickname.trim(),
+      birthday,
+      birthYear: birthday ? birthYearFrom(editing.birthday) : "",
+      budget,
+    };
     const exists = family.some((p) => p.id === person.id);
     setFamily(exists ? family.map((p) => (p.id === person.id ? person : p)) : [...family, person]);
-    setEditing(null);
+    if (addAnother) {
+      start(blank());
+      setJustAdded(person.nickname);
+    } else {
+      start(null);
+    }
   };
 
+  const input = (f: Field, first = false) => (
+    <label key={f.key} className="block text-sm">
+      <span className="text-slate-600">{f.label}</span>
+      <span className="mt-0.5 flex items-center gap-1">
+        {f.key === "budget" && <span className="text-slate-500">{currency}</span>}
+        <input
+          ref={first ? nameInput : undefined}
+          className="w-full rounded border border-slate-300 px-2 py-1"
+          placeholder={f.placeholder}
+          inputMode={f.key === "budget" ? "decimal" : undefined}
+          value={(f.key === "budget" ? (editing?.budget ?? "").replace(/^[£$]/, "") : editing?.[f.key]) ?? ""}
+          onChange={(e) => editing && setEditing({ ...editing, [f.key]: e.target.value })}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") save(false);
+          }}
+        />
+      </span>
+      {f.key === "birthday" && birthdayError && (
+        <span className="text-xs text-red-700">Try a date like &quot;24/11/2015&quot; or &quot;24 Nov&quot;, or just the month.</span>
+      )}
+    </label>
+  );
+
   return (
-    <section className="rounded-2xl bg-white/90 p-4 shadow-lg text-slate-800">
-      <div className="flex items-center justify-between mb-2">
+    <section className="rounded-2xl bg-white/90 p-4 text-slate-800 shadow-lg">
+      <div className="mb-2 flex items-center justify-between">
         <h2 className="text-lg font-bold">My people</h2>
-        <button
-          className="rounded-full bg-emerald-700 px-3 py-1 text-sm text-white hover:bg-emerald-800"
-          onClick={() => setEditing({ id: crypto.randomUUID(), ...EMPTY })}
-        >
-          + Add person
-        </button>
+        {!editing && (
+          <button
+            className="rounded-full bg-emerald-700 px-3 py-1 text-sm text-white hover:bg-emerald-800"
+            onClick={() => start(blank())}
+          >
+            + Add person
+          </button>
+        )}
       </div>
 
       {family.length === 0 && !editing && (
         <p className="text-sm text-slate-500">
-          Add the people you&apos;re buying for, or just tell me about them in the chat.
+          Add the people you buy for. Just a name, birthday, what they like and a budget is plenty. Or tell me about
+          them in the chat.
         </p>
       )}
 
       <ul className="space-y-2">
-        {family.map((p) => (
-          <li key={p.id} className="flex items-start justify-between rounded-xl bg-slate-50 p-2 text-sm">
-            <div>
-              <b>{p.nickname}</b>
-              {p.relationship && <span className="text-slate-500"> · {p.relationship}</span>}
-              {p.age && <span className="text-slate-500"> · {p.age}</span>}
-              {p.birthday && <span className="text-slate-500"> · 🎂 {formatBirthday(p.birthday)}</span>}
-              {p.interests && <div className="text-slate-600">Loves {p.interests}</div>}
-            </div>
-            <span className="flex gap-2 shrink-0">
-              <button className="text-emerald-700 underline" onClick={() => setEditing({ ...p, birthday: p.birthday ? formatBirthday(p.birthday) : "" })}>
-                Edit
-              </button>
-              <button
-                className="text-red-700 underline"
-                onClick={() => setFamily(family.filter((x) => x.id !== p.id))}
-              >
-                Delete
-              </button>
-            </span>
-          </li>
-        ))}
+        {family.map((p) => {
+          const age = displayAge(p);
+          return (
+            <li key={p.id} className="flex items-start justify-between gap-2 rounded-xl bg-slate-50 p-2 text-sm">
+              <div className="min-w-0">
+                <b>{p.nickname}</b>
+                {p.relationship && <span className="text-slate-500"> · {p.relationship}</span>}
+                {age && <span className="text-slate-500"> · {age}</span>}
+                {p.birthday && <span className="text-slate-500"> · 🎂 {formatBirthday(p.birthday)}</span>}
+                {p.interests && <div className="text-slate-600">Likes {p.interests}</div>}
+                {p.budget && <div className="text-slate-600">Budget {p.budget}</div>}
+              </div>
+              <span className="flex shrink-0 gap-2">
+                <button
+                  className="text-emerald-700 underline"
+                  onClick={() =>
+                    start({
+                      ...EMPTY,
+                      ...p,
+                      birthday: p.birthday
+                        ? `${formatBirthday(p.birthday)}${p.birthYear && p.birthday.includes("-") ? ` ${p.birthYear}` : ""}`
+                        : "",
+                    })
+                  }
+                >
+                  Edit
+                </button>
+                <button className="text-red-700 underline" onClick={() => setFamily(family.filter((x) => x.id !== p.id))}>
+                  Delete
+                </button>
+              </span>
+            </li>
+          );
+        })}
       </ul>
 
       {editing && (
-        <div className="mt-3 space-y-2 rounded-xl border border-slate-200 p-3">
-          {FIELDS.map((f) => (
-            <label key={f.key} className="block text-sm">
-              <span className="text-slate-600">{f.label}</span>
-              <input
-                className="mt-0.5 w-full rounded border border-slate-300 px-2 py-1"
-                placeholder={f.placeholder}
-                value={editing[f.key]}
-                onChange={(e) => setEditing({ ...editing, [f.key]: e.target.value })}
-              />
-              {f.key === "birthday" && birthdayError && (
-                <span className="text-xs text-red-700">Try a date like &quot;24 Nov&quot;, or just the month.</span>
-              )}
-            </label>
-          ))}
-          <div className="flex gap-2">
-            <button className="rounded bg-emerald-700 px-3 py-1 text-white" onClick={save}>
+        <div className="mt-3 space-y-2 rounded-xl border border-emerald-200 bg-emerald-50/40 p-3">
+          {justAdded && <p className="text-sm font-semibold text-emerald-800">✓ {justAdded} saved. Who&apos;s next?</p>}
+          {QUICK.map((f, i) => input(f, i === 0))}
+          {showMore ? (
+            MORE.map((f) => input(f))
+          ) : (
+            <button className="text-sm text-emerald-800 underline" onClick={() => setShowMore(true)}>
+              + More details (optional)
+            </button>
+          )}
+          <div className="flex flex-wrap gap-2 pt-1">
+            <button className="rounded-full bg-emerald-700 px-3 py-1 font-semibold text-white" onClick={() => save(false)}>
               Save
             </button>
-            <button className="rounded bg-slate-200 px-3 py-1" onClick={() => setEditing(null)}>
-              Cancel
+            {!family.some((p) => p.id === editing.id) && (
+              <button
+                className="rounded-full border border-emerald-700 px-3 py-1 font-semibold text-emerald-800"
+                onClick={() => save(true)}
+              >
+                Save &amp; add another
+              </button>
+            )}
+            <button className="rounded-full bg-slate-200 px-3 py-1" onClick={() => start(null)}>
+              {justAdded ? "Done" : "Cancel"}
             </button>
           </div>
         </div>
       )}
 
-      {family.length > 0 && (
+      {family.length > 0 && !editing && (
         <button
           className="mt-3 text-xs text-slate-500 underline"
           onClick={() => {

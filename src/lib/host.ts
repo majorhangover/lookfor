@@ -1,4 +1,4 @@
-import { formatBirthday } from "./birthday";
+import { displayAge, formatBirthday } from "./birthday";
 import { z } from "zod";
 import { CHARACTERS, getOccasion } from "./occasions";
 import type { Person, Region } from "./types";
@@ -22,8 +22,8 @@ export const HostSchema = z.object({
     .array(
       z.object({
         personNickname: z.string(),
-        field: z.enum(["age", "birthday", "interests", "dislikes", "sizes", "notes", "relationship"]),
-        value: z.string().describe("The new fact, short. For interests, just the new interest. For birthday, the day and month as MM-DD (e.g. 11-24), or just MM if only the month is known. Work out real dates for words like 'today' or 'next Friday' using today's date."),
+        field: z.enum(["age", "birthday", "interests", "dislikes", "sizes", "notes", "relationship", "budget"]),
+        value: z.string().describe("The new fact, short. For interests, just the new interest. For birthday, the day and month as MM-DD (e.g. 11-24), or just MM if only the month is known; if the user gave the year of birth too, use YYYY-MM-DD. For budget, a short amount like '£30' or '£20-40'. Work out real dates for words like 'today' or 'next Friday' using today's date."),
         isNewPerson: z.boolean(),
       }),
     )
@@ -59,11 +59,12 @@ export function familyContext(family: Person[], now = new Date()): string {
     [
       `- ${p.nickname}`,
       p.relationship && `(${p.relationship})`,
-      p.age && `age ${p.age}`,
+      displayAge(p) && `age ${displayAge(p)}`,
       p.birthday && `birthday ${formatBirthday(p.birthday)}`,
       p.interests && `likes: ${p.interests}`,
       p.dislikes && `dislikes: ${p.dislikes}`,
       p.sizes && `sizes: ${p.sizes}`,
+      p.budget && `budget: ${p.budget}`,
       p.notes && `notes: ${p.notes}`,
     ]
       .filter(Boolean)

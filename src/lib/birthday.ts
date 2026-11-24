@@ -59,3 +59,28 @@ export function nextBirthday(stored: string, now = new Date()): { daysAway: numb
   if (next < today) next = new Date(now.getFullYear() + 1, month - 1, day);
   return { daysAway: Math.round((next.getTime() - today.getTime()) / 86400000), monthsAway };
 }
+
+/** The year from a typed date of birth such as "24/11/2015" or "24 Nov 2015", or "" if none. */
+export function birthYearFrom(input: string, now = new Date()): string {
+  const m = /\b(19\d{2}|20\d{2})\b/.exec(input);
+  if (!m) return "";
+  return +m[1] <= now.getFullYear() ? m[1] : "";
+}
+
+/** Age today from a year of birth and a stored "MM-DD" birthday (month-only counts as the 1st). */
+export function ageFrom(birthYear: string | undefined, stored: string, now = new Date()): number | null {
+  if (!birthYear) return null;
+  const v = normaliseBirthday(stored, now, false);
+  let age = now.getFullYear() - +birthYear;
+  if (v) {
+    const [month, day] = v.split("-").map(Number);
+    if (now.getMonth() + 1 < month || (now.getMonth() + 1 === month && now.getDate() < (day || 1))) age -= 1;
+  }
+  return age >= 0 && age < 130 ? age : null;
+}
+
+/** The age to show: worked out from the date of birth when we have the year, otherwise as typed. */
+export function displayAge(p: { age: string; birthday: string; birthYear?: string }, now = new Date()): string {
+  const a = ageFrom(p.birthYear, p.birthday, now);
+  return a === null ? p.age : String(a);
+}
