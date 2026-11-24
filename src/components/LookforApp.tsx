@@ -398,7 +398,7 @@ export default function LookforApp() {
         <Logo />
       </header>
       {/* Phones: one column. Wide screens: occasions across the top, the ask box across the page under them, then three columns (people, chat, gifts), each with its picture above it, all in one row. */}
-      <main className="mx-auto grid max-w-7xl grid-cols-1 gap-x-5 gap-y-3 p-4 [grid-template-areas:'nav'_'stage'_'name'_'chat'_'ask'_'treeicon'_'gifts'_'peopleicon'_'people'] lg:grid-cols-3 lg:grid-rows-[auto_auto_auto_auto_1fr] lg:[grid-template-areas:'nav_nav_people'_'ask_ask_people'_'stage_treeicon_treeicon'_'name_gifts_gifts'_'chat_gifts_gifts']">
+      <main className="mx-auto grid max-w-7xl grid-cols-1 gap-x-5 gap-y-3 p-4 [grid-template-areas:'nav'_'stage'_'name'_'chat'_'ask'_'treeicon'_'gifts'_'peopleicon'_'people'] lg:grid-cols-3 lg:grid-rows-[auto_auto_auto_auto_auto_1fr] lg:[grid-template-areas:'nav_nav_nav'_'ask_ask_ask'_'stage_chat_chat'_'name_chat_chat'_'people_treeicon_treeicon'_'people_gifts_gifts']">
           <nav className="flex flex-wrap content-start justify-center gap-2 [grid-area:nav] lg:self-start" aria-label="Occasion">
             {OCCASIONS.map((o) => (
               <button
@@ -414,7 +414,7 @@ export default function LookforApp() {
           </nav>
 
           <div
-            className={`rounded-3xl border-2 border-amber-300/70 bg-white/10 p-3 shadow-[0_0_40px_rgba(252,211,77,0.25)] backdrop-blur-sm [grid-area:ask] sm:p-4 lg:mt-2 lg:flex lg:min-h-[17rem] lg:flex-col lg:justify-center ${
+            className={`rounded-3xl border-2 border-amber-300/70 bg-white/10 p-3 shadow-[0_0_40px_rgba(252,211,77,0.25)] backdrop-blur-sm [grid-area:ask] sm:p-4 lg:mt-2 ${
               !chatted ? "ask-glow" : yourTurn ? "ask-nudge" : ""
             }`}
           >
@@ -469,7 +469,7 @@ export default function LookforApp() {
 
           {/* The three pictures share one row on wide screens, all the same height. */}
           <div className="flex justify-center self-end [grid-area:stage]">
-            <div className="h-52 w-52 md:h-56 md:w-56">
+            <div className="h-52 w-52 md:h-56 md:w-56 lg:h-64 lg:w-64">
               <Character
                 id={character.id}
                 mouth={voice.mouth}
@@ -513,9 +513,9 @@ export default function LookforApp() {
               {voiceOn ? "🔊 Voice on" : "🔇 Hear my voice"}
             </button>
           </div>
-          <div className="flex min-w-0 flex-col gap-3 [grid-area:chat]">
+          <div className="flex min-w-0 flex-col gap-3 [grid-area:chat] lg:h-0 lg:min-h-full">
 
-          <div ref={chatBox} className={`min-h-0 flex-1 space-y-3 overflow-y-auto rounded-2xl bg-white/90 p-4 text-slate-800 shadow-lg max-h-[45vh]`}>
+          <div ref={chatBox} className={`min-h-0 flex-1 space-y-3 overflow-y-auto rounded-2xl bg-white/90 p-4 text-slate-800 shadow-lg max-h-[45vh] lg:max-h-none`}>
             {turns.map((t, i) => (
               <div key={i} className={t.role === "user" ? "text-right" : ""}>
                 <div
@@ -536,8 +536,7 @@ export default function LookforApp() {
                       onClick={flashGifts}
                     >
                       {tree ? `🎁 I've popped ${t.gifts.length} under the tree ` : `🎁 ${t.gifts.length} gift ideas `}
-                      <span className="lg:hidden">↓</span>
-                      <span className="hidden lg:inline">→</span>
+                      <span>↓</span>
                     </button>
                   </div>
                 )}
@@ -721,7 +720,7 @@ export default function LookforApp() {
           </div>
 
         {/* Wide screens: the people box fills the space beside the occasions and chat bar, and scrolls inside. */}
-        <aside className="flex flex-col gap-4 self-start [grid-area:people] lg:h-0 lg:min-h-full lg:self-stretch lg:overflow-y-auto lg:rounded-2xl">
+        <aside className="flex flex-col gap-4 self-start [grid-area:people] lg:h-0 lg:max-h-[40rem] lg:min-h-full lg:self-stretch lg:overflow-y-auto lg:rounded-2xl">
           {birthdays.length > 0 && (
             <section className="rounded-2xl bg-white/90 p-4 text-sm text-slate-800 shadow-lg lg:hidden">
               <h2 className="mb-1 font-bold">Coming up</h2>
