@@ -106,6 +106,7 @@ export default function FamilyPanel({
         <h2 className="text-lg font-bold">My people</h2>
         {!editing && (
           <button
+            id="add-person"
             className="rounded-full bg-emerald-700 px-3 py-1 text-sm text-white hover:bg-emerald-800"
             onClick={() => start(blank())}
           >
