@@ -603,6 +603,28 @@ export default function LookforApp() {
                   ? "Tell Santa who you\u2019re shopping for, and he\u2019ll pop the ideas under the tree."
                   : `Tell ${character.name} who you\u2019re shopping for in the chat.`}
               </p>
+              <div className="mt-4 flex flex-wrap justify-center gap-2">
+                <button
+                  className="rounded-full bg-gradient-to-b from-amber-300 to-amber-500 px-4 py-2 text-sm font-bold text-slate-900 shadow-lg ring-2 ring-white/70 transition hover:scale-105"
+                  onClick={() => {
+                    const ask = document.getElementById("ask");
+                    ask?.scrollIntoView({ behavior: "smooth", block: "center" });
+                    ask?.focus({ preventScroll: true });
+                  }}
+                >
+                  Talk to {firstName} now
+                </button>
+                <button
+                  className="rounded-full bg-white/90 px-4 py-2 text-sm font-bold text-emerald-800 shadow-lg transition hover:scale-105"
+                  onClick={() => {
+                    const add = document.getElementById("add-person");
+                    add?.scrollIntoView({ behavior: "smooth", block: "center" });
+                    add?.click();
+                  }}
+                >
+                  + Add a person
+                </button>
+              </div>
             </section>
           )}
           {giftSets.length > 0 && (
