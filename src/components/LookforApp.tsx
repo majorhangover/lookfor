@@ -164,11 +164,22 @@ export default function LookforApp() {
     setTimeout(showGifts, 150);
   }, [giftSets.length]);
 
-  const send = async (text: string) => {
+  /** Sends a chat message. `startOccasion` switches host first, with a fresh conversation. */
+  const send = async (text: string, startOccasion?: string) => {
     const content = text.trim();
     if (!content || busy) return;
     setSavedNote(null);
-    const next: Turn[] = [...turns, { role: "user", content }];
+    const occasionKey = startOccasion ?? occasionId;
+    const speaker = getOccasion(occasionKey).character;
+    const base: Turn[] = startOccasion
+      ? [{ role: "assistant", content: CHARACTERS[getOccasion(startOccasion).character].greeting }]
+      : turns;
+    if (startOccasion) {
+      voice.stop();
+      setOccasionId(startOccasion);
+      setWaveKey((k) => k + 1);
+    }
+    const next: Turn[] = [...base, { role: "user", content }];
     setTurns(next);
     setInput("");
     setBusy(true);
@@ -178,7 +189,7 @@ export default function LookforApp() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           region,
-          occasion: occasionId,
+          occasion: occasionKey,
           family,
           // Skip the canned greeting: the conversation must start with the user.
           messages: next.slice(1).slice(-30).map(({ role, content }) => ({ role, content })),
@@ -206,7 +217,7 @@ export default function LookforApp() {
           if (msg.reply !== undefined && !spoken) {
             spoken = true;
             setTurns([...next, { role: "assistant", content: msg.reply }]);
-            if (voiceOn) voice.speak(msg.reply);
+            if (voiceOn) voice.speak(msg.reply, speaker);
           }
           if (msg.result) data = msg.result;
         }
@@ -214,7 +225,7 @@ export default function LookforApp() {
       }
       if (!data) throw new Error("Something went wrong");
       setTurns([...next, { role: "assistant", content: data.reply, gifts: data.gifts }]);
-      if (!spoken && voiceOn) voice.speak(data.reply);
+      if (!spoken && voiceOn) voice.speak(data.reply, speaker);
       if (data.gifts?.length) {
         setWaveKey((k) => k + 1);
         // Jingle and celebrate, to draw the eye to the new ideas.
@@ -222,7 +233,7 @@ export default function LookforApp() {
         setCelebrate((c) => c + 1);
       }
       if (data.profileUpdates?.length) setPending((p) => [...p, ...data!.profileUpdates]);
-      if (data.gifts?.length) account.logGifts("shown", data.gifts, occasionId);
+      if (data.gifts?.length) account.logGifts("shown", data.gifts, occasionKey);
     } catch (e) {
       setTurns([
         ...next,
@@ -709,7 +720,13 @@ export default function LookforApp() {
                     <span>
                       {b.nickname}&apos;s birthday · {b.when}
                     </span>
-                    <button className="underline" onClick={() => changeOccasion("birthday")}>
+                    <button
+                      className="underline"
+                      onClick={() => {
+                        send(`Gift ideas for ${b.nickname}'s birthday, please`, "birthday");
+                        document.getElementById("ask")?.scrollIntoView({ behavior: "smooth", block: "center" });
+                      }}
+                    >
                       Find gifts
                     </button>
                   </li>
