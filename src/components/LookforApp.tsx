@@ -151,6 +151,7 @@ export default function LookforApp() {
             <div className="text-sm">
               <button
                 aria-expanded={menuOpen}
+                title={account.email ? `Signed in as ${account.email}` : undefined}
                 className={`rounded-full px-3 py-1 font-semibold shadow ${
                   account.enabled && !account.email
                     ? "bg-amber-400 text-slate-900 hover:bg-amber-300"
@@ -158,7 +159,16 @@ export default function LookforApp() {
                 }`}
                 onClick={() => setMenuOpen(!menuOpen)}
               >
-                {!account.enabled ? "⚙️ Settings" : account.email ? "👤 My account" : "✨ Free account"}
+                {!account.enabled ? (
+                  "⚙️ Settings"
+                ) : account.email ? (
+                  <span className="flex items-center gap-1.5">
+                    <span className="h-2 w-2 rounded-full bg-emerald-400" aria-hidden />
+                    <span className="max-w-[12rem] truncate">{account.email}</span>
+                  </span>
+                ) : (
+                  "✨ Free account"
+                )}
               </button>
               {menuOpen && (
                 <>
