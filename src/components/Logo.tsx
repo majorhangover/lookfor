@@ -25,6 +25,27 @@ const FACES: { id: FaceId; x: number; y: number; size: number; tilt: number; wid
   { id: "friend", x: 95, y: 34, size: 36, tilt: 12, wide: true },
 ];
 
+/** An "o" with a pupil in it, so the "oo" in Lookfor looks out at you. */
+function Eye() {
+  return (
+    <span className="relative inline-block">
+      o
+      <span
+        aria-hidden
+        className="absolute left-1/2 top-[60%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white"
+        style={{ width: "0.27em", height: "0.27em" }}
+      />
+      <span
+        aria-hidden
+        className="logo-pupil absolute left-1/2 top-[60%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-slate-900"
+        style={{ width: "0.13em", height: "0.13em" }}
+      >
+        <span className="absolute right-[18%] top-[18%] h-[30%] w-[30%] rounded-full bg-white" />
+      </span>
+    </span>
+  );
+}
+
 export default function Logo() {
   return (
     <div className="relative mx-auto h-36 w-full max-w-5xl select-none sm:h-44">
@@ -48,7 +69,8 @@ export default function Logo() {
         <h1
           className={`${outfit.className} text-6xl leading-none tracking-tight drop-shadow-[0_3px_10px_rgba(0,0,0,0.35)] sm:text-7xl md:text-8xl`}
         >
-          Lookfor
+          L<Eye />
+          <Eye />kfor
         </h1>
         <p className="mt-1 text-base font-medium opacity-90 sm:text-lg">gift ideas for everyone</p>
       </div>

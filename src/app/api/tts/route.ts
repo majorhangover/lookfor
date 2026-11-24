@@ -1,9 +1,10 @@
 import { z } from "zod";
 import { rateLimited } from "@/lib/rateLimit";
+import { CHARACTER_IDS, type CharacterId } from "@/lib/occasions";
 
 const Query = z.object({
   text: z.string().min(1).max(800),
-  character: z.enum(["santa", "bear", "bunny", "cupid", "lou"]).default("lou"),
+  character: z.enum(CHARACTER_IDS as [CharacterId, ...CharacterId[]]).default("lou"),
 });
 
 /**
