@@ -3,7 +3,7 @@
 import type { Session } from "@supabase/supabase-js";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import type { Person, Region } from "@/lib/types";
+import type { GiftIdea, Person, Region } from "@/lib/types";
 
 const PENDING_OPT_IN = "lookfor.pendingOptIn";
 
@@ -25,6 +25,7 @@ export function useAccount(family: Person[], setFamily: (f: Person[]) => void, r
   // The user id whose saved list has been loaded and merged.
   const [syncedFor, setSyncedFor] = useState<string | null>(null);
   const synced = Boolean(session && syncedFor === session.user.id);
+  const [saveError, setSaveError] = useState(false);
   const familyRef = useRef(family);
   useEffect(() => {
     familyRef.current = family;
@@ -50,11 +51,16 @@ export function useAccount(family: Person[], setFamily: (f: Person[]) => void, r
         .select("people, marketing_opt_in")
         .eq("user_id", session.user.id)
         .maybeSingle();
-      if (cancelled || error) return;
+      if (cancelled) return;
+      if (error) {
+        console.error("Loading saved list failed", error);
+        setSaveError(true);
+        return;
+      }
       const merged = mergePeople((data?.people as Person[]) ?? [], familyRef.current);
       const pending = localStorage.getItem(PENDING_OPT_IN) === "true";
       const marketing = Boolean(data?.marketing_opt_in) || pending;
-      await supabase!.from("accounts").upsert({
+      const { error: saveErr } = await supabase!.from("accounts").upsert({
         user_id: session.user.id,
         people: merged,
         region,
@@ -62,8 +68,14 @@ export function useAccount(family: Person[], setFamily: (f: Person[]) => void, r
         ...(pending && !data?.marketing_opt_in ? { marketing_opt_in_at: new Date().toISOString() } : {}),
         updated_at: new Date().toISOString(),
       });
-      localStorage.removeItem(PENDING_OPT_IN);
       if (cancelled) return;
+      if (saveErr) {
+        console.error("Saving list failed", saveErr);
+        setSaveError(true);
+        return;
+      }
+      localStorage.removeItem(PENDING_OPT_IN);
+      setSaveError(false);
       setFamily(merged);
       setOptIn(marketing);
       setSyncedFor(session.user.id);
@@ -82,7 +94,10 @@ export function useAccount(family: Person[], setFamily: (f: Person[]) => void, r
         .from("accounts")
         .update({ people: family, region, updated_at: new Date().toISOString() })
         .eq("user_id", session.user.id)
-        .then();
+        .then(({ error }) => {
+          if (error) console.error("Saving list failed", error);
+          setSaveError(Boolean(error));
+        });
     }, 800);
     return () => clearTimeout(t);
   }, [family, region, session, synced]);
@@ -113,6 +128,31 @@ export function useAccount(family: Person[], setFamily: (f: Person[]) => void, r
     [session],
   );
 
+  /** Record gift ideas shown or clicked, for signed-in users only, to improve suggestions. */
+  const logGifts = useCallback(
+    (kind: "shown" | "clicked", gifts: GiftIdea[], occasion: string) => {
+      if (!supabase || !session) return;
+      supabase
+        .from("gift_events")
+        .insert(
+          gifts.map((g) => ({
+            user_id: session.user.id,
+            kind,
+            occasion,
+            region,
+            for_person: g.forPerson.slice(0, 100),
+            title: g.title.slice(0, 200),
+            search_query: g.searchQuery.slice(0, 200),
+            price_band: g.priceBand.slice(0, 50),
+          })),
+        )
+        .then(({ error }) => {
+          if (error) console.error("Recording gift ideas failed", error);
+        });
+    },
+    [session, region],
+  );
+
   const signOut = useCallback(async () => {
     await supabase?.auth.signOut();
   }, []);
@@ -129,7 +169,9 @@ export function useAccount(family: Person[], setFamily: (f: Person[]) => void, r
     ready,
     email: session?.user.email ?? null,
     synced,
+    saveError,
     optIn,
+    logGifts,
     sendLink,
     updateOptIn,
     signOut,
