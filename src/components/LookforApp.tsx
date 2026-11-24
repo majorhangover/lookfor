@@ -6,6 +6,7 @@ import Welcome from "./Welcome";
 import FamilyPanel from "./FamilyPanel";
 import { useAccount } from "./useAccount";
 import Character from "./Character";
+import Logo from "./Logo";
 import { useLocalState } from "./useLocalState";
 import { useHostVoice } from "./useHostVoice";
 import { applyProfileUpdate } from "@/lib/profile";
@@ -183,77 +184,77 @@ export default function LookforApp() {
 
   return (
     <div className="min-h-screen transition-colors" style={bg}>
+      <header className="relative mx-auto flex max-w-6xl justify-end gap-2 px-4 pt-3 text-white">
+        <div className="flex items-center gap-2 text-sm">
+          <a
+            href="/about"
+            target="_blank"
+            rel="noopener"
+            className="rounded-full bg-white/20 px-3 py-1 font-semibold text-white shadow hover:bg-white/30"
+          >
+            How it works
+          </a>
+          <button
+            aria-expanded={menuOpen}
+            title={account.email ? `Signed in as ${account.email}` : undefined}
+            className={`rounded-full px-3 py-1 font-semibold shadow ${
+              account.enabled && !account.email
+                ? "bg-amber-400 text-slate-900 hover:bg-amber-300"
+                : "bg-white/20 text-white hover:bg-white/30"
+            }`}
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            {!account.enabled ? (
+              "⚙️ Settings"
+            ) : account.email ? (
+              <span className="flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-emerald-400" aria-hidden />
+                <span className="max-w-[12rem] truncate">{account.email}</span>
+              </span>
+            ) : (
+              "✨ Free account"
+            )}
+          </button>
+          {menuOpen && (
+            <>
+              <button
+                aria-label="Close"
+                className="fixed inset-0 z-10 cursor-default"
+                onClick={() => setMenuOpen(false)}
+              />
+              <div className="absolute right-4 top-full z-20 mt-2 w-[min(22rem,calc(100vw-2rem))] space-y-3 rounded-2xl bg-white p-3 text-slate-800 shadow-2xl">
+                <AccountPanel account={account} />
+                <section className="rounded-2xl bg-slate-50 p-4">
+                  <h2 className="mb-2 font-bold">Settings</h2>
+                  <label className="flex items-center justify-between gap-2 py-1">
+                    <span>Shop</span>
+                    <select
+                      className="rounded border border-slate-300 bg-white px-1 py-0.5"
+                      value={region}
+                      onChange={(e) => setRegion(e.target.value as Region)}
+                    >
+                      <option value="UK">Amazon UK</option>
+                      <option value="US">Amazon US</option>
+                    </select>
+                  </label>
+                  <label className="flex items-center justify-between gap-2 py-1">
+                    <span>{character.name}&apos;s voice</span>
+                    <input type="checkbox" className="h-4 w-4" checked={voiceOn} onChange={toggleVoice} />
+                  </label>
+                  <button className="mt-2 text-xs underline" onClick={() => setMenuOpen(false)}>
+                    Close
+                  </button>
+                </section>
+              </div>
+            </>
+          )}
+        </div>
+      </header>
+      <div className="px-4">
+        <Logo />
+      </div>
       <main className="mx-auto grid max-w-6xl grid-cols-1 gap-4 p-4 md:grid-cols-[minmax(0,1fr)_320px]">
         <div className="flex min-w-0 flex-col gap-3">
-          <header className="relative flex flex-wrap items-center justify-between gap-2 text-white">
-            <h1 className="text-2xl font-bold">
-              Lookfor <span className="text-base font-normal opacity-80">· gift ideas for everyone</span>
-            </h1>
-            <div className="flex items-center gap-2 text-sm">
-              <a
-                href="/about"
-                target="_blank"
-                rel="noopener"
-                className="rounded-full bg-white/20 px-3 py-1 font-semibold text-white shadow hover:bg-white/30"
-              >
-                How it works
-              </a>
-              <button
-                aria-expanded={menuOpen}
-                title={account.email ? `Signed in as ${account.email}` : undefined}
-                className={`rounded-full px-3 py-1 font-semibold shadow ${
-                  account.enabled && !account.email
-                    ? "bg-amber-400 text-slate-900 hover:bg-amber-300"
-                    : "bg-white/20 text-white hover:bg-white/30"
-                }`}
-                onClick={() => setMenuOpen(!menuOpen)}
-              >
-                {!account.enabled ? (
-                  "⚙️ Settings"
-                ) : account.email ? (
-                  <span className="flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-emerald-400" aria-hidden />
-                    <span className="max-w-[12rem] truncate">{account.email}</span>
-                  </span>
-                ) : (
-                  "✨ Free account"
-                )}
-              </button>
-              {menuOpen && (
-                <>
-                  <button
-                    aria-label="Close"
-                    className="fixed inset-0 z-10 cursor-default"
-                    onClick={() => setMenuOpen(false)}
-                  />
-                  <div className="absolute right-0 top-full z-20 mt-2 w-[min(22rem,calc(100vw-2rem))] space-y-3 rounded-2xl bg-white p-3 text-slate-800 shadow-2xl">
-                    <AccountPanel account={account} />
-                    <section className="rounded-2xl bg-slate-50 p-4">
-                      <h2 className="mb-2 font-bold">Settings</h2>
-                      <label className="flex items-center justify-between gap-2 py-1">
-                        <span>Shop</span>
-                        <select
-                          className="rounded border border-slate-300 bg-white px-1 py-0.5"
-                          value={region}
-                          onChange={(e) => setRegion(e.target.value as Region)}
-                        >
-                          <option value="UK">Amazon UK</option>
-                          <option value="US">Amazon US</option>
-                        </select>
-                      </label>
-                      <label className="flex items-center justify-between gap-2 py-1">
-                        <span>{character.name}&apos;s voice</span>
-                        <input type="checkbox" className="h-4 w-4" checked={voiceOn} onChange={toggleVoice} />
-                      </label>
-                      <button className="mt-2 text-xs underline" onClick={() => setMenuOpen(false)}>
-                        Close
-                      </button>
-                    </section>
-                  </div>
-                </>
-              )}
-            </div>
-          </header>
 
           <nav className="flex flex-wrap gap-2" aria-label="Occasion">
             {OCCASIONS.map((o) => (
