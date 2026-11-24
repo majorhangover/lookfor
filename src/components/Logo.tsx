@@ -74,7 +74,7 @@ export default function Logo() {
             L<Eye />
             <Eye />kfor
           </h1>
-          <p className="mt-[0.12em] w-0 min-w-full whitespace-nowrap px-[0.2em] font-sans text-[0.235em] font-bold uppercase tracking-[0.04em] opacity-90 [text-align-last:justify] [text-align:justify]">
+          <p className="mt-[0.12em] w-0 min-w-full whitespace-nowrap px-[0.15em] font-sans text-[0.3em] font-semibold tracking-[0.01em] opacity-90 [text-align-last:justify] [text-align:justify]">
             gift ideas for everyone
           </p>
         </div>
