@@ -270,10 +270,9 @@ export default function LookforApp() {
       <div className="px-4">
         <Logo />
       </div>
-      <main className="mx-auto grid max-w-6xl grid-cols-1 gap-4 p-4 md:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="flex min-w-0 flex-col gap-3">
-
-          <nav className="flex flex-wrap gap-2" aria-label="Occasion">
+      {/* Phones: one column. Wide screens: people on the left, the character and gifts in the middle, chat on the right. */}
+      <main className="mx-auto grid max-w-7xl grid-cols-1 gap-x-5 gap-y-3 p-4 [grid-template-areas:'nav'_'stage'_'chat'_'gifts'_'people'] lg:grid-cols-[280px_minmax(0,1fr)_380px] lg:grid-rows-[auto_auto_1fr] lg:[grid-template-areas:'people_nav_chat'_'people_stage_chat'_'people_gifts_chat']">
+          <nav className="flex flex-wrap gap-2 [grid-area:nav]" aria-label="Occasion">
             {OCCASIONS.map((o) => (
               <button
                 key={o.id}
@@ -287,9 +286,16 @@ export default function LookforApp() {
             ))}
           </nav>
 
-          <div className={tree ? "relative flex flex-col gap-3 pb-16" : "contents"}>
-          {tree && <ChristmasTree />}
-          <div className="relative z-10 mx-auto h-52 w-52 md:h-60 md:w-60">
+          {tree && (
+            <div
+              aria-hidden
+              className="pointer-events-none relative [grid-column:stage] [grid-row:stage-start/chat-end] lg:[grid-area:stage]"
+            >
+              <ChristmasTree />
+            </div>
+          )}
+          <div className={`relative z-10 flex flex-col items-center [grid-area:stage] ${tree ? "lg:pb-24" : ""}`}>
+          <div className="mx-auto h-52 w-52 md:h-60 md:w-60">
             <Character
               id={character.id}
               mouth={voice.mouth}
@@ -299,7 +305,7 @@ export default function LookforApp() {
               waveKey={waveKey}
             />
           </div>
-          <div className="relative z-10 -mt-2 flex items-center justify-center gap-2 text-sm text-white/90">
+          <div className="-mt-2 flex items-center justify-center gap-2 text-sm text-white/90">
             <span className="font-medium">{character.name}</span>
             <button
               className="rounded-full bg-white/20 px-2 py-0.5 text-xs hover:bg-white/30"
@@ -309,8 +315,13 @@ export default function LookforApp() {
               {voiceOn ? "🔊 Voice on" : "🔇 Hear my voice"}
             </button>
           </div>
+          </div>
 
-          <div ref={chatBox} className={`relative z-10 flex-1 space-y-3 overflow-y-auto rounded-2xl bg-white/90 p-4 text-slate-800 shadow-lg max-h-[45vh] ${tree ? "mx-auto w-full max-w-xl" : ""}`}>
+          <div
+            className={`relative z-10 flex min-w-0 flex-col gap-3 [grid-area:chat] lg:sticky lg:top-4 lg:h-[calc(100vh-2rem)] lg:self-start ${tree ? "pb-16 lg:pb-0" : ""}`}
+          >
+
+          <div ref={chatBox} className={`min-h-0 flex-1 space-y-3 overflow-y-auto rounded-2xl bg-white/90 p-4 text-slate-800 shadow-lg max-h-[45vh] lg:max-h-none ${tree ? "mx-auto w-full max-w-xl lg:max-w-none" : ""}`}>
             {turns.map((t, i) => (
               <div key={i} className={t.role === "user" ? "text-right" : ""}>
                 <div
@@ -430,7 +441,7 @@ export default function LookforApp() {
           </div>
 
           <form
-            className={`relative z-10 flex gap-2 ${tree ? "mx-auto w-full max-w-xl" : ""}`}
+            className={`flex gap-2 ${tree ? "mx-auto w-full max-w-xl lg:max-w-none" : ""}`}
             onSubmit={(e) => {
               e.preventDefault();
               send(input);
@@ -463,10 +474,19 @@ export default function LookforApp() {
           </form>
           </div>
 
+          {giftSets.length === 0 && (
+            <section className="hidden self-start rounded-2xl border-2 border-dashed border-white/40 p-6 text-center text-white/90 [grid-area:gifts] lg:block">
+              <div className="text-3xl">{tree ? "🎄" : "🎁"}</div>
+              <p className="mt-1 font-semibold">
+                {tree ? "Presents will appear here, under the tree." : "Gift ideas will appear here."}
+              </p>
+              <p className="text-sm opacity-80">Tell {character.id === "santa" ? "Santa" : character.name} who you&apos;re shopping for in the chat.</p>
+            </section>
+          )}
           {giftSets.length > 0 && (
             <section
               ref={giftsRef}
-              className={`scroll-mt-4 rounded-2xl p-4 text-slate-800 shadow-lg ${tree ? "-mt-3 bg-white/95 ring-4 ring-red-700/70" : "bg-white/90"}`}
+              className={`scroll-mt-4 self-start rounded-2xl p-4 text-slate-800 shadow-lg [grid-area:gifts] ${tree ? "-mt-3 bg-white/95 ring-4 ring-red-700/70" : "bg-white/90"}`}
             >
               <h2 className="mb-2 text-lg font-bold">{tree ? "🎄 Under the tree" : "🎁 Gift ideas"}</h2>
               <div className="grid gap-2 sm:grid-cols-2">{latestGifts.map(giftCard)}</div>
@@ -482,9 +502,8 @@ export default function LookforApp() {
               )}
             </section>
           )}
-        </div>
 
-        <aside className="flex flex-col gap-4">
+        <aside className="flex flex-col gap-4 self-start [grid-area:people]">
           {birthdays.length > 0 && (
             <section className="rounded-2xl bg-white/90 p-4 text-sm text-slate-800 shadow-lg">
               <h2 className="mb-1 font-bold">Coming up</h2>
