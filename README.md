@@ -18,7 +18,8 @@ npm run dev                  # http://localhost:3000
 - `src/app/api/tts/route.ts` gives each character an ElevenLabs voice if configured. Otherwise the browser's own voice is used.
 - `src/components/Character.tsx` draws the five original cartoon hosts in SVG. The mouth follows the speech audio.
 - `src/lib/occasions.ts` holds the occasions, characters, personas and colour themes. Add a new occasion or character there.
-- Family details are stored only in the visitor's browser (localStorage). Nothing is kept on the server, and no audio is recorded.
+- Family details are stored in the visitor's browser (localStorage). No audio is recorded.
+- Optional accounts (`src/components/useAccount.ts`): visitors sign in with an emailed link via Supabase, and their list is saved to the `accounts` table and synced across devices. Marketing emails need a separate opt-in (`marketing_opt_in`). Run `supabase/setup.sql` once in the Supabase SQL editor to create the table and its security rules.
 
 ## Before launch
 

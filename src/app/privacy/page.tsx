@@ -14,11 +14,22 @@ export default function Privacy() {
 
         <h2 className="font-semibold">What we keep, and where</h2>
         <p>
-          The people you add to your list (nickname, relationship, age, interests, sizes and notes) are stored
-          in your browser on this device. We do not keep them on our servers. You can edit or delete them at any
-          time, and &quot;Delete all my data&quot; removes them.
+          The people you add to your list (nickname, relationship, age, birthday month, interests, sizes and notes)
+          are stored in your browser on this device. You can edit or delete them at any time, and &quot;Delete all
+          my data&quot; removes them.
+        </p>
+        <p>
+          If you choose to sign in, we also store your email address and your list in your account, so you can use
+          it on any device. Our database provider is Supabase. You can delete your account and everything in it at
+          any time with &quot;Delete my account&quot;.
         </p>
         <p>Please use nicknames, not full names, and do not add addresses, schools or photos.</p>
+
+        <h2 className="font-semibold">Emails</h2>
+        <p>
+          We only send sign-in links when you ask for one. We send birthday reminders and gift ideas only if you tick
+          the box to receive them, and you can untick it at any time in your account.
+        </p>
 
         <h2 className="font-semibold">What is sent to our providers</h2>
         <p>

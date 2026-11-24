@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import AccountPanel from "./AccountPanel";
 import FamilyPanel from "./FamilyPanel";
+import { useAccount } from "./useAccount";
 import Character from "./Character";
 import { useLocalState } from "./useLocalState";
 import { useHostVoice } from "./useHostVoice";
@@ -29,6 +31,7 @@ export default function LookforApp() {
   const [voiceOn, setVoiceOn] = useLocalState("lookfor.voice", true);
   const voice = useHostVoice(region, character.id, character.voicePitch);
   const birthdays = upcomingBirthdays(family);
+  const account = useAccount(family, setFamily, region);
 
   const changeOccasion = (id: string) => {
     voice.stop();
@@ -260,10 +263,11 @@ export default function LookforApp() {
             </section>
           )}
           <FamilyPanel family={family} setFamily={setFamily} pending={pending} setPending={setPending} />
+          <AccountPanel account={account} />
           <p className="rounded-2xl bg-white/80 p-3 text-xs text-slate-700">
             Our characters are AI and their suggestions are generated automatically. Check age ratings and details
-            before you buy. As an Amazon Associate we earn from qualifying purchases. Your family list is stored only
-            on this device. <Link className="underline" href="/privacy">Privacy</Link>
+            before you buy. As an Amazon Associate we earn from qualifying purchases. Your family list is stored on this
+            device, and in your account if you sign in. <Link className="underline" href="/privacy">Privacy</Link>
           </p>
         </aside>
       </main>
