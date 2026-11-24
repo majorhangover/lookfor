@@ -14,6 +14,7 @@ import Present from "./Present";
 import EmptySack from "./EmptySack";
 import { useLocalState } from "./useLocalState";
 import { useHostVoice } from "./useHostVoice";
+import { playJingle } from "@/lib/jingle";
 import { applyProfileUpdate, isSaved, toggleSavedGift } from "@/lib/profile";
 import { CHARACTERS, OCCASIONS, getOccasion, seasonalOccasion, upcomingBirthdays } from "@/lib/occasions";
 import type { ChatMessage, GiftIdea, Person, ProfileUpdate, Region, HostResponse } from "@/lib/types";
@@ -75,12 +76,13 @@ export default function LookforApp() {
 
   const tree = character.id === "santa";
 
-  const giftCard = (g: GiftIdea, j: number) => {
+  const giftCard = (g: GiftIdea, j: number, drop = false) => {
     const saved = isSaved(family, g);
     return (
       <div
         key={j}
-        className={`group relative rounded-xl border border-slate-200 bg-white p-3 text-sm transition hover:-translate-y-0.5 hover:border-amber-400 hover:shadow-md ${tree ? "pt-6" : ""}`}
+        className={`group relative rounded-xl border border-slate-200 bg-white p-3 text-sm transition hover:-translate-y-0.5 hover:border-amber-400 hover:shadow-md ${tree ? "pt-6" : ""} ${drop ? "gift-drop" : ""}`}
+        style={drop ? { animationDelay: `${0.25 + j * 0.22}s` } : undefined}
       >
         {/* The whole card opens Amazon; the save button sits above the link. */}
         <a
@@ -142,9 +144,22 @@ export default function LookforApp() {
     window.scrollBy({ top: top - target, behavior: "smooth" });
   };
 
+  // A short celebration on the gift panel (and the tree) to draw the eye.
+  const [celebrate, setCelebrate] = useState(0);
+  const flashGifts = () => {
+    setCelebrate((c) => c + 1);
+    showGifts();
+  };
+  useEffect(() => {
+    if (!celebrate) return;
+    const t = setTimeout(() => setCelebrate(0), 2600);
+    return () => clearTimeout(t);
+  }, [celebrate]);
+
   // When new ideas arrive, nudge the page so the ideas come into view.
   useEffect(() => {
-    if (giftSets.length > 0) setTimeout(showGifts, 150);
+    if (giftSets.length === 0) return;
+    setTimeout(showGifts, 150);
   }, [giftSets.length]);
 
   const send = async (text: string) => {
@@ -170,7 +185,12 @@ export default function LookforApp() {
       const data: HostResponse & { error?: string } = await res.json();
       if (!res.ok) throw new Error(data.error || "Something went wrong");
       setTurns([...next, { role: "assistant", content: data.reply, gifts: data.gifts }]);
-      if (data.gifts?.length) setWaveKey((k) => k + 1);
+      if (data.gifts?.length) {
+        setWaveKey((k) => k + 1);
+        // Jingle and celebrate, to draw the eye to the new ideas.
+        playJingle();
+        setCelebrate((c) => c + 1);
+      }
       if (data.profileUpdates?.length) setPending((p) => [...p, ...data.profileUpdates]);
       if (data.gifts?.length) account.logGifts("shown", data.gifts, occasionId);
       if (voiceOn) voice.speak(data.reply);
@@ -394,7 +414,7 @@ export default function LookforApp() {
             aria-hidden
             className={`mt-6 flex h-44 justify-center self-end [grid-area:treeicon] md:h-48 lg:mt-0 ${giftSets.length ? "" : "hidden lg:flex"}`}
           >
-            <div className="relative h-full w-36 md:w-40">
+            <div className={`relative h-full w-36 md:w-40 ${celebrate ? "tree-shake" : ""}`}>
               {tree ? <ChristmasTree lit={giftSets.length > 0} /> : <Present color={character.theme.accent} />}
             </div>
           </div>
@@ -429,9 +449,11 @@ export default function LookforApp() {
                     <button
                       className="rounded-full px-3 py-1 text-sm font-semibold text-white hover:opacity-90"
                       style={{ background: character.theme.accent }}
-                      onClick={showGifts}
+                      onClick={flashGifts}
                     >
-                      {tree ? `🎁 I've popped ${t.gifts.length} under the tree ↓` : `🎁 ${t.gifts.length} gift ideas below ↓`}
+                      {tree ? `🎁 I've popped ${t.gifts.length} under the tree ` : `🎁 ${t.gifts.length} gift ideas `}
+                      <span className="lg:hidden">↓</span>
+                      <span className="hidden lg:inline">→</span>
                     </button>
                   </div>
                 )}
@@ -543,17 +565,37 @@ export default function LookforApp() {
           {giftSets.length > 0 && (
             <section
               ref={giftsRef}
-              className={`scroll-mt-4 rounded-2xl p-4 text-slate-800 shadow-lg ${tree ? "bg-white/95 ring-4 ring-red-700/70" : "bg-white/90"}`}
+              className={`relative scroll-mt-4 rounded-2xl p-4 text-slate-800 shadow-lg ${tree ? "bg-white/95 ring-4 ring-red-700/70" : "bg-white/90"} ${celebrate ? "gift-celebrate" : ""}`}
             >
+              {celebrate > 0 && (
+                <div aria-hidden className="pointer-events-none absolute inset-x-0 -top-2 z-20 h-0" key={`confetti-${celebrate}`}>
+                  {Array.from({ length: 18 }, (_, i) => (
+                    <span
+                      key={i}
+                      className="gift-confetti absolute text-lg"
+                      style={{
+                        left: `${5 + ((i * 37) % 90)}%`,
+                        animationDelay: `${(i % 6) * 0.08}s`,
+                        ["--dx" as string]: `${((i * 53) % 120) - 60}px`,
+                        ["--rot" as string]: `${((i * 97) % 720) - 360}deg`,
+                      }}
+                    >
+                      {["✨", "⭐", "🎉", "❄️", "🔔", "🎁"][i % 6]}
+                    </span>
+                  ))}
+                </div>
+              )}
               <h2 className="mb-2 text-lg font-bold">{tree ? "🎄 Under the tree" : "🎁 Gift ideas"}</h2>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">{latestGifts.map(giftCard)}</div>
+              <div key={`gifts-${giftSets.length}`} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                {latestGifts.map((g, j) => giftCard(g, j, true))}
+              </div>
               {earlierGifts.length > 0 && (
                 <details className="mt-3">
                   <summary className="cursor-pointer text-sm font-semibold text-slate-600">
                     Earlier ideas ({earlierGifts.reduce((n, t) => n + (t.gifts?.length ?? 0), 0)})
                   </summary>
                   <div className="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-                    {earlierGifts.flatMap((t) => t.gifts ?? []).map(giftCard)}
+                    {earlierGifts.flatMap((t) => t.gifts ?? []).map((g, j) => giftCard(g, j))}
                   </div>
                 </details>
               )}
