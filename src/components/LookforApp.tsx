@@ -20,17 +20,6 @@ import type { ChatMessage, GiftIdea, Person, ProfileUpdate, Region, HostResponse
 
 const outfit = Outfit({ subsets: ["latin"], weight: ["800"] });
 
-const FIELD_LABELS: Record<ProfileUpdate["field"], string> = {
-  age: "age",
-  birthday: "birthday",
-  interests: "loves",
-  dislikes: "not keen on",
-  sizes: "sizes",
-  notes: "note:",
-  relationship: "is your",
-  budget: "budget",
-};
-
 interface Turn extends ChatMessage {
   gifts?: GiftIdea[];
 }
@@ -45,6 +34,7 @@ export default function LookforApp() {
   );
   const [family, setFamily] = useLocalState<Person[]>("lookfor.family", []);
   const [pending, setPending] = useState<ProfileUpdate[]>([]);
+  const [savedNote, setSavedNote] = useState<string | null>(null);
   const [occasionId, setOccasionId] = useState(() => seasonalOccasion());
   const occasion = getOccasion(occasionId);
   const character = CHARACTERS[occasion.character];
@@ -160,6 +150,7 @@ export default function LookforApp() {
   const send = async (text: string) => {
     const content = text.trim();
     if (!content || busy) return;
+    setSavedNote(null);
     const next: Turn[] = [...turns, { role: "user", content }];
     setTurns(next);
     setInput("");
@@ -463,47 +454,36 @@ export default function LookforApp() {
                 </div>
               </div>
             )}
-            {pending.length > 0 && !busy && (
-              <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-3 text-sm">
-                <b>Shall I remember this for next time?</b>
-                <ul className="mt-1 space-y-1">
-                  {pending.map((u, i) => (
-                    <li key={i} className="flex items-center justify-between gap-2">
-                      <span>
-                        <b>{u.personNickname}</b>
-                        {u.isNewPerson ? " (new)" : ""}: {FIELD_LABELS[u.field]} {u.value}
-                      </span>
-                      <span className="flex shrink-0 gap-1">
-                        <button
-                          className="rounded-full bg-emerald-700 px-2 text-white"
-                          onClick={() => {
-                            setFamily(applyProfileUpdate(family, u));
-                            setPending(pending.filter((p) => p !== u));
-                          }}
-                        >
-                          Save
-                        </button>
-                        <button
-                          className="rounded-full bg-slate-200 px-2"
-                          onClick={() => setPending(pending.filter((p) => p !== u))}
-                        >
-                          Skip
-                        </button>
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-                {pending.length > 1 && (
-                  <button
-                    className="mt-2 rounded-full bg-emerald-700 px-3 py-1 font-semibold text-white"
-                    onClick={() => {
-                      setFamily(pending.reduce(applyProfileUpdate, family));
-                      setPending([]);
-                    }}
-                  >
-                    Save all
-                  </button>
-                )}
+            {/* One simple offer per person; the details are saved quietly and can be edited in My people. */}
+            {pending.length > 0 &&
+              !busy &&
+              [...new Set(pending.map((u) => u.personNickname))].map((name) => {
+                const mine = pending.filter((u) => u.personNickname === name);
+                const isNew = mine.some((u) => u.isNewPerson) && !family.some((f) => f.nickname.toLowerCase() === name.toLowerCase());
+                return (
+                  <div key={name} className="flex flex-wrap items-center gap-2 text-sm">
+                    <button
+                      className="rounded-full bg-emerald-700 px-3 py-1.5 font-semibold text-white shadow hover:bg-emerald-800"
+                      onClick={() => {
+                        setFamily(mine.reduce(applyProfileUpdate, family));
+                        setPending(pending.filter((u) => u.personNickname !== name));
+                        setSavedNote(name);
+                      }}
+                    >
+                      {isNew ? `＋ Add ${name} to My people` : `＋ Add this to ${name}’s profile`}
+                    </button>
+                    <button
+                      className="text-slate-500 underline"
+                      onClick={() => setPending(pending.filter((u) => u.personNickname !== name))}
+                    >
+                      No thanks
+                    </button>
+                  </div>
+                );
+              })}
+            {savedNote && !busy && (
+              <div className="text-sm text-emerald-800">
+                ✓ Saved to {savedNote}’s profile. You can change it any time in My people.
               </div>
             )}
             {showSavePrompt && !busy && (
