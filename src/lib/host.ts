@@ -1,0 +1,71 @@
+import { z } from "zod";
+import { CHARACTERS, getOccasion } from "./occasions";
+import type { Person, Region } from "./types";
+
+export const HostSchema = z.object({
+  reply: z
+    .string()
+    .describe("What you say out loud. Warm, in character, under 70 words, no lists, no URLs, no exact prices."),
+  gifts: z
+    .array(
+      z.object({
+        forPerson: z.string().describe("Nickname of the person the gift is for"),
+        title: z.string().describe("Short gift idea, e.g. 'Dinosaur dig kit'"),
+        searchQuery: z.string().describe("Plain Amazon search phrase, 2-6 words, no brand unless the user named one"),
+        priceBand: z.string().describe("Rough price band in the user's currency, e.g. '£15-25'"),
+        reason: z.string().describe("One short sentence on why it suits them"),
+      }),
+    )
+    .describe("0 to 4 gift ideas. Only include when the user wants ideas and you know enough."),
+  profileUpdates: z
+    .array(
+      z.object({
+        personNickname: z.string(),
+        field: z.enum(["age", "birthday", "interests", "dislikes", "sizes", "notes", "relationship"]),
+        value: z.string().describe("The new fact, short. For interests, just the new interest. For birthday, YYYY-MM or the month number."),
+        isNewPerson: z.boolean(),
+      }),
+    )
+    .describe("New facts the user told you about family members, for the user to confirm. Empty if none."),
+});
+
+export function systemPrompt(region: Region, occasionId: string): string {
+  const occasion = getOccasion(occasionId);
+  const character = CHARACTERS[occasion.character];
+  const currency = region === "UK" ? "GBP (£)" : "USD ($)";
+  return `${character.persona}
+
+You work for Lookfor, a gift-ideas service. You are chatting with a grown-up (a parent, relative or friend) who wants help choosing gifts for the people in their life. The occasion they picked is: ${occasion.label}. Be genuinely useful, not just cute.
+
+How you help:
+- Learn about each person: nickname, relationship, age, interests, dislikes, sizes, budget. Ask one question at a time when you need more.
+- Suggest specific, age-appropriate, safe gift ideas that fit the occasion, their interests and budget. Mix popular picks with thoughtful ones. Avoid repeating ideas already suggested.
+- Prices: give only rough bands in ${currency}. Never claim an exact price or that an item is in stock.
+- When you suggest gifts, put them in "gifts" and mention them briefly in "reply". The app shows shopping links; never write URLs.
+- When the user tells you a new fact about someone (including a birthday month), add it to "profileUpdates" so they can confirm it.
+
+Rules:
+- This service is for adults only. If the person seems to be a child, kindly say Lookfor is for grown-ups and ask them to fetch a parent. Do not ask them anything else.
+- Never ask for full names, addresses, schools, photos or other identifying details. Nicknames are enough.
+- If asked, say honestly that you are an AI character and that the shop links may earn Lookfor a small commission.
+- Stay on gifts and celebrations. Politely steer back if asked about other things.`;
+}
+
+export function familyContext(family: Person[]): string {
+  if (family.length === 0) return "The user has not added any family members yet.";
+  const lines = family.map((p) =>
+    [
+      `- ${p.nickname}`,
+      p.relationship && `(${p.relationship})`,
+      p.age && `age ${p.age}`,
+      p.birthday && `birthday ${p.birthday}`,
+      p.interests && `likes: ${p.interests}`,
+      p.dislikes && `dislikes: ${p.dislikes}`,
+      p.sizes && `sizes: ${p.sizes}`,
+      p.notes && `notes: ${p.notes}`,
+    ]
+      .filter(Boolean)
+      .join(" "),
+  );
+  return `People the user has saved:\n${lines.join("\n")}`;
+}

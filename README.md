@@ -1,36 +1,27 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Lookfor
 
-## Getting Started
+Gift ideas for every occasion, from a friendly AI character. Santa hosts Christmas, Bo the Birthday Bear hosts birthdays, Bea the Bunny hosts Easter, Cupid hosts Valentine's Day and anniversaries, and Lou covers everything else. Gift ideas link to Amazon UK or US with your Associates tag.
 
-First, run the development server:
+For adults only: Amazon's Associates rules exclude services aimed at children.
+
+## Run it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env.local   # add keys (all optional; without them it runs in demo mode)
+npm install
+npm run dev                  # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## How it works
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `src/app/api/chat/route.ts` sends the chat and the saved people to Claude (`claude-haiku-5-5` by default) and gets back structured JSON: the spoken reply, up to 4 gift ideas and suggested profile updates. The server turns each idea into a tagged Amazon search link, so the model never writes URLs.
+- `src/app/api/tts/route.ts` gives each character an ElevenLabs voice if configured. Otherwise the browser's own voice is used.
+- `src/components/Character.tsx` draws the five original cartoon hosts in SVG. The mouth follows the speech audio.
+- `src/lib/occasions.ts` holds the occasions, characters, personas and colour themes. Add a new occasion or character there.
+- Family details are stored only in the visitor's browser (localStorage). Nothing is kept on the server, and no audio is recorded.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Before launch
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Add real Amazon tags (`AMAZON_TAG_UK`, `AMAZON_TAG_US`) and an `ANTHROPIC_API_KEY`.
+- Fill in the business details in the privacy notice and get it reviewed.
+- Add rate limiting on `/api/chat` (for example, Vercel's firewall or Upstash) to cap AI spend.
