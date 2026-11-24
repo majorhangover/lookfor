@@ -2,7 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import AccountPanel from "./AccountPanel";
+import Welcome from "./Welcome";
 import FamilyPanel from "./FamilyPanel";
+import { useAccount } from "./useAccount";
 import Character from "./Character";
 import { useLocalState } from "./useLocalState";
 import { useHostVoice } from "./useHostVoice";
@@ -14,7 +17,10 @@ interface Turn extends ChatMessage {
 }
 
 export default function LookforApp() {
+  // "adult" doubles as "has told us where they are": both are answered on the first welcome step.
   const [adult, setAdult] = useLocalState("lookfor.adult", false);
+  const [welcomed, setWelcomed] = useLocalState("lookfor.welcomed", false);
+  const [savePromptHidden, setSavePromptHidden] = useLocalState("lookfor.savePromptHidden", false);
   const [region, setRegion] = useLocalState<Region>("lookfor.region", () =>
     navigator.language === "en-US" ? "US" : "UK",
   );
@@ -31,6 +37,7 @@ export default function LookforApp() {
   const [voiceOn, setVoiceOn] = useLocalState("lookfor.voice", true);
   const voice = useHostVoice(region, character.id, character.voicePitch);
   const birthdays = upcomingBirthdays(family);
+  const account = useAccount(family, setFamily, region);
 
   const changeOccasion = (id: string) => {
     voice.stop();
@@ -85,38 +92,26 @@ export default function LookforApp() {
     background: `linear-gradient(160deg, ${character.theme.from} 0%, ${character.theme.via} 50%, ${character.theme.to} 100%)`,
   };
 
-  if (!adult) {
+  // Returning signed-in users, and anyone who has skipped, go straight to the chat.
+  if (!account.ready) return null;
+  if (!adult || (!welcomed && account.enabled && !account.email)) {
     return (
-      <main className="flex min-h-screen items-center justify-center p-6" style={bg}>
-        <div className="max-w-md rounded-3xl bg-white/95 p-8 text-center text-slate-800 shadow-xl">
-          <div className="mx-auto h-48 w-48">
-            <Character id={character.id} mouth={0} listening={false} />
-          </div>
-          <h1 className="mt-2 text-3xl font-bold" style={{ color: character.theme.accent }}>
-            Lookfor
-          </h1>
-          <p className="mt-1 font-medium">Gift ideas for every occasion</p>
-          <p className="mt-3">
-            Chat with a friendly AI character to find gifts for your family and friends. Lookfor remembers who&apos;s
-            who and their birthdays, so next time is even easier.
-          </p>
-          <p className="mt-4 rounded-xl bg-amber-50 p-3 text-sm">
-            This service is for adults (18+) only. Please don&apos;t let children use it.
-          </p>
-          <button
-            className="mt-5 w-full rounded-full px-6 py-3 font-semibold text-white hover:opacity-90"
-            style={{ background: character.theme.accent }}
-            onClick={() => setAdult(true)}
-          >
-            I&apos;m 18 or over, let&apos;s start
-          </button>
-          <p className="mt-4 text-xs text-slate-500">
-            By continuing you agree to our <Link className="underline" href="/privacy">privacy notice</Link>.
-          </p>
-        </div>
-      </main>
+      <Welcome
+        character={character}
+        account={account}
+        needsWhere={!adult}
+        onWhere={(r) => {
+          setRegion(r);
+          setAdult(true);
+          if (!account.enabled) setWelcomed(true);
+        }}
+        onDone={() => setWelcomed(true)}
+      />
     );
   }
+
+  const showSavePrompt =
+    account.enabled && !account.email && !savePromptHidden && turns.some((t) => t.gifts && t.gifts.length > 0);
 
   return (
     <div className="min-h-screen transition-colors" style={bg}>
@@ -214,6 +209,27 @@ export default function LookforApp() {
                 )}
               </div>
             ))}
+            {showSavePrompt && !busy && (
+              <div className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm">
+                <b>Want me to remember everyone for next time?</b> Save your people and get reminders before birthdays.
+                It&apos;s free.
+                <div className="mt-2 flex gap-3">
+                  <button
+                    className="rounded-full bg-slate-800 px-3 py-1 font-semibold text-white"
+                    onClick={() => {
+                      const el = document.getElementById("account-email");
+                      el?.scrollIntoView({ behavior: "smooth", block: "center" });
+                      el?.focus();
+                    }}
+                  >
+                    Save my people
+                  </button>
+                  <button className="underline" onClick={() => setSavePromptHidden(true)}>
+                    No thanks
+                  </button>
+                </div>
+              </div>
+            )}
             {busy && <div className="text-slate-500 italic">{character.name} is thinking…</div>}
             <div ref={bottom} />
           </div>
@@ -271,10 +287,11 @@ export default function LookforApp() {
             </section>
           )}
           <FamilyPanel family={family} setFamily={setFamily} pending={pending} setPending={setPending} />
+          <AccountPanel account={account} />
           <p className="rounded-2xl bg-white/80 p-3 text-xs text-slate-700">
             Our characters are AI and their suggestions are generated automatically. Check age ratings and details
-            before you buy. As an Amazon Associate we earn from qualifying purchases. Your family list is stored only
-            on this device. <Link className="underline" href="/privacy">Privacy</Link>
+            before you buy. As an Amazon Associate we earn from qualifying purchases. Your family list is stored on this
+            device, and in your account if you sign in. <Link className="underline" href="/privacy">Privacy</Link>
           </p>
         </aside>
       </main>

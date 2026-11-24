@@ -14,11 +14,35 @@ export default function Privacy() {
 
         <h2 className="font-semibold">What we keep, and where</h2>
         <p>
-          The people you add to your list (nickname, relationship, age, interests, sizes and notes) are stored
-          in your browser on this device. We do not keep them on our servers. You can edit or delete them at any
-          time, and &quot;Delete all my data&quot; removes them.
+          The people you add to your list (nickname, relationship, age, birthday month, interests, sizes and notes)
+          are stored in your browser on this device. You can edit or delete them at any time, and &quot;Delete all
+          my data&quot; removes them.
+        </p>
+        <p>
+          If you choose to sign in, we also store your email address and your list in your account, so you can use
+          it on any device. Our database provider is Supabase. You can delete your account and everything in it at
+          any time with &quot;Delete my account&quot;.
         </p>
         <p>Please use nicknames, not full names, and do not add addresses, schools or photos.</p>
+
+        <h2 className="font-semibold">Your location</h2>
+        <p>
+          We ask which country you&apos;re in so we can link to the right Amazon shop. We store your answer on this
+          device, and in your account if you have one.
+        </p>
+
+        <h2 className="font-semibold">How we use your information</h2>
+        <p>
+          We use your saved list and the gift ideas you look at to make better suggestions and to improve Lookfor. If
+          you opt in to emails, we also use them to send you reminders and gift ideas that suit your people. We never
+          sell your information.
+        </p>
+
+        <h2 className="font-semibold">Emails</h2>
+        <p>
+          We only send sign-in links when you ask for one. We send birthday reminders and gift ideas only if you tick
+          the box to receive them, and you can untick it at any time in your account.
+        </p>
 
         <h2 className="font-semibold">What is sent to our providers</h2>
         <p>
