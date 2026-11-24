@@ -16,6 +16,7 @@ import EmptySack from "./EmptySack";
 import { useLocalState } from "./useLocalState";
 import { useHostVoice } from "./useHostVoice";
 import { playJingle } from "@/lib/jingle";
+import { examplePrompts } from "@/lib/examples";
 import { applyProfileUpdate, isSaved, toggleSavedGift } from "@/lib/profile";
 import { CHARACTERS, OCCASIONS, getOccasion, seasonalOccasion, upcomingBirthdays } from "@/lib/occasions";
 import type { ChatMessage, GiftIdea, Person, ProfileUpdate, Region, HostResponse } from "@/lib/types";
@@ -52,6 +53,13 @@ export default function LookforApp() {
   const voice = useHostVoice(region, character.id, character.voicePitch);
   const firstName = character.name.split(" ")[0];
   const chatted = turns.some((t) => t.role === "user");
+  // Rotating example requests in the chat box, to show what you can ask.
+  const examples = examplePrompts(occasionId, region);
+  const [exampleIdx, setExampleIdx] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setExampleIdx((i) => i + 1), 4000);
+    return () => clearInterval(id);
+  }, []);
   // After the host has answered and finished talking, flash the chat bar to
   // show it's the user's turn again (until they start typing).
   const yourTurn =
@@ -449,7 +457,7 @@ export default function LookforApp() {
               <input
                 id="ask"
                 className="min-w-0 flex-1 rounded-full bg-white px-4 py-3 text-slate-800 shadow-lg outline-none ring-4 ring-amber-300/60 focus:ring-amber-300 lg:px-6 lg:py-4 lg:text-lg"
-                placeholder={`e.g. Ideas for my 7 year old who loves dinosaurs, about ${region === "UK" ? "£" : "$"}30`}
+                placeholder={`e.g. ${examples[exampleIdx % examples.length]}`}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 maxLength={2000}
