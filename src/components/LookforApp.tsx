@@ -17,6 +17,7 @@ import { useLocalState } from "./useLocalState";
 import { useHostVoice } from "./useHostVoice";
 import { playJingle } from "@/lib/jingle";
 import { giftSharePath } from "@/lib/share";
+import { examplePrompts } from "@/lib/examples";
 import { applyProfileUpdate, isSaved, toggleSavedGift } from "@/lib/profile";
 import { CHARACTERS, OCCASIONS, getOccasion, seasonalOccasion, upcomingBirthdays } from "@/lib/occasions";
 import type { ChatMessage, GiftIdea, Person, ProfileUpdate, Region, HostResponse } from "@/lib/types";
@@ -53,6 +54,34 @@ export default function LookforApp() {
   const voice = useHostVoice(region, character.id, character.voicePitch);
   const firstName = character.name.split(" ")[0];
   const chatted = turns.some((t) => t.role === "user");
+  // Rotating example requests in the chat box, to show what you can ask.
+  const examples = examplePrompts(occasionId, region);
+  const [exampleIdx, setExampleIdx] = useState(0);
+  // Each example is "typed" into the box letter by letter, held, rubbed out, then the next one.
+  const [typed, setTyped] = useState(0);
+  const [erasing, setErasing] = useState(false);
+  const example = examples[exampleIdx % examples.length];
+  useEffect(() => {
+    // People who ask for less motion just see the examples change every few seconds.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      const show = setTimeout(() => setTyped(example.length), 0);
+      const next = setTimeout(() => setExampleIdx((i) => i + 1), 4000);
+      return () => {
+        clearTimeout(show);
+        clearTimeout(next);
+      };
+    }
+    let id: ReturnType<typeof setTimeout>;
+    if (!erasing && typed < example.length) id = setTimeout(() => setTyped(typed + 1), 45 + Math.random() * 50);
+    else if (!erasing) id = setTimeout(() => setErasing(true), 2200);
+    else if (typed > 0) id = setTimeout(() => setTyped(typed - 1), 18);
+    else
+      id = setTimeout(() => {
+        setErasing(false);
+        setExampleIdx((i) => i + 1);
+      }, 400);
+    return () => clearTimeout(id);
+  }, [typed, erasing, example]);
   // After the host has answered and finished talking, flash the chat bar to
   // show it's the user's turn again (until they start typing).
   const yourTurn =
@@ -476,7 +505,7 @@ export default function LookforApp() {
               <input
                 id="ask"
                 className="min-w-0 flex-1 rounded-full bg-white px-4 py-3 text-slate-800 shadow-lg outline-none ring-4 ring-amber-300/60 focus:ring-amber-300 lg:px-6 lg:py-4 lg:text-lg"
-                placeholder={`e.g. Ideas for my 7 year old who loves dinosaurs, about ${region === "UK" ? "£" : "$"}30`}
+                placeholder={`e.g. ${example.slice(0, typed)}${typed < example.length ? "|" : ""}`}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 maxLength={2000}
