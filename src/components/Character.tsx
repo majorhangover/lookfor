@@ -167,6 +167,8 @@ export default function Character({
       <ellipse cx="150" cy="165" rx="78" ry="74" fill={skin} />
 
       {/* Hair and hats */}
+      {/* Santa's hat comes down over the top of his head, then the fur band */}
+      {id === "santa" && <path d="M70 124 Q74 72 150 66 Q226 72 230 124 Z" fill="#d62828" />}
       {id === "santa" && <rect x="62" y="104" width="176" height="34" rx="17" fill="#fff" />}
       {id === "bear" && (
         <g>
