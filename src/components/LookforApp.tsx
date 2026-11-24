@@ -297,8 +297,8 @@ export default function LookforApp() {
       <div className="px-4">
         <Logo />
       </div>
-      {/* Phones: one column. Wide screens: occasions across the top, then three columns (people, chat, gifts), each with its picture above it, all in one row. */}
-      <main className="mx-auto grid max-w-7xl grid-cols-1 gap-x-5 gap-y-3 p-4 [grid-template-areas:'nav'_'stage'_'name'_'chat'_'treeicon'_'gifts'_'peopleicon'_'people'] lg:grid-cols-[300px_minmax(0,1fr)_340px] lg:grid-rows-[auto_auto_auto_1fr] lg:[grid-template-areas:'nav_nav_nav'_'peopleicon_stage_treeicon'_'._name_.'_'people_chat_gifts']">
+      {/* Phones: one column. Wide screens: occasions across the top, the ask box across the page under them, then three columns (people, chat, gifts), each with its picture above it, all in one row. */}
+      <main className="mx-auto grid max-w-7xl grid-cols-1 gap-x-5 gap-y-3 p-4 [grid-template-areas:'nav'_'stage'_'name'_'chat'_'ask'_'treeicon'_'gifts'_'peopleicon'_'people'] lg:grid-cols-[300px_minmax(0,1fr)_340px] lg:grid-rows-[auto_auto_auto_auto_1fr] lg:[grid-template-areas:'nav_nav_nav'_'ask_ask_ask'_'peopleicon_stage_treeicon'_'._name_.'_'people_chat_gifts']">
           <nav className="flex flex-wrap gap-2 [grid-area:nav]" aria-label="Occasion">
             {OCCASIONS.map((o) => (
               <button
@@ -312,6 +312,45 @@ export default function LookforApp() {
               </button>
             ))}
           </nav>
+
+          <div className="[grid-area:ask] lg:mt-2">
+            <label htmlFor="ask" className="mb-1.5 block text-center text-sm font-semibold text-white lg:text-base">
+              💬 Talk to {character.name.split(" ")[0]} here
+            </label>
+            <form
+              className="flex gap-2"
+              onSubmit={(e) => {
+                e.preventDefault();
+                send(input);
+              }}
+            >
+              {voice.canListen && (
+                <button
+                  type="button"
+                  aria-label={voice.listening ? "Stop listening" : `Talk to ${character.name}`}
+                  className={`rounded-full px-4 text-xl ${voice.listening ? "bg-amber-400" : "bg-white/90"}`}
+                  onClick={() => (voice.listening ? voice.stopListening() : voice.listen((text) => send(text)))}
+                >
+                  🎤
+                </button>
+              )}
+              <input
+                id="ask"
+                className="min-w-0 flex-1 rounded-full bg-white px-4 py-3 text-slate-800 shadow lg:px-6 lg:py-4 lg:text-lg"
+                placeholder={`e.g. Ideas for my 7 year old who loves dinosaurs, about ${region === "UK" ? "£" : "$"}30`}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                maxLength={2000}
+              />
+              <button
+                className="rounded-full px-5 font-semibold text-white hover:opacity-90 disabled:opacity-50"
+                style={{ background: character.theme.accent }}
+                disabled={busy || !input.trim()}
+              >
+                Send
+              </button>
+            </form>
+          </div>
 
           {/* The three pictures share one row on wide screens, all the same height. */}
           <div className="flex justify-center self-end [grid-area:stage]">
@@ -479,38 +518,7 @@ export default function LookforApp() {
             {busy && <div className="text-slate-500 italic">{character.name} is thinking…</div>}
           </div>
 
-          <form
-            className="flex gap-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-              send(input);
-            }}
-          >
-            {voice.canListen && (
-              <button
-                type="button"
-                aria-label={voice.listening ? "Stop listening" : `Talk to ${character.name}`}
-                className={`rounded-full px-4 text-xl ${voice.listening ? "bg-amber-400" : "bg-white/90"}`}
-                onClick={() => (voice.listening ? voice.stopListening() : voice.listen((text) => send(text)))}
-              >
-                🎤
-              </button>
-            )}
-            <input
-              className="min-w-0 flex-1 rounded-full bg-white px-4 py-3 text-slate-800 shadow"
-              placeholder={`e.g. Ideas for my 7 year old who loves dinosaurs, about ${region === "UK" ? "£" : "$"}30`}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              maxLength={2000}
-            />
-            <button
-              className="rounded-full px-5 font-semibold text-white hover:opacity-90 disabled:opacity-50"
-              style={{ background: character.theme.accent }}
-              disabled={busy || !input.trim()}
-            >
-              Send
-            </button>
-          </form>
+
           </div>
 
           <div className="flex min-w-0 flex-col self-start [grid-area:gifts]">
