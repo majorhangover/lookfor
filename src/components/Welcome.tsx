@@ -91,7 +91,7 @@ export default function Welcome({
         </div>
         <p className="mt-5 text-xs text-slate-500">
           Lookfor is for adults. By continuing you confirm you&apos;re 18 or over and agree to our{" "}
-          <Link className="underline" href="/privacy">
+          <Link className="underline" href="/privacy" target="_blank" rel="noopener">
             privacy notice
           </Link>
           .
