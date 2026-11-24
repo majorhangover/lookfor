@@ -52,6 +52,10 @@ export default function LookforApp() {
   const voice = useHostVoice(region, character.id, character.voicePitch);
   const firstName = character.name.split(" ")[0];
   const chatted = turns.some((t) => t.role === "user");
+  // After the host has answered and finished talking, flash the chat bar to
+  // show it's the user's turn again (until they start typing).
+  const yourTurn =
+    chatted && !busy && !voice.speaking && turns[turns.length - 1]?.role === "assistant" && !input;
   const birthdays = upcomingBirthdays(family);
   const account = useAccount(family, setFamily, region);
 
@@ -412,7 +416,7 @@ export default function LookforApp() {
 
           <div
             className={`rounded-3xl border-2 border-amber-300/70 bg-white/10 p-3 shadow-[0_0_40px_rgba(252,211,77,0.25)] backdrop-blur-sm [grid-area:ask] sm:p-4 lg:mt-2 ${
-              chatted ? "" : "ask-glow"
+              !chatted ? "ask-glow" : yourTurn ? "ask-nudge" : ""
             }`}
           >
             <label htmlFor="ask" className="mb-3 block text-center text-white">
