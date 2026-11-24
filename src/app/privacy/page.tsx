@@ -14,7 +14,7 @@ export default function Privacy() {
 
         <h2 className="font-semibold">What we keep, and where</h2>
         <p>
-          The people you add to your list (nickname, relationship, age, birthday month, interests, sizes and notes)
+          The people you add to your list (nickname, relationship, age, birthday, interests, sizes and notes)
           are stored in your browser on this device. You can edit or delete them at any time, and &quot;Delete all
           my data&quot; removes them.
         </p>

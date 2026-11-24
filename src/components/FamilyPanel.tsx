@@ -3,13 +3,14 @@
 import { useState } from "react";
 import type { Person } from "@/lib/types";
 import { EMPTY_PERSON as EMPTY } from "@/lib/profile";
+import { formatBirthday, normaliseBirthday } from "@/lib/birthday";
 
 
 const FIELDS: { key: keyof Omit<Person, "id">; label: string; placeholder: string }[] = [
   { key: "nickname", label: "Nickname", placeholder: "e.g. Sam (no full names)" },
   { key: "relationship", label: "Relationship", placeholder: "e.g. son, niece, Dad" },
   { key: "age", label: "Age", placeholder: "e.g. 7" },
-  { key: "birthday", label: "Birthday month", placeholder: "e.g. 2019-03" },
+  { key: "birthday", label: "Birthday", placeholder: "e.g. 24 Nov, or just a month" },
   { key: "interests", label: "Loves", placeholder: "e.g. dinosaurs, Lego, drawing" },
   { key: "dislikes", label: "Not keen on", placeholder: "e.g. loud toys" },
   { key: "sizes", label: "Sizes", placeholder: "e.g. clothes 7-8, shoes 13" },
@@ -24,11 +25,19 @@ export default function FamilyPanel({
   setFamily: (f: Person[]) => void;
 }) {
   const [editing, setEditing] = useState<Person | null>(null);
+  const [birthdayError, setBirthdayError] = useState(false);
 
   const save = () => {
     if (!editing || !editing.nickname.trim()) return;
-    const exists = family.some((p) => p.id === editing.id);
-    setFamily(exists ? family.map((p) => (p.id === editing.id ? editing : p)) : [...family, editing]);
+    const birthday = normaliseBirthday(editing.birthday);
+    if (birthday === null) {
+      setBirthdayError(true);
+      return;
+    }
+    setBirthdayError(false);
+    const person = { ...editing, birthday };
+    const exists = family.some((p) => p.id === person.id);
+    setFamily(exists ? family.map((p) => (p.id === person.id ? person : p)) : [...family, person]);
     setEditing(null);
   };
 
@@ -57,10 +66,11 @@ export default function FamilyPanel({
               <b>{p.nickname}</b>
               {p.relationship && <span className="text-slate-500"> · {p.relationship}</span>}
               {p.age && <span className="text-slate-500"> · {p.age}</span>}
+              {p.birthday && <span className="text-slate-500"> · 🎂 {formatBirthday(p.birthday)}</span>}
               {p.interests && <div className="text-slate-600">Loves {p.interests}</div>}
             </div>
             <span className="flex gap-2 shrink-0">
-              <button className="text-emerald-700 underline" onClick={() => setEditing(p)}>
+              <button className="text-emerald-700 underline" onClick={() => setEditing({ ...p, birthday: p.birthday ? formatBirthday(p.birthday) : "" })}>
                 Edit
               </button>
               <button
@@ -85,6 +95,9 @@ export default function FamilyPanel({
                 value={editing[f.key]}
                 onChange={(e) => setEditing({ ...editing, [f.key]: e.target.value })}
               />
+              {f.key === "birthday" && birthdayError && (
+                <span className="text-xs text-red-700">Try a date like &quot;24 Nov&quot;, or just the month.</span>
+              )}
             </label>
           ))}
           <div className="flex gap-2">

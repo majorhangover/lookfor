@@ -5,7 +5,7 @@ export interface Person {
   nickname: string;
   relationship: string;
   age: string;
-  birthday: string; // "YYYY-MM" or empty
+  birthday: string; // "MM-DD", or "MM" if only the month is known, or empty
   interests: string;
   dislikes: string;
   sizes: string;
