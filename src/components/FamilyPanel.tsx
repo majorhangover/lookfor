@@ -5,7 +5,7 @@ import type { Person } from "@/lib/types";
 import { EMPTY_PERSON as EMPTY } from "@/lib/profile";
 import { birthYearFrom, displayAge, formatBirthday, normaliseBirthday } from "@/lib/birthday";
 
-type Field = { key: keyof Omit<Person, "id" | "birthYear">; label: string; placeholder: string };
+type Field = { key: keyof Omit<Person, "id" | "birthYear" | "savedGifts">; label: string; placeholder: string };
 
 /** The few things that make the biggest difference to gift ideas. */
 const QUICK: Field[] = [
@@ -38,6 +38,7 @@ export default function FamilyPanel({
   const [showMore, setShowMore] = useState(false);
   const [birthdayError, setBirthdayError] = useState(false);
   const [justAdded, setJustAdded] = useState<string | null>(null);
+  const [openGifts, setOpenGifts] = useState<string | null>(null);
   const nameInput = useRef<HTMLInputElement>(null);
 
   const start = (p: Person | null) => {
@@ -126,13 +127,54 @@ export default function FamilyPanel({
           const age = displayAge(p);
           return (
             <li key={p.id} className="flex items-start justify-between gap-2 rounded-xl bg-slate-50 p-2 text-sm">
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <b>{p.nickname}</b>
                 {p.relationship && <span className="text-slate-500"> · {p.relationship}</span>}
                 {age && <span className="text-slate-500"> · {age}</span>}
                 {p.birthday && <span className="text-slate-500"> · 🎂 {formatBirthday(p.birthday)}</span>}
                 {p.interests && <div className="text-slate-600">Likes {p.interests}</div>}
                 {p.budget && <div className="text-slate-600">Budget {p.budget}</div>}
+                {(p.savedGifts?.length ?? 0) > 0 && (
+                  <button
+                    className="mt-1 block font-semibold text-rose-700"
+                    aria-expanded={openGifts === p.id}
+                    onClick={() => setOpenGifts(openGifts === p.id ? null : p.id)}
+                  >
+                    ♥ {p.savedGifts!.length} saved {p.savedGifts!.length === 1 ? "gift" : "gifts"} {openGifts === p.id ? "▴" : "▾"}
+                  </button>
+                )}
+                {openGifts === p.id && (
+                  <ul className="mt-1 space-y-1">
+                    {p.savedGifts!.map((g) => (
+                      <li key={g.title} className="flex items-start justify-between gap-2 rounded-lg bg-white p-2">
+                        <span className="min-w-0">
+                          <a
+                            className="font-semibold text-slate-800 underline"
+                            href={g.url}
+                            target="_blank"
+                            rel="sponsored nofollow noopener noreferrer"
+                          >
+                            {g.title}
+                          </a>
+                          {g.priceBand && <span className="text-slate-500"> · {g.priceBand}</span>}
+                        </span>
+                        <button
+                          aria-label={`Remove ${g.title}`}
+                          className="shrink-0 text-slate-400 hover:text-red-700"
+                          onClick={() =>
+                            setFamily(
+                              family.map((x) =>
+                                x.id === p.id ? { ...x, savedGifts: (x.savedGifts ?? []).filter((s) => s.title !== g.title) } : x,
+                              ),
+                            )
+                          }
+                        >
+                          ✕
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
               <span className="flex shrink-0 gap-2">
                 <button

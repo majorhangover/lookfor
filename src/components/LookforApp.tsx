@@ -13,7 +13,7 @@ import Present from "./Present";
 import EmptySack from "./EmptySack";
 import { useLocalState } from "./useLocalState";
 import { useHostVoice } from "./useHostVoice";
-import { applyProfileUpdate } from "@/lib/profile";
+import { applyProfileUpdate, isSaved, toggleSavedGift } from "@/lib/profile";
 import { CHARACTERS, OCCASIONS, getOccasion, seasonalOccasion, upcomingBirthdays } from "@/lib/occasions";
 import type { ChatMessage, GiftIdea, Person, ProfileUpdate, Region, HostResponse } from "@/lib/types";
 
@@ -80,39 +80,61 @@ export default function LookforApp() {
 
   const tree = character.id === "santa";
 
-  const giftCard = (g: GiftIdea, j: number) => (
-    <a
-      key={j}
-      href={g.url}
-      target="_blank"
-      rel="sponsored nofollow noopener noreferrer"
-      onClick={() => account.logGifts("clicked", [g], occasionId)}
-      className={`group relative block rounded-xl border border-slate-200 bg-white p-3 text-sm transition hover:-translate-y-0.5 hover:border-amber-400 hover:shadow-md ${tree ? "overflow-visible pt-6" : ""}`}
-    >
-      {tree && (
-        <>
-          <span
-            aria-hidden
-            className="absolute inset-x-0 top-0 h-3 rounded-t-xl"
-            style={{ background: ["#b91c1c", "#15803d", "#ca8a04", "#7c3aed"][j % 4] }}
-          />
-          <span aria-hidden className="absolute -top-3 left-1/2 -translate-x-1/2 text-2xl">
-            🎀
-          </span>
-        </>
-      )}
-      <div className="flex items-start justify-between gap-2">
-        <b className="group-hover:underline">{g.title}</b>
-        <span className="shrink-0 text-slate-500">{g.priceBand}</span>
+  const giftCard = (g: GiftIdea, j: number) => {
+    const saved = isSaved(family, g);
+    return (
+      <div
+        key={j}
+        className={`group relative rounded-xl border border-slate-200 bg-white p-3 text-sm transition hover:-translate-y-0.5 hover:border-amber-400 hover:shadow-md ${tree ? "pt-6" : ""}`}
+      >
+        {/* The whole card opens Amazon; the save button sits above the link. */}
+        <a
+          href={g.url}
+          target="_blank"
+          rel="sponsored nofollow noopener noreferrer"
+          onClick={() => account.logGifts("clicked", [g], occasionId)}
+          className="absolute inset-0 z-0 rounded-xl"
+          aria-label={`${g.title}: see options on Amazon`}
+        />
+        {tree && (
+          <>
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 top-0 h-3 rounded-t-xl"
+              style={{ background: ["#b91c1c", "#15803d", "#ca8a04", "#7c3aed"][j % 4] }}
+            />
+            <span aria-hidden className="pointer-events-none absolute -top-3 left-1/2 -translate-x-1/2 text-2xl">
+              🎀
+            </span>
+          </>
+        )}
+        <div className="pointer-events-none relative">
+          <div className="flex items-start justify-between gap-2">
+            <b className="group-hover:underline">{g.title}</b>
+            <span className="shrink-0 text-slate-500">{g.priceBand}</span>
+          </div>
+          <div className="text-slate-500">For {g.forPerson}</div>
+          <p className="mt-1">{g.reason}</p>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <span className="inline-block rounded-full bg-amber-400 px-3 py-1 font-semibold text-slate-900 group-hover:bg-amber-500">
+              See options on Amazon
+            </span>
+            <button
+              type="button"
+              aria-pressed={saved}
+              onClick={() => setFamily(toggleSavedGift(family, g, occasionId))}
+              className={`pointer-events-auto relative z-10 rounded-full border px-3 py-1 font-semibold ${
+                saved ? "border-rose-600 bg-rose-50 text-rose-700" : "border-slate-300 text-slate-700 hover:border-rose-400"
+              }`}
+            >
+              {saved ? `♥ Saved for ${g.forPerson}` : `♡ Save for ${g.forPerson}`}
+            </button>
+          </div>
+          <span className="mt-1 block text-xs text-slate-500">Ad · affiliate link</span>
+        </div>
       </div>
-      <div className="text-slate-500">For {g.forPerson}</div>
-      <p className="mt-1">{g.reason}</p>
-      <span className="mt-2 inline-block rounded-full bg-amber-400 px-3 py-1 font-semibold text-slate-900 group-hover:bg-amber-500">
-        See options on Amazon
-      </span>
-      <span className="ml-2 text-xs text-slate-500">Ad · affiliate link</span>
-    </a>
-  );
+    );
+  };
 
   const showGifts = () => {
     const el = giftsRef.current;

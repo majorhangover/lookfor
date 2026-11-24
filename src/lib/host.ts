@@ -66,6 +66,7 @@ export function familyContext(family: Person[], now = new Date()): string {
       p.sizes && `sizes: ${p.sizes}`,
       p.budget && `budget: ${p.budget}`,
       p.notes && `notes: ${p.notes}`,
+      p.savedGifts?.length && `already saved gift ideas (don't repeat): ${p.savedGifts.map((g) => g.title).join("; ")}`,
     ]
       .filter(Boolean)
       .join(" "),
