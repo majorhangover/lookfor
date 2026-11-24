@@ -16,7 +16,7 @@ export default function AccountPanel({ account }: { account: Account }) {
 
   if (account.email) {
     return (
-      <section className="rounded-2xl bg-white/90 p-4 text-sm text-slate-800 shadow-lg">
+      <section className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-800">
         <h2 className="mb-1 font-bold">Your account</h2>
         <p>
           Signed in as <b>{account.email}</b>. {account.saveError
@@ -60,7 +60,7 @@ export default function AccountPanel({ account }: { account: Account }) {
 
   if (account.linkSentTo) {
     return (
-      <section id="account-panel" className="rounded-2xl bg-white/90 p-4 text-sm text-slate-800 shadow-lg">
+      <section id="account-panel" className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-800">
         <h2 className="mb-1 font-bold">Check your email</h2>
         <p>
           We&apos;ve sent a sign-in link to <b>{account.linkSentTo}</b>. Open it in this browser to save your list.
@@ -82,7 +82,7 @@ export default function AccountPanel({ account }: { account: Account }) {
   return (
     <section
       id="account-panel"
-      className="rounded-2xl border-2 border-amber-300 bg-white p-4 text-sm text-slate-800 shadow-lg"
+      className="rounded-2xl border-2 border-amber-300 bg-white p-4 text-sm text-slate-800"
     >
       <h2 className="text-base font-bold">Get your free Lookfor account</h2>
       <p className="text-slate-600">Let us do the remembering, so gifting is easy every time.</p>

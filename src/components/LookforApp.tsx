@@ -45,7 +45,9 @@ export default function LookforApp() {
   const [busy, setBusy] = useState(false);
   // Bumped to make the character wave: on arrival, on a new occasion, and with each reply.
   const [waveKey, setWaveKey] = useState(1);
-  const [voiceOn, setVoiceOn] = useLocalState("lookfor.voice", true);
+  // Off by default: saves voice costs and avoids surprising anyone with loud speakers.
+  const [voiceOn, setVoiceOn] = useLocalState("lookfor.voiceOn", false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const voice = useHostVoice(region, character.id, character.voicePitch);
   const birthdays = upcomingBirthdays(family);
   const account = useAccount(family, setFamily, region);
@@ -123,8 +125,16 @@ export default function LookforApp() {
   }
 
   const openSignUp = () => {
-    document.getElementById("account-panel")?.scrollIntoView({ behavior: "smooth", block: "center" });
-    document.getElementById("account-email")?.focus({ preventScroll: true });
+    setMenuOpen(true);
+    // Wait for the account box to open before focusing the email field.
+    setTimeout(() => {
+      document.getElementById("account-panel")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      document.getElementById("account-email")?.focus({ preventScroll: true });
+    }, 50);
+  };
+  const toggleVoice = () => {
+    if (voiceOn) voice.stop();
+    setVoiceOn(!voiceOn);
   };
 
   const showSavePrompt =
@@ -134,39 +144,55 @@ export default function LookforApp() {
     <div className="min-h-screen transition-colors" style={bg}>
       <main className="mx-auto grid max-w-6xl grid-cols-1 gap-4 p-4 md:grid-cols-[minmax(0,1fr)_320px]">
         <div className="flex min-w-0 flex-col gap-3">
-          <header className="flex flex-wrap items-center justify-between gap-2 text-white">
+          <header className="relative flex flex-wrap items-center justify-between gap-2 text-white">
             <h1 className="text-2xl font-bold">
               Lookfor <span className="text-base font-normal opacity-80">· gift ideas for every occasion</span>
             </h1>
-            <div className="flex flex-wrap items-center gap-2 text-sm">
-              {account.enabled && !account.email && (
-                <button
-                  className="rounded-full bg-amber-400 px-3 py-1 font-semibold text-slate-900 shadow hover:bg-amber-300"
-                  onClick={openSignUp}
-                >
-                  ✨ Free account
-                </button>
-              )}
-              <label className="flex items-center gap-1">
-                Shop
-                <select
-                  className="rounded bg-white/90 px-1 py-0.5 text-slate-800"
-                  value={region}
-                  onChange={(e) => setRegion(e.target.value as Region)}
-                >
-                  <option value="UK">Amazon UK</option>
-                  <option value="US">Amazon US</option>
-                </select>
-              </label>
+            <div className="text-sm">
               <button
-                className="rounded-full bg-white/20 px-3 py-1 hover:bg-white/30"
-                onClick={() => {
-                  if (voiceOn) voice.stop();
-                  setVoiceOn(!voiceOn);
-                }}
+                aria-expanded={menuOpen}
+                className={`rounded-full px-3 py-1 font-semibold shadow ${
+                  account.enabled && !account.email
+                    ? "bg-amber-400 text-slate-900 hover:bg-amber-300"
+                    : "bg-white/20 text-white hover:bg-white/30"
+                }`}
+                onClick={() => setMenuOpen(!menuOpen)}
               >
-                {voiceOn ? "🔊 Voice on" : "🔇 Voice off"}
+                {!account.enabled ? "⚙️ Settings" : account.email ? "👤 My account" : "✨ Free account"}
               </button>
+              {menuOpen && (
+                <>
+                  <button
+                    aria-label="Close"
+                    className="fixed inset-0 z-10 cursor-default"
+                    onClick={() => setMenuOpen(false)}
+                  />
+                  <div className="absolute right-0 top-full z-20 mt-2 w-[min(22rem,calc(100vw-2rem))] space-y-3 rounded-2xl bg-white p-3 text-slate-800 shadow-2xl">
+                    <AccountPanel account={account} />
+                    <section className="rounded-2xl bg-slate-50 p-4">
+                      <h2 className="mb-2 font-bold">Settings</h2>
+                      <label className="flex items-center justify-between gap-2 py-1">
+                        <span>Shop</span>
+                        <select
+                          className="rounded border border-slate-300 bg-white px-1 py-0.5"
+                          value={region}
+                          onChange={(e) => setRegion(e.target.value as Region)}
+                        >
+                          <option value="UK">Amazon UK</option>
+                          <option value="US">Amazon US</option>
+                        </select>
+                      </label>
+                      <label className="flex items-center justify-between gap-2 py-1">
+                        <span>{character.name}&apos;s voice</span>
+                        <input type="checkbox" className="h-4 w-4" checked={voiceOn} onChange={toggleVoice} />
+                      </label>
+                      <button className="mt-2 text-xs underline" onClick={() => setMenuOpen(false)}>
+                        Close
+                      </button>
+                    </section>
+                  </div>
+                </>
+              )}
             </div>
           </header>
 
@@ -194,7 +220,16 @@ export default function LookforApp() {
               waveKey={waveKey}
             />
           </div>
-          <p className="-mt-2 text-center text-sm font-medium text-white/90">{character.name}</p>
+          <div className="-mt-2 flex items-center justify-center gap-2 text-sm text-white/90">
+            <span className="font-medium">{character.name}</span>
+            <button
+              className="rounded-full bg-white/20 px-2 py-0.5 text-xs hover:bg-white/30"
+              aria-pressed={voiceOn}
+              onClick={toggleVoice}
+            >
+              {voiceOn ? "🔊 Voice on" : "🔇 Hear my voice"}
+            </button>
+          </div>
 
           <div className="flex-1 space-y-3 overflow-y-auto rounded-2xl bg-white/90 p-4 text-slate-800 shadow-lg max-h-[45vh]">
             {turns.map((t, i) => (
@@ -364,9 +399,7 @@ export default function LookforApp() {
               </ul>
             </section>
           )}
-          {!account.email && <AccountPanel account={account} />}
           <FamilyPanel family={family} setFamily={setFamily} />
-          {account.email && <AccountPanel account={account} />}
           <p className="rounded-2xl bg-white/80 p-3 text-xs text-slate-700">
             Our characters are AI and their suggestions are generated automatically. Check age ratings and details
             before you buy. As an Amazon Associate we earn from qualifying purchases. Your family list is stored on this
