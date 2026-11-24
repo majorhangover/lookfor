@@ -7,6 +7,7 @@ import FamilyPanel from "./FamilyPanel";
 import { useAccount } from "./useAccount";
 import Character from "./Character";
 import Logo from "./Logo";
+import ChristmasTree from "./ChristmasTree";
 import { useLocalState } from "./useLocalState";
 import { useHostVoice } from "./useHostVoice";
 import { applyProfileUpdate } from "@/lib/profile";
@@ -74,6 +75,8 @@ export default function LookforApp() {
   const latestGifts = giftSets[giftSets.length - 1]?.gifts ?? [];
   const earlierGifts = giftSets.slice(0, -1).reverse();
 
+  const tree = character.id === "santa";
+
   const giftCard = (g: GiftIdea, j: number) => (
     <a
       key={j}
@@ -81,8 +84,20 @@ export default function LookforApp() {
       target="_blank"
       rel="sponsored nofollow noopener noreferrer"
       onClick={() => account.logGifts("clicked", [g], occasionId)}
-      className="group block rounded-xl border border-slate-200 bg-white p-3 text-sm transition hover:-translate-y-0.5 hover:border-amber-400 hover:shadow-md"
+      className={`group relative block rounded-xl border border-slate-200 bg-white p-3 text-sm transition hover:-translate-y-0.5 hover:border-amber-400 hover:shadow-md ${tree ? "overflow-visible pt-6" : ""}`}
     >
+      {tree && (
+        <>
+          <span
+            aria-hidden
+            className="absolute inset-x-0 top-0 h-3 rounded-t-xl"
+            style={{ background: ["#b91c1c", "#15803d", "#ca8a04", "#7c3aed"][j % 4] }}
+          />
+          <span aria-hidden className="absolute -top-3 left-1/2 -translate-x-1/2 text-2xl">
+            🎀
+          </span>
+        </>
+      )}
       <div className="flex items-start justify-between gap-2">
         <b className="group-hover:underline">{g.title}</b>
         <span className="shrink-0 text-slate-500">{g.priceBand}</span>
@@ -272,7 +287,9 @@ export default function LookforApp() {
             ))}
           </nav>
 
-          <div className="mx-auto h-52 w-52 md:h-60 md:w-60">
+          <div className={tree ? "relative flex flex-col gap-3 pb-16" : "contents"}>
+          {tree && <ChristmasTree />}
+          <div className="relative z-10 mx-auto h-52 w-52 md:h-60 md:w-60">
             <Character
               id={character.id}
               mouth={voice.mouth}
@@ -282,7 +299,7 @@ export default function LookforApp() {
               waveKey={waveKey}
             />
           </div>
-          <div className="-mt-2 flex items-center justify-center gap-2 text-sm text-white/90">
+          <div className="relative z-10 -mt-2 flex items-center justify-center gap-2 text-sm text-white/90">
             <span className="font-medium">{character.name}</span>
             <button
               className="rounded-full bg-white/20 px-2 py-0.5 text-xs hover:bg-white/30"
@@ -293,7 +310,7 @@ export default function LookforApp() {
             </button>
           </div>
 
-          <div ref={chatBox} className="flex-1 space-y-3 overflow-y-auto rounded-2xl bg-white/90 p-4 text-slate-800 shadow-lg max-h-[45vh]">
+          <div ref={chatBox} className={`relative z-10 flex-1 space-y-3 overflow-y-auto rounded-2xl bg-white/90 p-4 text-slate-800 shadow-lg max-h-[45vh] ${tree ? "mx-auto w-full max-w-xl" : ""}`}>
             {turns.map((t, i) => (
               <div key={i} className={t.role === "user" ? "text-right" : ""}>
                 <div
@@ -313,7 +330,7 @@ export default function LookforApp() {
                       style={{ background: character.theme.accent }}
                       onClick={showGifts}
                     >
-                      🎁 {t.gifts.length} gift ideas below ↓
+                      {tree ? `🎁 I've popped ${t.gifts.length} under the tree ↓` : `🎁 ${t.gifts.length} gift ideas below ↓`}
                     </button>
                   </div>
                 )}
@@ -413,7 +430,7 @@ export default function LookforApp() {
           </div>
 
           <form
-            className="flex gap-2"
+            className={`relative z-10 flex gap-2 ${tree ? "mx-auto w-full max-w-xl" : ""}`}
             onSubmit={(e) => {
               e.preventDefault();
               send(input);
@@ -444,10 +461,14 @@ export default function LookforApp() {
               Send
             </button>
           </form>
+          </div>
 
           {giftSets.length > 0 && (
-            <section ref={giftsRef} className="scroll-mt-4 rounded-2xl bg-white/90 p-4 text-slate-800 shadow-lg">
-              <h2 className="mb-2 text-lg font-bold">🎁 Gift ideas</h2>
+            <section
+              ref={giftsRef}
+              className={`scroll-mt-4 rounded-2xl p-4 text-slate-800 shadow-lg ${tree ? "-mt-3 bg-white/95 ring-4 ring-red-700/70" : "bg-white/90"}`}
+            >
+              <h2 className="mb-2 text-lg font-bold">{tree ? "🎄 Under the tree" : "🎁 Gift ideas"}</h2>
               <div className="grid gap-2 sm:grid-cols-2">{latestGifts.map(giftCard)}</div>
               {earlierGifts.length > 0 && (
                 <details className="mt-3">
