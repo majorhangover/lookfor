@@ -28,6 +28,8 @@ export default function LookforApp() {
   const [turns, setTurns] = useState<Turn[]>([{ role: "assistant", content: character.greeting }]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  // Bumped to make the character wave: on arrival, on a new occasion, and with each reply.
+  const [waveKey, setWaveKey] = useState(1);
   const [voiceOn, setVoiceOn] = useLocalState("lookfor.voice", true);
   const voice = useHostVoice(region, character.id, character.voicePitch);
   const birthdays = upcomingBirthdays(family);
@@ -36,6 +38,7 @@ export default function LookforApp() {
   const changeOccasion = (id: string) => {
     voice.stop();
     setOccasionId(id);
+    setWaveKey((k) => k + 1);
     const next = CHARACTERS[getOccasion(id).character];
     // A new host starts a fresh conversation; the family list is kept.
     setTurns([{ role: "assistant", content: next.greeting }]);
@@ -68,6 +71,7 @@ export default function LookforApp() {
       const data: HostResponse & { error?: string } = await res.json();
       if (!res.ok) throw new Error(data.error || "Something went wrong");
       setTurns([...next, { role: "assistant", content: data.reply, gifts: data.gifts }]);
+      if (data.gifts?.length) setWaveKey((k) => k + 1);
       if (data.profileUpdates?.length) setPending((p) => [...p, ...data.profileUpdates]);
       if (voiceOn) voice.speak(data.reply);
     } catch (e) {
@@ -164,7 +168,14 @@ export default function LookforApp() {
           </nav>
 
           <div className="mx-auto h-52 w-52 md:h-60 md:w-60">
-            <Character id={character.id} mouth={voice.mouth} listening={voice.listening} />
+            <Character
+              id={character.id}
+              mouth={voice.mouth}
+              listening={voice.listening}
+              speaking={voice.speaking}
+              thinking={busy}
+              waveKey={waveKey}
+            />
           </div>
           <p className="-mt-2 text-center text-sm font-medium text-white/90">{character.name}</p>
 
