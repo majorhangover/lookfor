@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { z } from "zod";
+import { rateLimited } from "@/lib/rateLimit";
 import { amazonSearchLink } from "@/lib/amazon";
 import { HostSchema, familyContext, systemPrompt } from "@/lib/host";
 import { OCCASIONS } from "@/lib/occasions";
@@ -34,6 +35,9 @@ const client = process.env.ANTHROPIC_API_KEY ? new Anthropic() : null;
 const MODEL = process.env.CHAT_MODEL || "claude-haiku-5-5";
 
 export async function POST(request: Request) {
+  if (rateLimited(request)) {
+    return Response.json({ error: "You're going a bit fast! Please wait a few minutes and try again." }, { status: 429 });
+  }
   const parsed = RequestSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return Response.json({ error: "Invalid request" }, { status: 400 });

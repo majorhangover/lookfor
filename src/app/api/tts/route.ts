@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { rateLimited } from "@/lib/rateLimit";
 
 const Body = z.object({
   text: z.string().min(1).max(800),
@@ -12,6 +13,9 @@ const Body = z.object({
  * falls back to its built-in speech voice.
  */
 export async function POST(request: Request) {
+  if (rateLimited(request)) {
+    return Response.json({ error: "You're going a bit fast! Please wait a few minutes and try again." }, { status: 429 });
+  }
   const key = process.env.ELEVENLABS_API_KEY;
   if (!key) return new Response(null, { status: 204 });
 
