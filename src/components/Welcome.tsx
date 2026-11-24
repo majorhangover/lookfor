@@ -40,7 +40,10 @@ export default function Welcome({
   const card = (children: React.ReactNode) => (
     <main className="flex min-h-screen items-center justify-center p-6" style={bg}>
       <div className="w-full max-w-md rounded-3xl bg-white/95 p-8 text-center text-slate-800 shadow-xl">
-        <div className="mx-auto h-44 w-44">
+        <div
+          className="mx-auto h-44 w-44 rounded-full p-2 shadow-inner"
+          style={{ background: `radial-gradient(circle at 50% 40%, ${character.theme.via} 0%, ${character.theme.from} 100%)` }}
+        >
           <Character id={character.id} mouth={0} listening={false} waveKey={1} />
         </div>
         {children}
@@ -94,7 +97,10 @@ export default function Welcome({
           <Link className="underline" href="/privacy" target="_blank" rel="noopener">
             privacy notice
           </Link>
-          .
+          .{" "}
+          <Link className="underline" href="/about" target="_blank" rel="noopener">
+            How Lookfor works
+          </Link>
         </p>
       </>,
     );
