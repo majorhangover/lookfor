@@ -44,41 +44,92 @@ export async function POST(request: Request) {
   }
   const { region, occasion, messages, family } = parsed.data;
 
-  let result: HostResponse;
-  if (!client) {
-    result = demoReply(messages[messages.length - 1].content, region);
-  } else {
-    try {
-      const response = await client.messages.parse({
-        model: MODEL,
-        max_tokens: 2000,
-        output_config: { effort: "low", format: zodOutputFormat(HostSchema) },
-        system: [
-          { type: "text", text: systemPrompt(region, occasion), cache_control: { type: "ephemeral" } },
-          { type: "text", text: familyContext(family) },
-        ],
-        messages,
-      });
-      if (response.stop_reason === "refusal" || !response.parsed_output) {
-        result = {
-          reply: "Let's keep our chat on gifts and celebrations. Who are we shopping for?",
-          gifts: [],
-          profileUpdates: [],
-        };
-      } else {
-        result = response.parsed_output;
+  // The reply is streamed as newline-delimited JSON so the browser can start
+  // Santa talking as soon as his words are written, while the gift ideas are
+  // still being generated:
+  //   {"reply": "..."}            as soon as the reply text is complete
+  //   {"result": {...}}           the full answer, with gifts and links
+  //   {"error": "..."}            if something went wrong
+  const encoder = new TextEncoder();
+  const body = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      const send = (obj: object) => controller.enqueue(encoder.encode(JSON.stringify(obj) + "\n"));
+      const finish = (result: HostResponse) => {
+        result.gifts = result.gifts.slice(0, 4).map((g) => ({ ...g, url: amazonSearchLink(g.searchQuery, region) }));
+        send({ result });
+      };
+      try {
+        if (!client) {
+          const result = demoReply(messages[messages.length - 1].content, region);
+          send({ reply: result.reply });
+          finish(result);
+          return;
+        }
+        const stream = client.messages.stream({
+          model: MODEL,
+          max_tokens: 2000,
+          output_config: { effort: "low", format: zodOutputFormat(HostSchema) },
+          system: [
+            { type: "text", text: systemPrompt(region, occasion), cache_control: { type: "ephemeral" } },
+            { type: "text", text: familyContext(family) },
+          ],
+          messages,
+        });
+        let text = "";
+        let replySent = false;
+        stream.on("text", (delta) => {
+          if (replySent) return;
+          text += delta;
+          const reply = completedReply(text);
+          if (reply !== null) {
+            replySent = true;
+            send({ reply });
+          }
+        });
+        const message = await stream.finalMessage();
+        const block = message.content.find((b) => b.type === "text");
+        const parsed =
+          message.stop_reason === "refusal" || !block || block.type !== "text"
+            ? null
+            : HostSchema.safeParse(safeJson(block.text));
+        if (!parsed?.success) {
+          const fallback = "Let's keep our chat on gifts and celebrations. Who are we shopping for?";
+          if (!replySent) send({ reply: fallback });
+          finish({ reply: fallback, gifts: [], profileUpdates: [] });
+        } else {
+          if (!replySent) send({ reply: parsed.data.reply });
+          finish(parsed.data);
+        }
+      } catch (err) {
+        console.error("Chat failed", err);
+        send({ error: "Our gift helpers are busy. Please try again in a moment." });
+      } finally {
+        controller.close();
       }
-    } catch (err) {
-      console.error("Chat failed", err);
-      return Response.json(
-        { error: "Our gift helpers are busy. Please try again in a moment." },
-        { status: 503 },
-      );
-    }
-  }
+    },
+  });
+  return new Response(body, {
+    headers: { "Content-Type": "application/x-ndjson; charset=utf-8", "Cache-Control": "no-store" },
+  });
+}
 
-  result.gifts = result.gifts.slice(0, 4).map((g) => ({ ...g, url: amazonSearchLink(g.searchQuery, region) }));
-  return Response.json(result);
+/** The "reply" string from the start of a partly written JSON answer, once its closing quote has arrived. */
+function completedReply(partial: string): string | null {
+  const m = /^\s*\{\s*"reply"\s*:\s*"((?:[^"\\]|\\.)*)"/.exec(partial);
+  if (!m) return null;
+  try {
+    return JSON.parse(`"${m[1]}"`) as string;
+  } catch {
+    return null;
+  }
+}
+
+function safeJson(text: string): unknown {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
 }
 
 /** Canned replies so the app works end to end before an API key is set. */
