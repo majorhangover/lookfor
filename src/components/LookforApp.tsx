@@ -700,6 +700,13 @@ export default function LookforApp() {
               <div key={`gifts-${giftSets.length}`} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
                 {latestGifts.map((g, j) => giftCard(g, j, true))}
               </div>
+              <button
+                className="mt-3 w-full rounded-full bg-gradient-to-b from-amber-300 to-amber-500 px-4 py-2 text-sm font-bold text-slate-900 shadow ring-2 ring-white/70 transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
+                disabled={busy}
+                onClick={() => send("Show me more ideas, please. Different ones from those you've already suggested.")}
+              >
+                {busy ? `${firstName} is thinking…` : "🎁 Show me more ideas"}
+              </button>
               {earlierGifts.length > 0 && (
                 <details className="mt-3">
                   <summary className="cursor-pointer text-sm font-semibold text-slate-600">

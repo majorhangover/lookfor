@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     async start(controller) {
       const send = (obj: object) => controller.enqueue(encoder.encode(JSON.stringify(obj) + "\n"));
       const finish = (result: HostResponse) => {
-        result.gifts = result.gifts.slice(0, 4).map((g) => ({ ...g, url: amazonSearchLink(g.searchQuery, region) }));
+        result.gifts = result.gifts.slice(0, 6).map((g) => ({ ...g, url: amazonSearchLink(g.searchQuery, region) }));
         send({ result });
       };
       try {
