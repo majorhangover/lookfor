@@ -3,7 +3,6 @@
 import { useRef, useState } from "react";
 import type { Person } from "@/lib/types";
 import { EMPTY_PERSON as EMPTY } from "@/lib/profile";
-import Face from "./Face";
 import { birthYearFrom, displayAge, formatBirthday, normaliseBirthday } from "@/lib/birthday";
 
 type Field = { key: keyof Omit<Person, "id" | "birthYear">; label: string; placeholder: string };
@@ -103,17 +102,6 @@ export default function FamilyPanel({
 
   return (
     <section className="rounded-2xl bg-white/90 p-4 text-slate-800 shadow-lg">
-      <div aria-hidden className="mb-2 flex justify-center">
-        {(["grandma", "dad", "girl", "mum", "grandad", "boy", "baby"] as const).map((id, i) => (
-          <div
-            key={id}
-            className={`-mx-1.5 ${i % 2 ? "h-10 w-10 translate-y-2" : "h-12 w-12"}`}
-            style={{ rotate: `${(i % 3) * 6 - 6}deg` }}
-          >
-            <Face id={id} />
-          </div>
-        ))}
-      </div>
       <div className="mb-2 flex items-center justify-between">
         <h2 className="text-lg font-bold">My people</h2>
         {!editing && (

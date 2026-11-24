@@ -8,6 +8,8 @@ import { useAccount } from "./useAccount";
 import Character from "./Character";
 import Logo from "./Logo";
 import ChristmasTree from "./ChristmasTree";
+import Face from "./Face";
+import Present from "./Present";
 import { useLocalState } from "./useLocalState";
 import { useHostVoice } from "./useHostVoice";
 import { applyProfileUpdate } from "@/lib/profile";
@@ -272,8 +274,8 @@ export default function LookforApp() {
       <div className="px-4">
         <Logo />
       </div>
-      {/* Phones: one column. Wide screens: people on the left, the character and chat in the middle, gifts on the right. */}
-      <main className="mx-auto grid max-w-7xl grid-cols-1 gap-x-5 gap-y-3 p-4 [grid-template-areas:'nav'_'stage'_'chat'_'gifts'_'people'] lg:grid-cols-[280px_minmax(0,1fr)_340px] lg:grid-rows-[auto_auto_1fr] lg:[grid-template-areas:'people_nav_gifts'_'people_stage_gifts'_'people_chat_gifts']">
+      {/* Phones: one column. Wide screens: occasions across the top, then three columns (people, chat, gifts), each with its picture above it, all in one row. */}
+      <main className="mx-auto grid max-w-7xl grid-cols-1 gap-x-5 gap-y-3 p-4 [grid-template-areas:'nav'_'stage'_'name'_'chat'_'treeicon'_'gifts'_'peopleicon'_'people'] lg:grid-cols-[300px_minmax(0,1fr)_340px] lg:grid-rows-[auto_auto_auto_1fr] lg:[grid-template-areas:'nav_nav_nav'_'peopleicon_stage_treeicon'_'._name_.'_'people_chat_gifts']">
           <nav className="flex flex-wrap gap-2 [grid-area:nav]" aria-label="Occasion">
             {OCCASIONS.map((o) => (
               <button
@@ -288,26 +290,42 @@ export default function LookforApp() {
             ))}
           </nav>
 
-          {tree && (
-            <div
-              aria-hidden
-              className="pointer-events-none relative [grid-column:stage] [grid-row:stage-start/chat-end]"
-            >
-              <ChristmasTree />
+          {/* The three pictures share one row on wide screens, all the same height. */}
+          <div className="flex justify-center self-end [grid-area:stage]">
+            <div className="h-52 w-52 md:h-56 md:w-56">
+              <Character
+                id={character.id}
+                mouth={voice.mouth}
+                listening={voice.listening}
+                speaking={voice.speaking}
+                thinking={busy}
+                waveKey={waveKey}
+              />
             </div>
-          )}
-          <div className="relative z-10 flex flex-col items-center [grid-area:stage]">
-          <div className="mx-auto h-52 w-52 md:h-60 md:w-60">
-            <Character
-              id={character.id}
-              mouth={voice.mouth}
-              listening={voice.listening}
-              speaking={voice.speaking}
-              thinking={busy}
-              waveKey={waveKey}
-            />
           </div>
-          <div className="-mt-2 flex items-center justify-center gap-2 text-sm text-white/90">
+          <div aria-hidden className="flex h-44 items-end justify-center self-end [grid-area:peopleicon] md:h-48">
+            <div className="grid grid-cols-4 place-items-center">
+              {(["grandma", "dad", "girl", "grandad", "mum", "boy", "baby", "friend"] as const).map((id, i) => (
+                <div
+                  key={id}
+                  className={`-m-1 h-16 w-16 md:h-[4.5rem] md:w-[4.5rem] ${i >= 4 ? "-mt-3 translate-x-6" : ""}`}
+                  style={{ rotate: `${((i * 5) % 3) * 6 - 6}deg` }}
+                >
+                  <Face id={id} />
+                </div>
+              ))}
+            </div>
+          </div>
+          <div
+            aria-hidden
+            className={`flex h-44 justify-center self-end [grid-area:treeicon] md:h-48 ${giftSets.length ? "" : "hidden lg:flex"}`}
+          >
+            <div className="relative h-full w-36 md:w-40">
+              {tree ? <ChristmasTree /> : <Present color={character.theme.accent} />}
+            </div>
+          </div>
+
+          <div className="-mt-2 flex items-center justify-center gap-2 text-sm text-white/90 [grid-area:name]">
             <span className="font-medium">{character.name}</span>
             <button
               className="rounded-full bg-white/20 px-2 py-0.5 text-xs hover:bg-white/30"
@@ -317,13 +335,9 @@ export default function LookforApp() {
               {voiceOn ? "🔊 Voice on" : "🔇 Hear my voice"}
             </button>
           </div>
-          </div>
+          <div className="flex min-w-0 flex-col gap-3 [grid-area:chat]">
 
-          <div
-            className={`relative z-10 flex min-w-0 flex-col gap-3 [grid-area:chat] ${tree ? "pb-16" : ""}`}
-          >
-
-          <div ref={chatBox} className={`min-h-0 flex-1 space-y-3 overflow-y-auto rounded-2xl bg-white/90 p-4 text-slate-800 shadow-lg max-h-[45vh] ${tree ? "mx-auto w-full max-w-xl" : ""}`}>
+          <div ref={chatBox} className={`min-h-0 flex-1 space-y-3 overflow-y-auto rounded-2xl bg-white/90 p-4 text-slate-800 shadow-lg max-h-[45vh]`}>
             {turns.map((t, i) => (
               <div key={i} className={t.role === "user" ? "text-right" : ""}>
                 <div
@@ -443,7 +457,7 @@ export default function LookforApp() {
           </div>
 
           <form
-            className={`flex gap-2 ${tree ? "mx-auto w-full max-w-xl" : ""}`}
+            className="flex gap-2"
             onSubmit={(e) => {
               e.preventDefault();
               send(input);
@@ -477,14 +491,8 @@ export default function LookforApp() {
           </div>
 
           <div className="flex min-w-0 flex-col self-start [grid-area:gifts]">
-          {tree && (
-            <div aria-hidden className="relative mx-auto hidden h-40 w-44 lg:block">
-              <ChristmasTree />
-            </div>
-          )}
           {giftSets.length === 0 && (
-            <section className={`hidden rounded-2xl border-2 border-dashed border-white/40 p-6 text-center text-white/90 lg:block ${tree ? "mt-2" : ""}`}>
-              {!tree && <div className="text-3xl">🎁</div>}
+            <section className="hidden rounded-2xl border-2 border-dashed border-white/40 p-6 text-center text-white/90 lg:block">
               <p className="mt-1 font-semibold">
                 {tree ? "Presents will appear here, under the tree." : "Gift ideas will appear here."}
               </p>
@@ -494,7 +502,7 @@ export default function LookforApp() {
           {giftSets.length > 0 && (
             <section
               ref={giftsRef}
-              className={`scroll-mt-4 rounded-2xl p-4 text-slate-800 shadow-lg ${tree ? "-mt-3 bg-white/95 ring-4 ring-red-700/70 lg:mt-1" : "bg-white/90"}`}
+              className={`scroll-mt-4 rounded-2xl p-4 text-slate-800 shadow-lg ${tree ? "bg-white/95 ring-4 ring-red-700/70" : "bg-white/90"}`}
             >
               <h2 className="mb-2 text-lg font-bold">{tree ? "🎄 Under the tree" : "🎁 Gift ideas"}</h2>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">{latestGifts.map(giftCard)}</div>
