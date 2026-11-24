@@ -22,6 +22,7 @@ export function useHostVoice(region: Region, character: CharacterId, pitch: numb
   const raf = useRef<number | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const recRef = useRef<any>(null);
+  const ctxRef = useRef<AudioContext | null>(null);
 
   const stopAnim = () => {
     if (raf.current) cancelAnimationFrame(raf.current);
@@ -72,19 +73,28 @@ export function useHostVoice(region: Region, character: CharacterId, pitch: numb
   );
 
   const speak = useCallback(
-    async (text: string) => {
+    (text: string) => {
       stop();
+      // Stream the voice: the <audio> element starts playing as soon as the
+      // first chunk arrives. A 204 (no voice set up) or any error falls back
+      // to the browser's own voice.
+      const params = new URLSearchParams({ text, character });
+      const audio = new Audio();
+      audio.preload = "auto";
+      audioRef.current = audio;
+      let fellBack = false;
+      const fallback = () => {
+        if (fellBack || audioRef.current !== audio) return;
+        fellBack = true;
+        stopAnim();
+        setSpeaking(false);
+        speakWithBrowser(text);
+      };
+      audio.onerror = fallback;
       try {
-        const res = await fetch("/api/tts", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text, character }),
-        });
-        if (res.status !== 200) return speakWithBrowser(text);
-        const url = URL.createObjectURL(await res.blob());
-        const audio = new Audio(url);
-        audioRef.current = audio;
-        const ctx = new AudioContext();
+        if (!ctxRef.current) ctxRef.current = new AudioContext();
+        const ctx = ctxRef.current;
+        if (ctx.state === "suspended") ctx.resume();
         const src = ctx.createMediaElementSource(audio);
         const analyser = ctx.createAnalyser();
         analyser.fftSize = 512;
@@ -95,23 +105,26 @@ export function useHostVoice(region: Region, character: CharacterId, pitch: numb
           analyser.getByteTimeDomainData(data);
           let sum = 0;
           for (const d of data) sum += Math.abs(d - 128);
-          setMouth(Math.min(1, (sum / data.length) / 18));
+          setMouth(Math.min(1, sum / data.length / 18));
           raf.current = requestAnimationFrame(step);
         };
-        audio.onplay = () => {
+        audio.onplaying = () => {
           setSpeaking(true);
-          step();
+          if (!raf.current) step();
         };
-        audio.onended = () => {
-          stopAnim();
-          setSpeaking(false);
-          URL.revokeObjectURL(url);
-          ctx.close();
-        };
-        await audio.play();
       } catch {
-        speakWithBrowser(text);
+        // No Web Audio: still play, with a simple mouth flap.
+        audio.onplaying = () => {
+          setSpeaking(true);
+          if (!raf.current) flap();
+        };
       }
+      audio.onended = () => {
+        stopAnim();
+        setSpeaking(false);
+      };
+      audio.src = `/api/tts?${params.toString()}`;
+      audio.play().catch(fallback);
     },
     [speakWithBrowser, stop, character],
   );
