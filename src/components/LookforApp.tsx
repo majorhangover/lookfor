@@ -184,18 +184,45 @@ export default function LookforApp() {
           messages: next.slice(1).slice(-30).map(({ role, content }) => ({ role, content })),
         }),
       });
-      const data: HostResponse & { error?: string } = await res.json();
-      if (!res.ok) throw new Error(data.error || "Something went wrong");
+      if (!res.ok || !res.body) {
+        const err = await res.json().catch(() => null);
+        throw new Error(err?.error || "Something went wrong");
+      }
+      // The answer streams in: first Santa's words (so he can start talking
+      // straight away), then the gift ideas.
+      let data: HostResponse | null = null;
+      let spoken = false;
+      const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
+      let buffer = "";
+      for (;;) {
+        const { value, done } = await reader.read();
+        if (value) buffer += value;
+        const lines = buffer.split("\n");
+        buffer = done ? "" : (lines.pop() ?? "");
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          const msg: { reply?: string; result?: HostResponse; error?: string } = JSON.parse(line);
+          if (msg.error) throw new Error(msg.error);
+          if (msg.reply !== undefined && !spoken) {
+            spoken = true;
+            setTurns([...next, { role: "assistant", content: msg.reply }]);
+            if (voiceOn) voice.speak(msg.reply);
+          }
+          if (msg.result) data = msg.result;
+        }
+        if (done) break;
+      }
+      if (!data) throw new Error("Something went wrong");
       setTurns([...next, { role: "assistant", content: data.reply, gifts: data.gifts }]);
+      if (!spoken && voiceOn) voice.speak(data.reply);
       if (data.gifts?.length) {
         setWaveKey((k) => k + 1);
         // Jingle and celebrate, to draw the eye to the new ideas.
         playJingle();
         setCelebrate((c) => c + 1);
       }
-      if (data.profileUpdates?.length) setPending((p) => [...p, ...data.profileUpdates]);
+      if (data.profileUpdates?.length) setPending((p) => [...p, ...data!.profileUpdates]);
       if (data.gifts?.length) account.logGifts("shown", data.gifts, occasionId);
-      if (voiceOn) voice.speak(data.reply);
     } catch (e) {
       setTurns([
         ...next,
@@ -581,7 +608,11 @@ export default function LookforApp() {
                 </div>
               </div>
             )}
-            {busy && <div className="text-slate-500 italic">{character.name} is thinking…</div>}
+            {busy && (turns[turns.length - 1]?.role === "user" ? (
+              <div className="text-slate-500 italic">{character.name} is thinking…</div>
+            ) : (
+              <div className="text-slate-500 italic">{character.name} is picking gift ideas…</div>
+            ))}
           </div>
 
 
