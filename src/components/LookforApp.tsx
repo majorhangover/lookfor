@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import AccountPanel from "./AccountPanel";
 import Welcome from "./Welcome";
@@ -427,13 +426,15 @@ export default function LookforApp() {
             </section>
           )}
           <FamilyPanel family={family} setFamily={setFamily} />
-          <p className="rounded-2xl bg-white/80 p-3 text-xs text-slate-700">
-            Our characters are AI and their suggestions are generated automatically. Check age ratings and details
-            before you buy. As an Amazon Associate we earn from qualifying purchases. Your family list is stored on this
-            device, and in your account if you sign in. <Link className="underline" href="/privacy">Privacy</Link>
-          </p>
         </aside>
       </main>
+      <footer className="mx-auto max-w-6xl px-4 pb-6 text-center text-xs text-white/70">
+        AI characters: check age ratings and details before you buy. As an Amazon Associate we earn from qualifying
+        purchases. ·{" "}
+        <a className="underline hover:text-white" href="/privacy" target="_blank" rel="noopener">
+          Privacy
+        </a>
+      </footer>
     </div>
   );
 }
