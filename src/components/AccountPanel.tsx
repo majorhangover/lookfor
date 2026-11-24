@@ -88,6 +88,7 @@ export default function AccountPanel({ account }: { account: Account }) {
         }}
       >
         <input
+          id="account-email"
           type="email"
           required
           placeholder="you@example.com"

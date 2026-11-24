@@ -25,6 +25,19 @@ export default function Privacy() {
         </p>
         <p>Please use nicknames, not full names, and do not add addresses, schools or photos.</p>
 
+        <h2 className="font-semibold">Your location</h2>
+        <p>
+          We ask which country you&apos;re in so we can link to the right Amazon shop. We store your answer on this
+          device, and in your account if you have one.
+        </p>
+
+        <h2 className="font-semibold">How we use your information</h2>
+        <p>
+          We use your saved list and the gift ideas you look at to make better suggestions and to improve Lookfor. If
+          you opt in to emails, we also use them to send you reminders and gift ideas that suit your people. We never
+          sell your information.
+        </p>
+
         <h2 className="font-semibold">Emails</h2>
         <p>
           We only send sign-in links when you ask for one. We send birthday reminders and gift ideas only if you tick

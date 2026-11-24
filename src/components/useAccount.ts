@@ -19,6 +19,8 @@ function mergePeople(remote: Person[], local: Person[]): Person[] {
  */
 export function useAccount(family: Person[], setFamily: (f: Person[]) => void, region: Region) {
   const [session, setSession] = useState<Session | null>(null);
+  // True once we know whether someone is signed in (avoids a flash of the welcome screen).
+  const [ready, setReady] = useState(!supabase);
   const [optIn, setOptIn] = useState(false);
   // The user id whose saved list has been loaded and merged.
   const [syncedFor, setSyncedFor] = useState<string | null>(null);
@@ -30,7 +32,10 @@ export function useAccount(family: Person[], setFamily: (f: Person[]) => void, r
 
   useEffect(() => {
     if (!supabase) return;
-    supabase.auth.getSession().then(({ data }) => setSession(data.session));
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      setReady(true);
+    });
     const { data } = supabase.auth.onAuthStateChange((_event, s) => setSession(s));
     return () => data.subscription.unsubscribe();
   }, []);
@@ -121,6 +126,7 @@ export function useAccount(family: Person[], setFamily: (f: Person[]) => void, r
 
   return {
     enabled: Boolean(supabase),
+    ready,
     email: session?.user.email ?? null,
     synced,
     optIn,
