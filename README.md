@@ -1,6 +1,6 @@
 # Lookfor
 
-Gift ideas for every occasion, from a friendly AI character. Santa hosts Christmas, Bo the Birthday Bear hosts birthdays, Bea the Bunny hosts Easter, Cupid hosts Valentine's Day and anniversaries, and Lou covers everything else. Gift ideas link to Amazon UK or US with your Associates tag.
+Gift ideas for everyone, for every occasion, from a friendly AI character. Santa hosts Christmas, Bo the Birthday Bear hosts birthdays, Bea the Bunny hosts Easter, Cupid hosts Valentine's Day and anniversaries, and Lou covers everything else. Gift ideas link to Amazon UK or US with your Associates tag.
 
 For adults only: Amazon's Associates rules exclude services aimed at children.
 

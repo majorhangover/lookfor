@@ -63,7 +63,7 @@ export default function Welcome({
         <h1 className="mt-2 text-3xl font-bold" style={{ color: character.theme.accent }}>
           Lookfor
         </h1>
-        <p className="mt-1 font-medium">Gift ideas for every occasion</p>
+        <p className="mt-1 font-medium">Gift ideas for everyone</p>
         <p className="mt-4 text-lg">
           {santa ? "Ho ho ho! " : "Hello! "}Where in the world are you?{" "}
           {santa ? "I need to know where to deliver!" : "Then I can find gifts in the right shop."}

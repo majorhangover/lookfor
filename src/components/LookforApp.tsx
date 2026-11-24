@@ -146,7 +146,7 @@ export default function LookforApp() {
         <div className="flex min-w-0 flex-col gap-3">
           <header className="relative flex flex-wrap items-center justify-between gap-2 text-white">
             <h1 className="text-2xl font-bold">
-              Lookfor <span className="text-base font-normal opacity-80">· gift ideas for every occasion</span>
+              Lookfor <span className="text-base font-normal opacity-80">· gift ideas for everyone</span>
             </h1>
             <div className="text-sm">
               <button
