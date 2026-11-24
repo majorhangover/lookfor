@@ -116,8 +116,10 @@ export default function LookforApp() {
     if (!el) return;
     // Bring the gift ideas up to the middle of the screen, so they can't be missed.
     const top = el.getBoundingClientRect().top;
+    // Already in view (as on wide screens): leave the page where it is.
+    if (top < window.innerHeight * 0.75) return;
     const target = window.innerHeight * 0.35;
-    if (top > target) window.scrollBy({ top: top - target, behavior: "smooth" });
+    window.scrollBy({ top: top - target, behavior: "smooth" });
   };
 
   // When new ideas arrive, nudge the page so the ideas come into view.
@@ -271,7 +273,7 @@ export default function LookforApp() {
         <Logo />
       </div>
       {/* Phones: one column. Wide screens: people on the left, the character and gifts in the middle, chat on the right. */}
-      <main className="mx-auto grid max-w-7xl grid-cols-1 gap-x-5 gap-y-3 p-4 [grid-template-areas:'nav'_'stage'_'chat'_'gifts'_'people'] lg:grid-cols-[280px_minmax(0,1fr)_380px] lg:grid-rows-[auto_auto_1fr] lg:[grid-template-areas:'people_nav_chat'_'people_stage_chat'_'people_gifts_chat']">
+      <main className="mx-auto grid max-w-7xl grid-cols-1 gap-x-5 gap-y-3 p-4 [grid-template-areas:'nav'_'stage'_'chat'_'gifts'_'people'] lg:grid-cols-[280px_minmax(0,1fr)_380px] lg:grid-rows-[auto_auto_1fr] lg:[grid-template-areas:'people_nav_stage'_'people_treebase_stage'_'people_gifts_chat']">
           <nav className="flex flex-wrap gap-2 [grid-area:nav]" aria-label="Occasion">
             {OCCASIONS.map((o) => (
               <button
@@ -289,13 +291,18 @@ export default function LookforApp() {
           {tree && (
             <div
               aria-hidden
-              className="pointer-events-none relative [grid-column:stage] [grid-row:stage-start/chat-end] lg:[grid-area:stage]"
+              className="pointer-events-none relative [grid-column:stage] [grid-row:stage-start/chat-end] lg:hidden"
             >
               <ChristmasTree />
             </div>
           )}
-          <div className={`relative z-10 flex flex-col items-center [grid-area:stage] ${tree ? "lg:pb-24" : ""}`}>
-          <div className="mx-auto h-52 w-52 md:h-60 md:w-60">
+          {tree && (
+            <div aria-hidden className="pointer-events-none relative hidden h-28 self-end [grid-area:treebase] lg:block">
+              <ChristmasTree baseOnly />
+            </div>
+          )}
+          <div className="relative z-10 flex flex-col items-center [grid-area:stage]">
+          <div className="mx-auto h-52 w-52 md:h-60 md:w-60 lg:h-48 lg:w-48">
             <Character
               id={character.id}
               mouth={voice.mouth}
@@ -318,10 +325,10 @@ export default function LookforApp() {
           </div>
 
           <div
-            className={`relative z-10 flex min-w-0 flex-col gap-3 [grid-area:chat] lg:sticky lg:top-4 lg:h-[calc(100vh-2rem)] lg:self-start ${tree ? "pb-16 lg:pb-0" : ""}`}
+            className={`relative z-10 flex min-w-0 flex-col gap-3 [grid-area:chat] lg:self-start ${tree ? "pb-16 lg:pb-0" : ""}`}
           >
 
-          <div ref={chatBox} className={`min-h-0 flex-1 space-y-3 overflow-y-auto rounded-2xl bg-white/90 p-4 text-slate-800 shadow-lg max-h-[45vh] lg:max-h-none ${tree ? "mx-auto w-full max-w-xl lg:max-w-none" : ""}`}>
+          <div ref={chatBox} className={`min-h-0 flex-1 space-y-3 overflow-y-auto rounded-2xl bg-white/90 p-4 text-slate-800 shadow-lg max-h-[45vh] lg:h-[calc(100vh-34rem)] lg:max-h-none lg:min-h-64 lg:flex-none ${tree ? "mx-auto w-full max-w-xl lg:max-w-none" : ""}`}>
             {turns.map((t, i) => (
               <div key={i} className={t.role === "user" ? "text-right" : ""}>
                 <div

@@ -1,9 +1,14 @@
+import { useId } from "react";
+
 /**
  * A cartoon Christmas tree drawn behind Santa's chat. Santa's head sits at the
  * top, the chat hangs in the branches, and the trunk ends below the message box,
  * right above the presents. Stretches to fit whatever height the chat is.
+ * `baseOnly` draws just the lowest branches and trunk, for wide screens.
  */
-export default function ChristmasTree() {
+export default function ChristmasTree({ baseOnly = false }: { baseOnly?: boolean }) {
+  // Each tree needs its own gradient id: a hidden copy would otherwise blank the other.
+  const green = `tree-green-${useId().replace(/:/g, "")}`;
   const tiers = [
     { top: 0, base: 70, half: 38 },
     { top: 35, base: 135, half: 62 },
@@ -18,13 +23,13 @@ export default function ChristmasTree() {
   ] as const;
   return (
     <svg
-      viewBox="0 0 200 300"
+      viewBox={baseOnly ? "0 190 200 110" : "0 0 200 300"}
       preserveAspectRatio="none"
       className="pointer-events-none absolute inset-0 h-full w-full"
       aria-hidden
     >
       <defs>
-        <linearGradient id="tree-green" x1="0" x2="1">
+        <linearGradient id={green} x1="0" x2="1">
           <stop offset="0%" stopColor="#166534" />
           <stop offset="55%" stopColor="#22a04b" />
           <stop offset="100%" stopColor="#15803d" />
@@ -37,7 +42,7 @@ export default function ChristmasTree() {
         <path
           key={i}
           d={`M100 ${t.top} L${100 + t.half} ${t.base} Q100 ${t.base + 8} ${100 - t.half} ${t.base} Z`}
-          fill="url(#tree-green)"
+          fill={`url(#${green})`}
           stroke="#14532d"
           strokeWidth="0.6"
           vectorEffect="non-scaling-stroke"
