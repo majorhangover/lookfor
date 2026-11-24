@@ -33,6 +33,44 @@ body {
 .char-hand.char-waving {
   animation: char-wave 1.8s ease-in-out;
 }
+.ask-glow {
+  animation: ask-glow 2.4s ease-in-out infinite;
+}
+@keyframes ask-glow {
+  0%, 100% { box-shadow: 0 0 24px rgba(252, 211, 77, 0.25); }
+  50% { box-shadow: 0 0 48px rgba(252, 211, 77, 0.6); }
+}
+.tree-light {
+  animation: tree-light 1.6s ease-in-out infinite;
+}
+@keyframes tree-light {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.tree-sparkle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: tree-sparkle 1.8s ease-in-out infinite;
+}
+@keyframes tree-sparkle {
+  0%, 100% { opacity: 0; transform: scale(0.3); }
+  50% { opacity: 1; transform: scale(1); }
+}
+.tree-star-lit {
+  filter: drop-shadow(0 0 6px #fde047) drop-shadow(0 0 14px #facc15);
+  animation: tree-star 2s ease-in-out infinite;
+}
+@keyframes tree-star {
+  0%, 100% { scale: 1; rotate: 0deg; filter: drop-shadow(0 0 4px #fde047) drop-shadow(0 0 10px #facc15); }
+  50% { scale: 1.15; rotate: 8deg; filter: drop-shadow(0 0 8px #fef08a) drop-shadow(0 0 20px #facc15); }
+}
+.char-point {
+  animation: char-poke 1.6s ease-in-out infinite;
+}
+@keyframes char-poke {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
 @keyframes char-bob {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-4px); }
@@ -55,7 +93,8 @@ body {
   100% { transform: translateY(130px) rotate(10deg); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .char-body, .char-pompom, .char-hand.char-waving { animation: none; }
+  .char-body, .char-pompom, .char-hand.char-waving, .char-point, .tree-light, .tree-star-lit, .ask-glow { animation: none; }
+  .tree-sparkle { animation: none; opacity: 0.8; }
   .char-motion { display: none; }
 }
 .logo-face {
