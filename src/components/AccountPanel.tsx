@@ -92,7 +92,10 @@ export default function AccountPanel({ account }: { account: Account }) {
         <li>✨ Ideas that get better the more you use it</li>
         <li>📱 Your list on your phone and computer</li>
       </ul>
-      <p className="mt-2 text-xs text-slate-500">Free, no password, just your email.</p>
+      <p className="mt-2 text-xs text-slate-500">
+        Free, no password, just your email. 🎄 Kept safe under the tree: stored securely in the UK, only you can see
+        it, and we never sell it.
+      </p>
       <form
         className="mt-2 space-y-2"
         onSubmit={async (e) => {

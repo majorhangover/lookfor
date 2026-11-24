@@ -128,6 +128,9 @@ export default function Welcome({
         Pop in your email and I&apos;ll remember everyone you buy for, so next time is even easier.
       </p>
       <p className="mt-1 text-sm text-slate-500">Free, no password, and you can delete it any time.</p>
+      <p className="mt-1 text-sm text-slate-500">
+        🎄 Kept safe under the tree: stored securely in the UK, only you can see it, and we never sell it.
+      </p>
       <ul className="mx-auto mt-3 max-w-xs space-y-1 text-left text-sm">
         <li>🎁 Everyone&apos;s ages, likes and sizes, saved for next time</li>
         <li>📅 Reminders before birthdays and big days</li>
