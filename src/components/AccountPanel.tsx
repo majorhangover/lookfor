@@ -58,14 +58,21 @@ export default function AccountPanel({ account }: { account: Account }) {
     );
   }
 
-  if (status === "sent") {
+  if (account.linkSentTo) {
     return (
-      <section className="rounded-2xl bg-white/90 p-4 text-sm text-slate-800 shadow-lg">
+      <section id="account-panel" className="rounded-2xl bg-white/90 p-4 text-sm text-slate-800 shadow-lg">
         <h2 className="mb-1 font-bold">Check your email</h2>
         <p>
-          We&apos;ve sent a sign-in link to <b>{email}</b>. Open it on this device to save your list.
+          We&apos;ve sent a sign-in link to <b>{account.linkSentTo}</b>. Open it in this browser to save your list.
+          It can take a minute or two, so check your spam folder too.
         </p>
-        <button className="mt-2 text-xs underline" onClick={() => setStatus("idle")}>
+        <button
+          className="mt-2 text-xs underline"
+          onClick={() => {
+            account.clearLinkSent();
+            setStatus("idle");
+          }}
+        >
           Use a different email
         </button>
       </section>

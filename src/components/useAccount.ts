@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import type { GiftIdea, Person, Region } from "@/lib/types";
 
 const PENDING_OPT_IN = "lookfor.pendingOptIn";
+const LINK_SENT_TO = "lookfor.linkSentTo";
 
 /** Combine two lists: the account's people plus any on this device not already there. */
 function mergePeople(remote: Person[], local: Person[]): Person[] {
@@ -26,6 +27,8 @@ export function useAccount(family: Person[], setFamily: (f: Person[]) => void, r
   const [syncedFor, setSyncedFor] = useState<string | null>(null);
   const synced = Boolean(session && syncedFor === session.user.id);
   const [saveError, setSaveError] = useState(false);
+  // The email a sign-in link was last sent to, so every screen can say "check your email".
+  const [linkSentTo, setLinkSentTo] = useState<string | null>(() => localStorage.getItem(LINK_SENT_TO));
   const familyRef = useRef(family);
   useEffect(() => {
     familyRef.current = family;
@@ -75,6 +78,8 @@ export function useAccount(family: Person[], setFamily: (f: Person[]) => void, r
         return;
       }
       localStorage.removeItem(PENDING_OPT_IN);
+      localStorage.removeItem(LINK_SENT_TO);
+      setLinkSentTo(null);
       setSaveError(false);
       setFamily(merged);
       setOptIn(marketing);
@@ -109,7 +114,21 @@ export function useAccount(family: Person[], setFamily: (f: Person[]) => void, r
       email,
       options: { emailRedirectTo: window.location.origin },
     });
-    return error ? "Sorry, we couldn't send the link. Please check the email address and try again." : null;
+    if (error) {
+      console.error("Sending sign-in link failed", error);
+      if (error.status === 429 || /rate limit|security purposes/i.test(error.message)) {
+        return "We've sent a lot of sign-in emails just now. Please try again in a little while.";
+      }
+      return "Sorry, we couldn't send the link. Please check the email address and try again.";
+    }
+    localStorage.setItem(LINK_SENT_TO, email);
+    setLinkSentTo(email);
+    return null;
+  }, []);
+
+  const clearLinkSent = useCallback(() => {
+    localStorage.removeItem(LINK_SENT_TO);
+    setLinkSentTo(null);
   }, []);
 
   const updateOptIn = useCallback(
@@ -170,6 +189,8 @@ export function useAccount(family: Person[], setFamily: (f: Person[]) => void, r
     email: session?.user.email ?? null,
     synced,
     saveError,
+    linkSentTo,
+    clearLinkSent,
     optIn,
     logGifts,
     sendLink,
