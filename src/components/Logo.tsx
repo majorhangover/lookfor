@@ -10,14 +10,14 @@ const outfit = Outfit({ subsets: ["latin"], weight: ["800"] });
 const FACES: { id: FaceId; x: number; y: number; size: number; tilt: number; wide?: boolean }[] = [
   // Left side
   { id: "santa", x: 4, y: 18, size: 78, tilt: -8 },
-  { id: "grandma", x: 14, y: 58, size: 56, tilt: 6 },
+  { id: "grandma", x: 14, y: 58, size: 56, tilt: 6, wide: true },
   { id: "girl", x: 20, y: 8, size: 48, tilt: 10, wide: true },
   { id: "bear", x: 25, y: 56, size: 62, tilt: -6, wide: true },
   { id: "baby", x: 0, y: 66, size: 44, tilt: 12, wide: true },
   { id: "cupid", x: 29, y: 0, size: 44, tilt: -10, wide: true },
   // Right side
   { id: "lou", x: 84, y: 14, size: 74, tilt: 8 },
-  { id: "dad", x: 75, y: 56, size: 58, tilt: -6 },
+  { id: "dad", x: 75, y: 56, size: 58, tilt: -6, wide: true },
   { id: "bunny", x: 72, y: 2, size: 52, tilt: 6, wide: true },
   { id: "mum", x: 67, y: 58, size: 52, tilt: 8, wide: true },
   { id: "grandad", x: 93, y: 64, size: 46, tilt: -10, wide: true },
@@ -65,14 +65,19 @@ export default function Logo() {
           <Face id={f.id} />
         </div>
       ))}
-      <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white">
-        <h1
-          className={`${outfit.className} text-6xl leading-none tracking-tight drop-shadow-[0_3px_10px_rgba(0,0,0,0.35)] sm:text-7xl md:text-8xl`}
+      <div className="absolute inset-0 flex items-center justify-center text-white">
+        {/* The tagline is sized from the logo's font size and justified, so it spans the word exactly. */}
+        <div
+          className={`${outfit.className} inline-flex flex-col text-6xl leading-none drop-shadow-[0_3px_10px_rgba(0,0,0,0.35)] sm:text-7xl md:text-8xl`}
         >
-          L<Eye />
-          <Eye />kfor
-        </h1>
-        <p className="mt-1 text-base font-medium opacity-90 sm:text-lg">gift ideas for everyone</p>
+          <h1 className="tracking-tight">
+            L<Eye />
+            <Eye />kfor
+          </h1>
+          <p className="mt-[0.12em] w-0 min-w-full whitespace-nowrap px-[0.2em] font-sans text-[0.235em] font-bold uppercase tracking-[0.04em] opacity-90 [text-align-last:justify] [text-align:justify]">
+            gift ideas for everyone
+          </p>
+        </div>
       </div>
     </div>
   );
