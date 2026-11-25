@@ -24,7 +24,7 @@ export default function Home() {
         <h2 className="text-base font-semibold text-white">Free Christmas gift ideas for everyone you buy for</h2>
         <p className="mt-2">
           Lookfor is a free gift finder. Tell Santa who you&apos;re shopping for, what they&apos;re into and roughly what
-          you want to spend, and he&apos;ll suggest gift ideas you can buy on Amazon. Find presents for mum and dad,
+          you want to spend, and he&apos;ll suggest gift ideas you can buy online. Find presents for mum and dad,
           grandparents, children and teenagers, partners, friends, Secret Santa and stocking fillers. There are
           characters for birthdays, Valentine&apos;s Day, Mother&apos;s Day, Father&apos;s Day, Easter, weddings,
           anniversaries and new babies too.

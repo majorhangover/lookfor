@@ -154,7 +154,7 @@ export default function FamilyPanel({
                           >
                             <span className="font-semibold text-slate-800">🎁 {g.title}</span>
                             {g.priceBand && <span className="text-slate-500"> · {g.priceBand}</span>}
-                            <span className="block text-xs font-medium text-amber-700">See on Amazon →</span>
+                            <span className="block text-xs font-medium text-amber-700">See options →</span>
                           </a>
                           <button
                             aria-label={`Remove ${g.title}`}
