@@ -29,10 +29,13 @@ export default function FamilyPanel({
   family,
   setFamily,
   currency = "£",
+  onClose,
 }: {
   family: Person[];
   setFamily: (f: Person[]) => void;
   currency?: string;
+  /** Shown as a pop-up: a close button in the corner. */
+  onClose?: () => void;
 }) {
   const [editing, setEditing] = useState<Person | null>(null);
   const [showMore, setShowMore] = useState(false);
@@ -104,15 +107,26 @@ export default function FamilyPanel({
     <section className="rounded-2xl bg-white/90 p-4 text-slate-800 shadow-lg">
       <div className="mb-2 flex items-center justify-between">
         <h2 className="text-lg font-bold">My people</h2>
-        {!editing && (
-          <button
-            id="add-person"
-            className="rounded-full bg-emerald-700 px-3 py-1 text-sm text-white hover:bg-emerald-800"
-            onClick={() => start(blank())}
-          >
-            + Add person
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {!editing && (
+            <button
+              id="add-person"
+              className="rounded-full bg-emerald-700 px-3 py-1 text-sm text-white hover:bg-emerald-800"
+              onClick={() => start(blank())}
+            >
+              + Add person
+            </button>
+          )}
+          {onClose && (
+            <button
+              aria-label="Close My people"
+              className="rounded-full px-2 py-1 text-lg leading-none text-slate-500 hover:bg-slate-200"
+              onClick={onClose}
+            >
+              ✕
+            </button>
+          )}
+        </div>
       </div>
 
       {family.length === 0 && !editing && (

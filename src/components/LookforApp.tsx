@@ -49,6 +49,14 @@ export default function LookforApp() {
   // Off by default: saves voice costs and avoids surprising anyone with loud speakers.
   const [voiceOn, setVoiceOn] = useLocalState("lookfor.voiceOn", false);
   const [menuOpen, setMenuOpen] = useState(false);
+  // My people opens as a pop-up rather than a permanent box.
+  const [peopleOpen, setPeopleOpen] = useState(false);
+  useEffect(() => {
+    if (!peopleOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setPeopleOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [peopleOpen]);
   const [regionOpen, setRegionOpen] = useState(false);
   const voice = useHostVoice(region, character.id, character.voicePitch);
   const firstName = character.name.split(" ")[0];
@@ -318,7 +326,18 @@ export default function LookforApp() {
   return (
     <div className="min-h-screen transition-colors" style={bg}>
       <header className="relative mx-auto flex max-w-6xl justify-end gap-2 px-4 pt-3 text-white">
-        <div className="flex items-center gap-2 text-sm">
+        <div className="flex flex-wrap items-center justify-end gap-2 text-sm">
+          <button
+            id="open-people"
+            aria-haspopup="dialog"
+            className="relative rounded-full bg-white px-3 py-1 font-semibold text-emerald-800 shadow hover:bg-white/90"
+            onClick={() => setPeopleOpen(true)}
+          >
+            👥 My people{family.length > 0 ? ` (${family.length})` : ""}
+            {birthdays.length > 0 && (
+              <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full bg-red-600 ring-2 ring-white" title="Birthday coming up" />
+            )}
+          </button>
           {/* Country: shows which Amazon store the gift links go to, and switches it. */}
           <div className="relative">
             <button
@@ -428,7 +447,7 @@ export default function LookforApp() {
         <Logo />
       </div>
       {/* Phones: one column. Wide screens: occasions across the top, the ask box across the page under them, then three columns (people, chat, gifts), each with its picture above it, all in one row. */}
-      <main className="mx-auto grid max-w-7xl grid-cols-1 gap-x-5 gap-y-3 p-4 [grid-template-areas:'nav'_'stage'_'name'_'chat'_'ask'_'treeicon'_'gifts'_'peopleicon'_'people'] lg:grid-cols-[300px_minmax(0,1fr)_340px] lg:grid-rows-[auto_auto_auto_auto_1fr] lg:[grid-template-areas:'nav_nav_nav'_'ask_ask_ask'_'peopleicon_stage_treeicon'_'._name_.'_'people_chat_gifts']">
+      <main className="mx-auto grid max-w-7xl grid-cols-1 gap-x-5 gap-y-3 p-4 [grid-template-areas:'nav'_'stage'_'name'_'chat'_'ask'_'treeicon'_'gifts'_'peopleicon'] lg:grid-cols-3 lg:grid-rows-[auto_auto_auto_auto_1fr] lg:[grid-template-areas:'nav_nav_nav'_'ask_ask_ask'_'stage_treeicon_treeicon'_'name_gifts_gifts'_'chat_gifts_gifts']">
           <nav className="flex flex-wrap justify-center gap-2 [grid-area:nav]" aria-label="Occasion">
             {OCCASIONS.map((o) => (
               <button
@@ -511,7 +530,12 @@ export default function LookforApp() {
               />
             </div>
           </div>
-          <div aria-hidden className="flex h-44 items-end justify-center self-end [grid-area:peopleicon] md:h-48">
+          <button
+            aria-label="Open My people"
+            onClick={() => setPeopleOpen(true)}
+            className="flex flex-col items-center justify-end self-end [grid-area:peopleicon] lg:hidden"
+          >
+          <div aria-hidden className="flex h-44 items-end justify-center md:h-48">
             <div className="grid grid-cols-4 place-items-center">
               {(["grandma", "dad", "girl", "grandad", "mum", "boy", "baby", "friend"] as const).map((id, i) => (
                 <div
@@ -524,6 +548,10 @@ export default function LookforApp() {
               ))}
             </div>
           </div>
+            <span className="mt-1 rounded-full bg-white px-3 py-1 text-sm font-semibold text-emerald-800 shadow">
+              👥 My people{family.length > 0 ? ` (${family.length})` : ""}
+            </span>
+          </button>
           <div
             aria-hidden
             className={`mt-6 flex h-44 justify-center self-end [grid-area:treeicon] md:h-48 lg:mt-0 ${giftSets.length ? "" : "hidden lg:flex"}`}
@@ -692,9 +720,8 @@ export default function LookforApp() {
                 <button
                   className="rounded-full bg-white/90 px-4 py-2 text-sm font-bold text-emerald-800 shadow-lg transition hover:scale-105"
                   onClick={() => {
-                    const add = document.getElementById("add-person");
-                    add?.scrollIntoView({ behavior: "smooth", block: "center" });
-                    add?.click();
+                    setPeopleOpen(true);
+                    setTimeout(() => document.getElementById("add-person")?.click(), 0);
                   }}
                 >
                   + Add a person
@@ -726,7 +753,7 @@ export default function LookforApp() {
                 </div>
               )}
               <h2 className="mb-2 text-lg font-bold">{tree ? "🎄 Under the tree" : "🎁 Gift ideas"}</h2>
-              <div key={`gifts-${giftSets.length}`} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+              <div key={`gifts-${giftSets.length}`} className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {latestGifts.map((g, j) => giftCard(g, j, true))}
               </div>
               <button
@@ -741,7 +768,7 @@ export default function LookforApp() {
                   <summary className="cursor-pointer text-sm font-semibold text-slate-600">
                     Earlier ideas ({earlierGifts.reduce((n, t) => n + (t.gifts?.length ?? 0), 0)})
                   </summary>
-                  <div className="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                  <div className="mt-2 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                     {earlierGifts.flatMap((t) => t.gifts ?? []).map((g, j) => giftCard(g, j))}
                   </div>
                 </details>
@@ -750,7 +777,18 @@ export default function LookforApp() {
           )}
           </div>
 
-        <aside className="flex flex-col gap-4 self-start [grid-area:people]">
+      </main>
+      {peopleOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-900/70 p-4 backdrop-blur-sm sm:items-center"
+          onClick={(e) => e.target === e.currentTarget && setPeopleOpen(false)}
+        >
+        <aside
+          role="dialog"
+          aria-modal="true"
+          aria-label="My people"
+          className="relative flex max-h-[90vh] w-full max-w-lg flex-col gap-4 overflow-y-auto rounded-2xl"
+        >
           {birthdays.length > 0 && (
             <section className="rounded-2xl bg-white/90 p-4 text-sm text-slate-800 shadow-lg">
               <h2 className="mb-1 font-bold">Coming up</h2>
@@ -763,6 +801,7 @@ export default function LookforApp() {
                     <button
                       className="underline"
                       onClick={() => {
+                        setPeopleOpen(false);
                         send(`Gift ideas for ${b.nickname}'s birthday, please`, "birthday");
                         document.getElementById("ask")?.scrollIntoView({ behavior: "smooth", block: "center" });
                       }}
@@ -774,9 +813,15 @@ export default function LookforApp() {
               </ul>
             </section>
           )}
-          <FamilyPanel family={family} setFamily={setFamily} currency={region === "UK" ? "£" : "$"} />
+          <FamilyPanel
+            family={family}
+            setFamily={setFamily}
+            currency={region === "UK" ? "£" : "$"}
+            onClose={() => setPeopleOpen(false)}
+          />
         </aside>
-      </main>
+        </div>
+      )}
       <footer className="mx-auto max-w-6xl px-4 pb-6 text-center text-xs text-white/70">
         AI characters: check age ratings and details before you buy. As an Amazon Associate we earn from qualifying
         purchases. ·{" "}
