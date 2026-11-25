@@ -77,7 +77,7 @@ export default function About() {
           <h2 className="text-xl font-bold">Is it free?</h2>
           <p>
             Yes. Lookfor is free to use. When you buy something through one of our links, the shop may pay us a
-            small commission, at no extra cost to you. As an Amazon Associate we earn from qualifying purchases.
+            small commission, at no extra cost to you.
           </p>
         </section>
 
