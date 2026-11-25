@@ -127,6 +127,16 @@ export default function LookforApp() {
   const giftSets = turns.filter((t) => t.gifts && t.gifts.length > 0);
   const latestGifts = giftSets[giftSets.length - 1]?.gifts ?? [];
   const earlierGifts = giftSets.slice(0, -1).reverse();
+  // Earlier ideas, grouped by who they're for, so nobody's ideas get lost in the pile.
+  const earlierByPerson = new Map<string, GiftIdea[]>();
+  for (const g of earlierGifts.flatMap((t) => t.gifts ?? [])) {
+    const key = g.forPerson.trim() || "Someone";
+    const list = earlierByPerson.get(key) ?? [];
+    if (!list.some((x) => x.title === g.title)) earlierByPerson.set(key, [...list, g]);
+  }
+  const [openEarlier, setOpenEarlier] = useState<string | null>(null);
+  const ideasFor = (name: string) =>
+    giftSets.flatMap((t) => t.gifts ?? []).filter((g) => g.forPerson.trim().toLowerCase() === name.trim().toLowerCase());
 
   const tree = character.id === "santa";
 
@@ -834,15 +844,30 @@ export default function LookforApp() {
               >
                 {busy ? `${firstName} is thinking…` : "🎁 Show me more ideas"}
               </button>
-              {earlierGifts.length > 0 && (
-                <details className="mt-3">
-                  <summary className="cursor-pointer text-sm font-semibold text-slate-600">
-                    Earlier ideas ({earlierGifts.reduce((n, t) => n + (t.gifts?.length ?? 0), 0)})
-                  </summary>
-                  <div className="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-                    {earlierGifts.flatMap((t) => t.gifts ?? []).map((g, j) => giftCard(g, j))}
-                  </div>
-                </details>
+              {earlierByPerson.size > 0 && (
+                <div className="mt-3 space-y-2">
+                  <h3 className="text-sm font-semibold text-slate-600">Earlier ideas</h3>
+                  {[...earlierByPerson].map(([name, list]) => (
+                    <details
+                      key={name}
+                      id={`earlier-${name.toLowerCase()}`}
+                      className="rounded-xl bg-white/60 px-3 py-2"
+                      open={openEarlier === name.toLowerCase()}
+                      onToggle={(e) => {
+                        const isOpen = (e.currentTarget as HTMLDetailsElement).open;
+                        if (isOpen) setOpenEarlier(name.toLowerCase());
+                        else if (openEarlier === name.toLowerCase()) setOpenEarlier(null);
+                      }}
+                    >
+                      <summary className="cursor-pointer text-sm font-semibold text-slate-700">
+                        For {name} ({list.length})
+                      </summary>
+                      <div className="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                        {list.map((g, j) => giftCard(g, j))}
+                      </div>
+                    </details>
+                  ))}
+                </div>
               )}
             </section>
           )}
@@ -872,7 +897,23 @@ export default function LookforApp() {
               </ul>
             </section>
           )}
-          <FamilyPanel family={family} setFamily={setFamily} currency={region === "UK" ? "£" : "$"} />
+          <FamilyPanel
+            family={family}
+            setFamily={setFamily}
+            currency={region === "UK" ? "£" : "$"}
+            onFind={(p) => {
+              send(ideasFor(p.nickname).length ? `More gift ideas for ${p.nickname}, please` : `Gift ideas for ${p.nickname}, please`);
+              document.getElementById("ask")?.scrollIntoView({ behavior: "smooth", block: "center" });
+            }}
+            earlierCount={(p) =>
+              [...earlierByPerson].find(([k]) => k.toLowerCase() === p.nickname.trim().toLowerCase())?.[1].length ?? 0
+            }
+            onShowEarlier={(p) => {
+              const id = `earlier-${p.nickname.trim().toLowerCase()}`;
+              setOpenEarlier(p.nickname.trim().toLowerCase());
+              setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+            }}
+          />
           {/* Wide screens: the profile builds here as the character learns about someone. */}
           <div className="hidden flex-col gap-4 lg:flex">
             <ProfileBuilder
