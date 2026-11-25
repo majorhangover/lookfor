@@ -15,7 +15,7 @@ export default function Privacy() {
 
         <h2 className="font-semibold">What we keep, and where</h2>
         <p>
-          The people you add to your list (nickname, relationship, age, birthday, interests, sizes and notes)
+          The people you add to your list (first name, relationship, age, birthday, interests, sizes and notes)
           are stored in your browser on this device. You can edit or delete them at any time, and &quot;Delete all
           my data&quot; removes them.
         </p>
@@ -24,7 +24,7 @@ export default function Privacy() {
           it on any device. Our database provider is Supabase, and your account is stored on their servers in London. Only you can see your saved list. You can delete your account and everything in it at
           any time with &quot;Delete my account&quot;.
         </p>
-        <p>Please use nicknames, not full names, and do not add addresses, schools or photos.</p>
+        <p>Please use first names only, not full names, and do not add addresses, schools or photos.</p>
 
         <h2 className="font-semibold">Your location</h2>
         <p>
@@ -59,7 +59,7 @@ export default function Privacy() {
           We only use advertising cookies if you click &quot;Accept cookies&quot; on our cookie message. If you do, Meta
           (Facebook and Instagram) sets a cookie so we can show you Lookfor ads there later. We tell Meta which occasion
           you&apos;re shopping for, the relationship of the person (such as &quot;Grandad&quot;) and the titles of the
-          gift ideas you see or click. We never send nicknames, ages, birthdays or notes. If you click &quot;Reject&quot;,
+          gift ideas you see or click. We never send names, ages, birthdays or notes. If you click &quot;Reject&quot;,
           nothing is sent. You can change your mind at any time: <CookieSettings className="underline" />.
         </p>
 
