@@ -91,13 +91,13 @@ export default function Welcome({
             <p className="mt-4 text-lg">
               {santa ? (
                 <>
-                  Ho ho ho! Santa knows where you are: the {guess === "UK" ? "UK 🇬🇧" : "US 🇺🇸"}! I&apos;ll find your
-                  gift ideas on Amazon {guess}.
+                  Ho ho ho! Santa knows where you are: the {guess === "UK" ? "UK 🇬🇧" : "US 🇺🇸"}! I&apos;ll find gift
+                  ideas you can get delivered there.
                 </>
               ) : (
                 <>
-                  Hello! Looks like you&apos;re in the {guess === "UK" ? "UK 🇬🇧" : "US 🇺🇸"}, so I&apos;ll find gifts on
-                  Amazon {guess}.
+                  Hello! Looks like you&apos;re in the {guess === "UK" ? "UK 🇬🇧" : "US 🇺🇸"}, so I&apos;ll find gifts you
+                  can get delivered there.
                 </>
               )}
             </p>
@@ -139,19 +139,19 @@ export default function Welcome({
                 </button>
               ) : (
                 <div className="rounded-2xl bg-slate-100 p-3 text-sm">
-                  <p>We link to Amazon UK and Amazon US for now. Which suits you best?</p>
+                  <p>We find gifts in UK and US shops for now. Which suits you best?</p>
                   <div className="mt-2 flex gap-2">
                     <button
                       className="flex-1 rounded-full bg-white px-3 py-2 font-semibold"
                       onClick={() => onWhere("UK")}
                     >
-                      Amazon UK (Europe)
+                      UK shops (Europe)
                     </button>
                     <button
                       className="flex-1 rounded-full bg-white px-3 py-2 font-semibold"
                       onClick={() => onWhere("US")}
                     >
-                      Amazon US (rest of world)
+                      US shops (rest of world)
                     </button>
                   </div>
                 </div>

@@ -58,7 +58,7 @@ export default async function SharedGift({ searchParams }: { searchParams: Searc
                 rel="sponsored nofollow noopener noreferrer"
                 className="inline-block rounded-full bg-amber-400 px-4 py-2 font-semibold text-slate-900 hover:bg-amber-500"
               >
-                See options on Amazon
+                See options and prices
               </a>
               <span className="block text-xs text-slate-500">Ad · affiliate link</span>
             </div>

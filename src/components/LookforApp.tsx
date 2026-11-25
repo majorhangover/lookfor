@@ -146,7 +146,7 @@ export default function LookforApp() {
           rel="sponsored nofollow noopener noreferrer"
           onClick={() => account.logGifts("clicked", [g], occasionId)}
           className="absolute inset-0 z-0 rounded-xl"
-          aria-label={`${g.title}: see options on Amazon`}
+          aria-label={`${g.title}: see options and prices`}
         />
         {tree && (
           <>
@@ -169,7 +169,7 @@ export default function LookforApp() {
           <p className="mt-1">{g.reason}</p>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <span className="inline-block rounded-full bg-amber-400 px-3 py-1 font-semibold text-slate-900 group-hover:bg-amber-500">
-              See options on Amazon
+              See options and prices
             </span>
             <button
               type="button"
@@ -350,8 +350,8 @@ export default function LookforApp() {
           <div className="relative">
             <button
               aria-expanded={regionOpen}
-              aria-label={`Shopping on Amazon ${region}. Change country`}
-              title={`Gift links go to Amazon ${region}`}
+              aria-label={`Shopping in the ${region}. Change country`}
+              title={`Gift links go to ${region} shops`}
               className="flex items-center gap-1 rounded-full bg-white/20 px-3 py-1 font-semibold text-white shadow hover:bg-white/30"
               onClick={() => setRegionOpen(!regionOpen)}
             >
@@ -434,8 +434,8 @@ export default function LookforApp() {
                       value={region}
                       onChange={(e) => setRegion(e.target.value as Region)}
                     >
-                      <option value="UK">Amazon UK</option>
-                      <option value="US">Amazon US</option>
+                      <option value="UK">UK shops</option>
+                      <option value="US">US shops</option>
                     </select>
                   </label>
                   <label className="flex items-center justify-between gap-2 py-1">

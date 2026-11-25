@@ -14,7 +14,7 @@ const steps = [
   {
     icon: "🎁",
     title: "Get gift ideas in seconds",
-    text: "Our characters suggest a handful of ideas, each with a reason it suits the person. The ideas appear below the chat, and every one links straight to Amazon so you can see the options and prices.",
+    text: "Our characters suggest a handful of ideas, each with a reason it suits the person. The ideas appear below the chat, and every one links straight to a shop so you can see the options and prices.",
   },
   {
     icon: "📝",
@@ -76,7 +76,7 @@ export default function About() {
         <section className="space-y-2">
           <h2 className="text-xl font-bold">Is it free?</h2>
           <p>
-            Yes. Lookfor is free to use. When you buy something through one of our Amazon links, Amazon pays us a
+            Yes. Lookfor is free to use. When you buy something through one of our links, the shop may pay us a
             small commission, at no extra cost to you. As an Amazon Associate we earn from qualifying purchases.
           </p>
         </section>
@@ -85,7 +85,7 @@ export default function About() {
           <h2 className="text-xl font-bold">Good to know</h2>
           <ul className="list-disc space-y-1 pl-5">
             <li>Our characters are AI, so their suggestions are generated automatically.</li>
-            <li>Always check age ratings, sizes and details on Amazon before you buy.</li>
+            <li>Always check age ratings, sizes and details on the shop&apos;s page before you buy.</li>
             <li>Lookfor is for adults aged 18 and over.</li>
             <li>Voice is off to start with. Tap &quot;Hear my voice&quot; if you&apos;d like the character to talk.</li>
           </ul>
