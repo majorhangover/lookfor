@@ -27,8 +27,9 @@ export default function Privacy() {
 
         <h2 className="font-semibold">Your location</h2>
         <p>
-          We ask which country you&apos;re in so we can link to the right Amazon shop. We store your answer on this
-          device, and in your account if you have one.
+          We ask which country you&apos;re in so we can link to the right Amazon shop. To suggest an answer, we look up
+          the country your internet connection comes from (our host, Vercel, works this out from your IP address). We
+          don&apos;t store your IP address. We store your answer on this device, and in your account if you have one.
         </p>
 
         <h2 className="font-semibold">How we use your information</h2>

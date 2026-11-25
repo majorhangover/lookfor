@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Character from "./Character";
 import Elf from "./Elf";
 import type { useAccount } from "./useAccount";
@@ -33,6 +33,21 @@ export default function Welcome({
   const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
   const [error, setError] = useState<string | null>(null);
   const [elsewhere, setElsewhere] = useState(false);
+  // Guess the shop from the visitor's country (via their IP), so it's one tap.
+  // VPN users, or anyone the guess is wrong for, can still choose.
+  const [guess, setGuess] = useState<Region | null>(null);
+  const [choosing, setChoosing] = useState(false);
+  useEffect(() => {
+    if (!needsWhere) return;
+    let live = true;
+    fetch("/api/where")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { region?: Region | null } | null) => live && d?.region && setGuess(d.region))
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [needsWhere]);
   const bg = {
     background: `linear-gradient(160deg, ${character.theme.from} 0%, ${character.theme.via} 50%, ${character.theme.to} 100%)`,
   };
@@ -44,7 +59,9 @@ export default function Welcome({
       <div className="w-full max-w-md rounded-3xl bg-white/95 p-8 text-center text-slate-800 shadow-xl">
         <div
           className="mx-auto h-44 w-44 rounded-full p-2 shadow-inner"
-          style={{ background: `radial-gradient(circle at 50% 40%, ${character.theme.via} 0%, ${character.theme.from} 100%)` }}
+          style={{
+            background: `radial-gradient(circle at 50% 40%, ${character.theme.via} 0%, ${character.theme.from} 100%)`,
+          }}
         >
           {helper ? <Elf /> : <Character id={character.id} mouth={0} listening={false} waveKey={1} />}
         </div>
@@ -69,37 +86,79 @@ export default function Welcome({
           Lookfor
         </h1>
         <p className="mt-1 font-medium">Gift ideas for everyone</p>
-        <p className="mt-4 text-lg">
-          {santa ? (
-            <>
-              Hi, I&apos;m <b>Pip</b>, Santa&apos;s helper! Santa&apos;s busy in the workshop, so I&apos;m sorting the
-              paperwork. Which country are you in? Then I&apos;ll check the right shop.
-            </>
-          ) : (
-            "Hello! Where in the world are you? Then I can find gifts in the right shop."
-          )}
-        </p>
-        <div className="mt-4 space-y-2">
-          {choice("UK", "United Kingdom", "🇬🇧")}
-          {choice("US", "United States", "🇺🇸")}
-          {!elsewhere ? (
-            <button className="w-full rounded-full bg-slate-100 px-6 py-3 font-semibold hover:bg-slate-200" onClick={() => setElsewhere(true)}>
-              <span aria-hidden>🌍</span> Somewhere else
-            </button>
-          ) : (
-            <div className="rounded-2xl bg-slate-100 p-3 text-sm">
-              <p>We link to Amazon UK and Amazon US for now. Which suits you best?</p>
-              <div className="mt-2 flex gap-2">
-                <button className="flex-1 rounded-full bg-white px-3 py-2 font-semibold" onClick={() => onWhere("UK")}>
-                  Amazon UK (Europe)
-                </button>
-                <button className="flex-1 rounded-full bg-white px-3 py-2 font-semibold" onClick={() => onWhere("US")}>
-                  Amazon US (rest of world)
-                </button>
-              </div>
+        {guess && !choosing ? (
+          <>
+            <p className="mt-4 text-lg">
+              {santa ? (
+                <>
+                  Hi, I&apos;m <b>Pip</b>, Santa&apos;s helper! Looks like you&apos;re in the{" "}
+                  {guess === "UK" ? "UK 🇬🇧" : "US 🇺🇸"}, so I&apos;ll check Amazon {guess} for Santa.
+                </>
+              ) : (
+                <>
+                  Hello! Looks like you&apos;re in the {guess === "UK" ? "UK 🇬🇧" : "US 🇺🇸"}, so I&apos;ll find gifts on
+                  Amazon {guess}.
+                </>
+              )}
+            </p>
+            <div className="mt-4 space-y-2">
+              <button
+                autoFocus
+                className="flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-lg font-semibold text-white hover:opacity-90"
+                style={{ background: character.theme.accent }}
+                onClick={() => onWhere(guess)}
+              >
+                Let&apos;s go! 🎁
+              </button>
+              <button className="text-sm text-slate-600 underline" onClick={() => setChoosing(true)}>
+                Not right? Change country
+              </button>
             </div>
-          )}
-        </div>
+          </>
+        ) : (
+          <>
+            <p className="mt-4 text-lg">
+              {santa ? (
+                <>
+                  Hi, I&apos;m <b>Pip</b>, Santa&apos;s helper! Santa&apos;s busy in the workshop, so I&apos;m sorting
+                  the paperwork. Which country are you in? Then I&apos;ll check the right shop.
+                </>
+              ) : (
+                "Hello! Where in the world are you? Then I can find gifts in the right shop."
+              )}
+            </p>
+            <div className="mt-4 space-y-2">
+              {choice("UK", "United Kingdom", "🇬🇧")}
+              {choice("US", "United States", "🇺🇸")}
+              {!elsewhere ? (
+                <button
+                  className="w-full rounded-full bg-slate-100 px-6 py-3 font-semibold hover:bg-slate-200"
+                  onClick={() => setElsewhere(true)}
+                >
+                  <span aria-hidden>🌍</span> Somewhere else
+                </button>
+              ) : (
+                <div className="rounded-2xl bg-slate-100 p-3 text-sm">
+                  <p>We link to Amazon UK and Amazon US for now. Which suits you best?</p>
+                  <div className="mt-2 flex gap-2">
+                    <button
+                      className="flex-1 rounded-full bg-white px-3 py-2 font-semibold"
+                      onClick={() => onWhere("UK")}
+                    >
+                      Amazon UK (Europe)
+                    </button>
+                    <button
+                      className="flex-1 rounded-full bg-white px-3 py-2 font-semibold"
+                      onClick={() => onWhere("US")}
+                    >
+                      Amazon US (rest of world)
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
+        )}
         <p className="mt-5 text-xs text-slate-500">
           Lookfor is for adults. By continuing you confirm you&apos;re 18 or over and agree to our{" "}
           <Link className="underline" href="/privacy" target="_blank" rel="noopener">
@@ -176,7 +235,12 @@ export default function Welcome({
           onChange={(e) => setEmail(e.target.value)}
         />
         <label className="flex items-start gap-2 text-sm">
-          <input type="checkbox" className="mt-1" checked={wantsEmails} onChange={(e) => setWantsEmails(e.target.checked)} />
+          <input
+            type="checkbox"
+            className="mt-1"
+            checked={wantsEmails}
+            onChange={(e) => setWantsEmails(e.target.checked)}
+          />
           <span>Also send me reminders and gift ideas by email (optional)</span>
         </label>
         <button
