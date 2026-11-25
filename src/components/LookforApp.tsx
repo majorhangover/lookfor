@@ -274,6 +274,9 @@ export default function LookforApp() {
     setTurns(next);
     setInput("");
     setBusy(true);
+    // Phones: the ask box is at the top, so bring the chat into view to see the answer arrive.
+    if (window.matchMedia("(max-width: 1023px)").matches)
+      setTimeout(() => chatBox.current?.scrollIntoView({ behavior: "smooth", block: "center" }), 100);
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
@@ -526,7 +529,7 @@ export default function LookforApp() {
         <Logo />
       </div>
       {/* Phones: one column. Wide screens: occasions across the top, the ask box across the page under them, then three columns (people, chat, gifts), each with its picture above it, all in one row. */}
-      <main className="mx-auto grid max-w-7xl grid-cols-1 gap-x-5 gap-y-3 p-4 [grid-template-areas:'nav'_'stage'_'name'_'chat'_'ask'_'treeicon'_'gifts'_'peopleicon'_'people'] lg:grid-cols-[300px_minmax(0,1fr)_340px] lg:grid-rows-[auto_auto_auto_auto_1fr] lg:[grid-template-areas:'nav_nav_nav'_'ask_ask_ask'_'peopleicon_stage_treeicon'_'._name_.'_'people_chat_gifts']">
+      <main className="mx-auto grid max-w-7xl grid-cols-1 gap-x-5 gap-y-3 p-4 [grid-template-areas:'nav'_'ask'_'stage'_'name'_'chat'_'treeicon'_'gifts'_'peopleicon'_'people'] lg:grid-cols-[300px_minmax(0,1fr)_340px] lg:grid-rows-[auto_auto_auto_auto_1fr] lg:[grid-template-areas:'nav_nav_nav'_'ask_ask_ask'_'peopleicon_stage_treeicon'_'._name_.'_'people_chat_gifts']">
           <nav className="flex flex-wrap justify-center gap-2 [grid-area:nav]" aria-label="Occasion">
             {OCCASIONS.map((o) => (
               <button
@@ -766,6 +769,19 @@ export default function LookforApp() {
               <div className="text-slate-500 italic">{character.name} is picking gift ideas…</div>
             ))}
           </div>
+          {/* Phones: the ask box is at the top of the page, so offer a quick way back to it. */}
+          {chatted && !busy && (
+            <button
+              className="self-center rounded-full bg-amber-400 px-5 py-2 font-bold text-slate-900 shadow lg:hidden"
+              onClick={() => {
+                const ask = document.getElementById("ask") as HTMLInputElement | null;
+                ask?.scrollIntoView({ behavior: "smooth", block: "center" });
+                setTimeout(() => ask?.focus({ preventScroll: true }), 400);
+              }}
+            >
+              ✏️ Reply to {firstName}
+            </button>
+          )}
 
 
           </div>
