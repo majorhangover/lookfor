@@ -47,6 +47,8 @@ export default function LookforApp() {
   );
   const [family, setFamily] = useLocalState<Person[]>("lookfor.family", []);
   const [pending, setPending] = useState<ProfileUpdate[]>([]);
+  // Set when the user shares something sad: no more cheerful nudges this visit.
+  const [hush, setHush] = useState(false);
   const [savedNote, setSavedNote] = useState<string | null>(null);
   /** Save everything learned about one person to My people. */
   const saveProfile = (name: string, face?: string) => {
@@ -260,6 +262,8 @@ export default function LookforApp() {
     const content = text.trim();
     if (!content || busy) return;
     setSavedNote(null);
+    // A safety net in case the reply doesn't flag it: sad news means no cheerful nudges.
+    if (/\b(died|dead|passed away|passed on|funeral|lost my|bereave\w*|terminal|cancer)\b/i.test(content)) setHush(true);
     const occasionKey = startOccasion ?? occasionId;
     const speaker = getOccasion(occasionKey).character;
     const base: Turn[] = startOccasion
@@ -326,6 +330,7 @@ export default function LookforApp() {
         playJingle();
         setCelebrate((c) => c + 1);
       }
+      if (data.sensitive) setHush(true);
       if (data.profileUpdates?.length) setPending((p) => [...p, ...data!.profileUpdates]);
       if (data.gifts?.length) {
         account.logGifts("shown", data.gifts, occasionKey);
@@ -358,7 +363,7 @@ export default function LookforApp() {
   const inWelcome = !adult || (!welcomed && account.enabled && !account.email);
   const [nudges, setNudges] = useState(0);
   const lastTurn = turns[turns.length - 1];
-  const quiet = account.ready && !inWelcome && !busy && !voice.speaking && !input && pending.length === 0 && nudges < 3 && !lastTurn?.nudge;
+  const quiet = account.ready && !inWelcome && !busy && !voice.speaking && !input && !hush && pending.length === 0 && nudges < 3 && !lastTurn?.nudge;
   const speakNudge = voice.speak;
   useEffect(() => {
     if (!quiet) return;

@@ -28,6 +28,9 @@ export const HostSchema = z.object({
       }),
     )
     .describe("New facts the user told you about family members, for the user to confirm. Empty if none."),
+  sensitive: z
+    .boolean()
+    .describe("True if the user has shared something sad or hard, such as a death, serious illness or a family rift. The app then stops its cheerful prompts."),
 });
 
 export function systemPrompt(region: Region, occasionId: string): string {
@@ -45,6 +48,11 @@ How you help:
 - Prices: give only rough bands in ${currency}. Never claim an exact price or that an item is in stock.
 - When you suggest gifts, put them in "gifts" and sum them up in a few words in "reply". The app shows shopping links; never write URLs, and don't name a particular shop or website.
 - When the user tells you a new fact about someone (including a birthday), add it to "profileUpdates" so they can confirm it.
+
+When someone shares sad news (a death, illness, a break-up, a hard Christmas):
+- Drop the jolly act: no "ho ho ho", no jokes, no exclamation marks. Say a short, sincere sorry in plain words.
+- Don't ask them to decide anything about that person (such as removing them from their list), don't suggest gifts for them, and don't add profileUpdates for them. Set "sensitive" to true.
+- Let them lead. You can gently say you're here if they'd like help with anyone else, or with a gift to remember someone by, but only once and without pressure.
 
 Rules:
 - This service is for adults only. If the person seems to be a child, kindly say Lookfor is for grown-ups and ask them to fetch a parent. Do not ask them anything else.
