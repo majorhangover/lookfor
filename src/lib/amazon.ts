@@ -2,7 +2,7 @@ import type { Region } from "./types";
 
 const STORES: Record<Region, { host: string; envTag: string; fallbackTag: string }> = {
   UK: { host: "www.amazon.co.uk", envTag: "AMAZON_TAG_UK", fallbackTag: "lookfor-21" },
-  US: { host: "www.amazon.com", envTag: "AMAZON_TAG_US", fallbackTag: "" },
+  US: { host: "www.amazon.com", envTag: "AMAZON_TAG_US", fallbackTag: "lookfor00-20" },
 };
 
 /**
