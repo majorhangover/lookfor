@@ -56,4 +56,6 @@ export interface HostResponse {
   profileUpdates: ProfileUpdate[];
   /** The user shared something sad, so the character stops its cheerful prompts. */
   sensitive?: boolean;
+  /** The user seems to be under 18, so the chat pauses. */
+  child?: boolean;
 }

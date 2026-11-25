@@ -49,6 +49,13 @@ export default function LookforApp() {
   const [pending, setPending] = useState<ProfileUpdate[]>([]);
   // Set when the user shares something sad: no more cheerful nudges this visit.
   const [hush, setHush] = useState(false);
+  // Shown (and kept on screen) if the user mentions suicide or self-harm.
+  const [helpBox, setHelpBox] = useState(false);
+  // Set when the user seems to be a child: the chat pauses for this browser tab.
+  // (The page only renders once the account has loaded in the browser, so reading sessionStorage here is safe.)
+  const [childLock, setChildLock] = useState(
+    () => typeof window !== "undefined" && sessionStorage.getItem("lookfor.child") === "1",
+  );
   const [savedNote, setSavedNote] = useState<string | null>(null);
   /** Save everything learned about one person to My people. */
   const saveProfile = (name: string, face?: string) => {
@@ -260,9 +267,13 @@ export default function LookforApp() {
   /** Sends a chat message. `startOccasion` switches host first, with a fresh conversation. */
   const send = async (text: string, startOccasion?: string) => {
     const content = text.trim();
-    if (!content || busy) return;
+    if (!content || busy || childLock) return;
     setSavedNote(null);
     // A safety net in case the reply doesn't flag it: sad news means no cheerful nudges.
+    if (/(suicid|kill myself|killing myself|take my own life|taking my own life|end my life|ending my life|end it all|self[- ]?harm|hurt myself|hurting myself|want to die|better off dead)/i.test(content)) {
+      setHelpBox(true);
+      setHush(true);
+    }
     if (/\b(died|dead|passed away|passed on|funeral|lost my|bereave\w*|terminal|cancer)\b/i.test(content)) setHush(true);
     const occasionKey = startOccasion ?? occasionId;
     const speaker = getOccasion(occasionKey).character;
@@ -331,6 +342,11 @@ export default function LookforApp() {
         setCelebrate((c) => c + 1);
       }
       if (data.sensitive) setHush(true);
+      if (data.child) {
+        setChildLock(true);
+        setHush(true);
+        sessionStorage.setItem("lookfor.child", "1");
+      }
       if (data.profileUpdates?.length) setPending((p) => [...p, ...data!.profileUpdates]);
       if (data.gifts?.length) {
         account.logGifts("shown", data.gifts, occasionKey);
@@ -564,6 +580,27 @@ export default function LookforApp() {
                 Tell {firstName} who you’re shopping for, and the gift ideas will appear like magic.
               </span>
             </label>
+            {helpBox && (
+              <div role="alert" className="mb-3 rounded-2xl bg-white px-4 py-3 text-slate-800 shadow-lg ring-4 ring-sky-300">
+                <p className="font-bold">You don&apos;t have to go through this alone.</p>
+                {region === "UK" ? (
+                  <p className="text-sm">
+                    Talk to Samaritans, free, any time: call <a className="font-bold underline" href="tel:116123">116 123</a>. If
+                    you&apos;re in danger now, call <a className="font-bold underline" href="tel:999">999</a>.
+                  </p>
+                ) : (
+                  <p className="text-sm">
+                    Call or text <a className="font-bold underline" href="tel:988">988</a>, free, any time. If you&apos;re in
+                    danger now, call <a className="font-bold underline" href="tel:911">911</a>.
+                  </p>
+                )}
+              </div>
+            )}
+            {childLock ? (
+              <p className="rounded-2xl bg-white/90 px-4 py-3 text-center font-semibold text-slate-800 shadow-lg">
+                Lookfor is for grown-ups. Please ask a parent or guardian to help you.
+              </p>
+            ) : (
             <form
               className="flex gap-2"
               onSubmit={(e) => {
@@ -601,6 +638,7 @@ export default function LookforApp() {
                 )}
               </button>
             </form>
+            )}
           </div>
 
           {/* The three pictures share one row on wide screens, all the same height. */}
