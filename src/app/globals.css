@@ -177,3 +177,27 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .voice-wave, .voice-bubble-invite { animation: none; }
 }
+
+/* Profile builder: the card slides in, the face pops when it changes, new details glow then settle. */
+@keyframes profile-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+.profile-builder { animation: profile-in 0.35s ease-out; }
+@keyframes profile-pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  70% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.profile-face { animation: profile-pop 0.4s ease-out; }
+@keyframes profile-glow {
+  0% { background: #fde68a; transform: translateX(-6px); opacity: 0; }
+  30% { background: #fde68a; transform: none; opacity: 1; }
+  100% { background: #fef9c3; }
+}
+.profile-row { animation: profile-in 0.3s ease-out; }
+.profile-row-new { animation: profile-glow 1.6s ease-out forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .profile-builder, .profile-face, .profile-row, .profile-row-new { animation: none; }
+  .profile-row-new { background: #fef9c3; }
+}
