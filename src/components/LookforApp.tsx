@@ -21,6 +21,7 @@ import { examplePrompts } from "@/lib/examples";
 import { applyProfileUpdate, isSaved, toggleSavedGift } from "@/lib/profile";
 import { track } from "@/lib/tracking";
 import VoiceBubble from "./VoiceBubble";
+import ProfileBuilder from "./ProfileBuilder";
 import { CookieSettings } from "./CookieBanner";
 import { CHARACTERS, OCCASIONS, getOccasion, seasonalOccasion, upcomingBirthdays } from "@/lib/occasions";
 import type { ChatMessage, GiftIdea, Person, ProfileUpdate, Region, HostResponse } from "@/lib/types";
@@ -42,6 +43,15 @@ export default function LookforApp() {
   const [family, setFamily] = useLocalState<Person[]>("lookfor.family", []);
   const [pending, setPending] = useState<ProfileUpdate[]>([]);
   const [savedNote, setSavedNote] = useState<string | null>(null);
+  /** Save everything learned about one person to My people. */
+  const saveProfile = (name: string, face?: string) => {
+    const same = (n: string) => n.trim().toLowerCase() === name.trim().toLowerCase();
+    const mine = pending.filter((u) => same(u.personNickname));
+    const updated = mine.reduce(applyProfileUpdate, family);
+    setFamily(face ? updated.map((p) => (same(p.nickname) ? { ...p, face } : p)) : updated);
+    setPending(pending.filter((u) => !mine.includes(u)));
+    setSavedNote(name);
+  };
   const [occasionId, setOccasionId] = useState(() => seasonalOccasion());
   const occasion = getOccasion(occasionId);
   const character = CHARACTERS[occasion.character];
@@ -641,14 +651,10 @@ export default function LookforApp() {
                 const mine = pending.filter((u) => u.personNickname === name);
                 const isNew = mine.some((u) => u.isNewPerson) && !family.some((f) => f.nickname.toLowerCase() === name.toLowerCase());
                 return (
-                  <div key={name} className="flex flex-wrap items-center gap-2 text-sm">
+                  <div key={name} className="flex flex-wrap items-center gap-2 text-sm lg:hidden">
                     <button
                       className="rounded-full bg-emerald-700 px-3 py-1.5 font-semibold text-white shadow hover:bg-emerald-800"
-                      onClick={() => {
-                        setFamily(mine.reduce(applyProfileUpdate, family));
-                        setPending(pending.filter((u) => u.personNickname !== name));
-                        setSavedNote(name);
-                      }}
+                      onClick={() => saveProfile(name)}
                     >
                       {isNew ? `＋ Add ${name} to My people` : `＋ Add this to ${name}’s profile`}
                     </button>
@@ -819,6 +825,16 @@ export default function LookforApp() {
             </section>
           )}
           <FamilyPanel family={family} setFamily={setFamily} currency={region === "UK" ? "£" : "$"} />
+          {/* Wide screens: the profile builds here as the character learns about someone. */}
+          <div className="hidden flex-col gap-4 lg:flex">
+            <ProfileBuilder
+              family={family}
+              pending={pending}
+              accent={character.theme.accent}
+              onSave={saveProfile}
+              onDismiss={(name) => setPending(pending.filter((u) => u.personNickname.trim() !== name))}
+            />
+          </div>
         </aside>
       </main>
       <footer className="mx-auto max-w-6xl px-4 pb-6 text-center text-xs text-white/70">

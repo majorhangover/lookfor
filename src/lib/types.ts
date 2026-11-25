@@ -14,6 +14,8 @@ export interface Person {
   budget?: string;
   /** Year of birth, when a full date of birth was given, so the age stays right. */
   birthYear?: string;
+  /** The cartoon face the user picked for this person (see Face.tsx). */
+  face?: string;
   /** Gift ideas the user saved for this person. */
   savedGifts?: SavedGift[];
 }

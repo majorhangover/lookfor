@@ -2,6 +2,8 @@
 
 import { useRef, useState } from "react";
 import type { Person } from "@/lib/types";
+import Face, { type FaceId } from "./Face";
+import { faceFor } from "@/lib/faceFor";
 import { EMPTY_PERSON as EMPTY } from "@/lib/profile";
 import { birthYearFrom, displayAge, formatBirthday, normaliseBirthday } from "@/lib/birthday";
 
@@ -129,6 +131,9 @@ export default function FamilyPanel({
             <li key={p.id} className="relative rounded-xl bg-slate-50 p-2 text-sm">
               <div className="min-w-0">
                 <div className="pr-24">
+                  <span aria-hidden className="mr-1.5 inline-block h-7 w-7 align-middle">
+                    <Face id={(p.face as FaceId | undefined) ?? faceFor(p.relationship, age)} />
+                  </span>
                   <b>{p.nickname}</b>
                   {p.relationship && <span className="text-slate-500"> · {p.relationship}</span>}
                   {age && <span className="text-slate-500"> · {age}</span>}
