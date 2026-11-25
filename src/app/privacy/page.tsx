@@ -56,11 +56,11 @@ export default function Privacy() {
 
         <h2 className="font-semibold">Cookies and ads on Facebook and Instagram</h2>
         <p>
-          We only use advertising cookies if you click &quot;Accept&quot; on our cookie message. If you do, Meta
+          We only use advertising cookies if you click &quot;Accept cookies&quot; on our cookie message. If you do, Meta
           (Facebook and Instagram) sets a cookie so we can show you Lookfor ads there later. We tell Meta which occasion
           you&apos;re shopping for, the relationship of the person (such as &quot;Grandad&quot;) and the titles of the
-          gift ideas you see or click. We never send nicknames, ages, birthdays or notes. If you click &quot;No
-          thanks&quot;, nothing is sent. You can change your mind at any time: <CookieSettings className="underline" />.
+          gift ideas you see or click. We never send nicknames, ages, birthdays or notes. If you click &quot;Reject&quot;,
+          nothing is sent. You can change your mind at any time: <CookieSettings className="underline" />.
         </p>
 
         <h2 className="font-semibold">Shopping links</h2>
