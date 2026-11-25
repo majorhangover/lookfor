@@ -160,3 +160,20 @@ body {
   .logo-face { animation: none; }
   .logo-pupil { animation: none; }
 }
+
+/* Voice bubble: waves pulse while the character talks; when off, a gentle nudge now and then. */
+@keyframes voice-wave {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
+}
+.voice-wave { animation: voice-wave 0.8s ease-in-out infinite; }
+@keyframes voice-invite {
+  0%, 88%, 100% { transform: rotate(0) scale(1); }
+  91% { transform: rotate(-8deg) scale(1.08); }
+  94% { transform: rotate(6deg) scale(1.08); }
+  97% { transform: rotate(-3deg) scale(1.04); }
+}
+.voice-bubble-invite { animation: voice-invite 6s ease-in-out infinite; transform-origin: 20% 100%; }
+@media (prefers-reduced-motion: reduce) {
+  .voice-wave, .voice-bubble-invite { animation: none; }
+}

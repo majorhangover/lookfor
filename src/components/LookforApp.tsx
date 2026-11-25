@@ -20,6 +20,7 @@ import { giftSharePath } from "@/lib/share";
 import { examplePrompts } from "@/lib/examples";
 import { applyProfileUpdate, isSaved, toggleSavedGift } from "@/lib/profile";
 import { track } from "@/lib/tracking";
+import VoiceBubble from "./VoiceBubble";
 import { CookieSettings } from "./CookieBanner";
 import { CHARACTERS, OCCASIONS, getOccasion, seasonalOccasion, upcomingBirthdays } from "@/lib/occasions";
 import type { ChatMessage, GiftIdea, Person, ProfileUpdate, Region, HostResponse } from "@/lib/types";
@@ -542,7 +543,14 @@ export default function LookforApp() {
 
           {/* The three pictures share one row on wide screens, all the same height. */}
           <div className="flex justify-center self-end [grid-area:stage]">
-            <div className="h-52 w-52 md:h-56 md:w-56">
+            <div className="relative h-52 w-52 md:h-56 md:w-56">
+              <VoiceBubble
+                on={voiceOn}
+                speaking={voice.speaking}
+                name={firstName}
+                accent={character.theme.accent}
+                onToggle={toggleVoice}
+              />
               <Character
                 id={character.id}
                 mouth={voice.mouth}
@@ -578,13 +586,6 @@ export default function LookforApp() {
 
           <div className="-mt-2 flex items-center justify-center gap-2 text-sm text-white/90 [grid-area:name]">
             <span className="font-medium">{character.name}</span>
-            <button
-              className="rounded-full bg-white/20 px-2 py-0.5 text-xs hover:bg-white/30"
-              aria-pressed={voiceOn}
-              onClick={toggleVoice}
-            >
-              {voiceOn ? "🔊 Voice on" : "🔇 Hear my voice"}
-            </button>
           </div>
           <div className="flex min-w-0 flex-col gap-3 [grid-area:chat]">
 
