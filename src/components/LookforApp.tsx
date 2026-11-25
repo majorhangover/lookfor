@@ -20,6 +20,7 @@ import { giftSharePath } from "@/lib/share";
 import { examplePrompts } from "@/lib/examples";
 import { applyProfileUpdate, isSaved, toggleSavedGift } from "@/lib/profile";
 import { track } from "@/lib/tracking";
+import { buildNudge } from "@/lib/nudge";
 import VoiceBubble from "./VoiceBubble";
 import ProfileBuilder from "./ProfileBuilder";
 import { CookieSettings } from "./CookieBanner";
@@ -30,6 +31,10 @@ const outfit = Outfit({ subsets: ["latin"], weight: ["800"] });
 
 interface Turn extends ChatMessage {
   gifts?: GiftIdea[];
+  /** A prompt the character adds by itself when things go quiet (not sent to the AI). */
+  nudge?: boolean;
+  /** Quick replies shown under a nudge. */
+  chips?: string[];
 }
 
 export default function LookforApp() {
@@ -278,7 +283,7 @@ export default function LookforApp() {
           occasion: occasionKey,
           family,
           // Skip the canned greeting: the conversation must start with the user.
-          messages: next.slice(1).slice(-30).map(({ role, content }) => ({ role, content })),
+          messages: next.slice(1).filter((t) => !t.nudge).slice(-30).map(({ role, content }) => ({ role, content })),
         }),
       });
       if (!res.ok || !res.body) {
@@ -345,9 +350,38 @@ export default function LookforApp() {
     background: `linear-gradient(160deg, ${character.theme.from} 0%, ${character.theme.via} 50%, ${character.theme.to} 100%)`,
   };
 
+  // When things go quiet, the character speaks up: points to the ask box, offers
+  // more ideas, or suggests someone else. At most 3 times, and never while busy or typing.
+  const inWelcome = !adult || (!welcomed && account.enabled && !account.email);
+  const [nudges, setNudges] = useState(0);
+  const lastTurn = turns[turns.length - 1];
+  const quiet = account.ready && !inWelcome && !busy && !voice.speaking && !input && pending.length === 0 && nudges < 3 && !lastTurn?.nudge;
+  const speakNudge = voice.speak;
+  useEffect(() => {
+    if (!quiet) return;
+    const wait = !chatted ? 20000 : lastTurn?.gifts?.length ? 20000 : 30000;
+    const t = setTimeout(() => {
+      const n = buildNudge({
+        chatted,
+        lastGifts: giftSets[giftSets.length - 1]?.gifts,
+        giftedNames: giftSets.flatMap((g) => (g.gifts ?? []).map((x) => x.forPerson)),
+        family,
+        tree,
+        count: nudges,
+      });
+      setTurns((ts) => [...ts, { role: "assistant", content: n.content, nudge: true, chips: n.chips }]);
+      setNudges((k) => k + 1);
+      setWaveKey((k) => k + 1);
+      if (voiceOn) speakNudge(n.content, character.id);
+    }, wait);
+    return () => clearTimeout(t);
+    // Restart the quiet timer whenever the conversation moves on.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quiet, turns.length]);
+
   // Returning signed-in users, and anyone who has skipped, go straight to the chat.
   if (!account.ready) return null;
-  if (!adult || (!welcomed && account.enabled && !account.email)) {
+  if (inWelcome) {
     return (
       <Welcome
         character={character}
@@ -509,7 +543,7 @@ export default function LookforApp() {
 
           <div
             className={`rounded-3xl border-2 border-amber-300/70 bg-white/10 p-3 shadow-[0_0_40px_rgba(252,211,77,0.25)] backdrop-blur-sm [grid-area:ask] sm:p-4 lg:mt-2 ${
-              !chatted ? "ask-glow" : yourTurn ? "ask-nudge" : ""
+              !chatted || lastTurn?.nudge ? "ask-glow" : yourTurn ? "ask-nudge" : ""
             }`}
           >
             <label htmlFor="ask" className="mb-3 block text-center text-white">
@@ -578,7 +612,7 @@ export default function LookforApp() {
                 speaking={voice.speaking}
                 thinking={busy}
                 waveKey={waveKey}
-                pointUp={!chatted}
+                pointUp={!chatted || (!!lastTurn?.nudge && !busy)}
               />
             </div>
           </div>
@@ -622,6 +656,20 @@ export default function LookforApp() {
                 >
                   {t.content}
                 </div>
+                {t.nudge && t.chips && t.chips.length > 0 && i === turns.length - 1 && (
+                  <div className="mt-1.5 flex flex-wrap gap-1.5">
+                    {t.chips.map((c) => (
+                      <button
+                        key={c}
+                        className="rounded-full border-2 bg-white px-3 py-1 text-sm font-semibold hover:bg-slate-50"
+                        style={{ borderColor: character.theme.accent, color: character.theme.accent }}
+                        onClick={() => send(c)}
+                      >
+                        {c}
+                      </button>
+                    ))}
+                  </div>
+                )}
                 {t.gifts && t.gifts.length > 0 && (
                   <div className="mt-1">
                     <button
