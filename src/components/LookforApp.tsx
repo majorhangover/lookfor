@@ -270,7 +270,7 @@ export default function LookforApp() {
     if (!content || busy || childLock) return;
     setSavedNote(null);
     // A safety net in case the reply doesn't flag it: sad news means no cheerful nudges.
-    if (/(suicid|kill myself|killing myself|take my own life|taking my own life|end my life|ending my life|end it all|self[- ]?harm|hurt myself|hurting myself|want to die|better off dead)/i.test(content)) {
+    if (/(suicid|kill myself|killing myself|take my own life|taking my own life|end my life|ending my life|end it all|self[- ]?harm|hurt myself|hurting myself|want to die|better off dead|overdos\w*)/i.test(content)) {
       setHelpBox(true);
       setHush(true);
     }
