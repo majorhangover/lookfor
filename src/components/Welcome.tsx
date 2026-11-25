@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import Character from "./Character";
+import Elf from "./Elf";
 import type { useAccount } from "./useAccount";
 import type { Character as Host } from "@/lib/occasions";
 import type { Region } from "@/lib/types";
@@ -37,14 +38,15 @@ export default function Welcome({
   };
   const santa = character.id === "santa";
 
-  const card = (children: React.ReactNode) => (
+  // At Christmas, Santa's elf helper asks the practical questions (Santa knows where you live!).
+  const card = (children: React.ReactNode, helper = false) => (
     <main className="flex min-h-screen items-center justify-center p-6" style={bg}>
       <div className="w-full max-w-md rounded-3xl bg-white/95 p-8 text-center text-slate-800 shadow-xl">
         <div
           className="mx-auto h-44 w-44 rounded-full p-2 shadow-inner"
           style={{ background: `radial-gradient(circle at 50% 40%, ${character.theme.via} 0%, ${character.theme.from} 100%)` }}
         >
-          <Character id={character.id} mouth={0} listening={false} waveKey={1} />
+          {helper ? <Elf /> : <Character id={character.id} mouth={0} listening={false} waveKey={1} />}
         </div>
         {children}
       </div>
@@ -68,8 +70,14 @@ export default function Welcome({
         </h1>
         <p className="mt-1 font-medium">Gift ideas for everyone</p>
         <p className="mt-4 text-lg">
-          {santa ? "Ho ho ho! " : "Hello! "}Where in the world are you?{" "}
-          {santa ? "I need to know where to deliver!" : "Then I can find gifts in the right shop."}
+          {santa ? (
+            <>
+              Hi, I&apos;m <b>Pip</b>, Santa&apos;s helper! Santa&apos;s busy in the workshop, so I&apos;m sorting the
+              paperwork. Which country are you in? Then I&apos;ll check the right shop.
+            </>
+          ) : (
+            "Hello! Where in the world are you? Then I can find gifts in the right shop."
+          )}
         </p>
         <div className="mt-4 space-y-2">
           {choice("UK", "United Kingdom", "🇬🇧")}
@@ -103,6 +111,7 @@ export default function Welcome({
           </Link>
         </p>
       </>,
+      santa,
     );
   }
 
