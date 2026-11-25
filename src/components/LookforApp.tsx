@@ -44,9 +44,11 @@ export default function LookforApp() {
   const [pending, setPending] = useState<ProfileUpdate[]>([]);
   const [savedNote, setSavedNote] = useState<string | null>(null);
   /** Save everything learned about one person to My people. */
-  const saveProfile = (name: string) => {
-    const mine = pending.filter((u) => u.personNickname.trim().toLowerCase() === name.trim().toLowerCase());
-    setFamily(mine.reduce(applyProfileUpdate, family));
+  const saveProfile = (name: string, face?: string) => {
+    const same = (n: string) => n.trim().toLowerCase() === name.trim().toLowerCase();
+    const mine = pending.filter((u) => same(u.personNickname));
+    const updated = mine.reduce(applyProfileUpdate, family);
+    setFamily(face ? updated.map((p) => (same(p.nickname) ? { ...p, face } : p)) : updated);
     setPending(pending.filter((u) => !mine.includes(u)));
     setSavedNote(name);
   };
