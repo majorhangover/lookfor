@@ -49,6 +49,11 @@ export default function LookforApp() {
   const [pending, setPending] = useState<ProfileUpdate[]>([]);
   // Set when the user shares something sad: no more cheerful nudges this visit.
   const [hush, setHush] = useState(false);
+  // Set when the user seems to be a child: the chat pauses for this browser tab.
+  // (The page only renders once the account has loaded in the browser, so reading sessionStorage here is safe.)
+  const [childLock, setChildLock] = useState(
+    () => typeof window !== "undefined" && sessionStorage.getItem("lookfor.child") === "1",
+  );
   const [savedNote, setSavedNote] = useState<string | null>(null);
   /** Save everything learned about one person to My people. */
   const saveProfile = (name: string, face?: string) => {
@@ -260,7 +265,7 @@ export default function LookforApp() {
   /** Sends a chat message. `startOccasion` switches host first, with a fresh conversation. */
   const send = async (text: string, startOccasion?: string) => {
     const content = text.trim();
-    if (!content || busy) return;
+    if (!content || busy || childLock) return;
     setSavedNote(null);
     // A safety net in case the reply doesn't flag it: sad news means no cheerful nudges.
     if (/\b(died|dead|passed away|passed on|funeral|lost my|bereave\w*|terminal|cancer)\b/i.test(content)) setHush(true);
@@ -331,6 +336,11 @@ export default function LookforApp() {
         setCelebrate((c) => c + 1);
       }
       if (data.sensitive) setHush(true);
+      if (data.child) {
+        setChildLock(true);
+        setHush(true);
+        sessionStorage.setItem("lookfor.child", "1");
+      }
       if (data.profileUpdates?.length) setPending((p) => [...p, ...data!.profileUpdates]);
       if (data.gifts?.length) {
         account.logGifts("shown", data.gifts, occasionKey);
@@ -564,6 +574,11 @@ export default function LookforApp() {
                 Tell {firstName} who you’re shopping for, and the gift ideas will appear like magic.
               </span>
             </label>
+            {childLock ? (
+              <p className="rounded-2xl bg-white/90 px-4 py-3 text-center font-semibold text-slate-800 shadow-lg">
+                Lookfor is for grown-ups. Please ask a parent or guardian to help you.
+              </p>
+            ) : (
             <form
               className="flex gap-2"
               onSubmit={(e) => {
@@ -601,6 +616,7 @@ export default function LookforApp() {
                 )}
               </button>
             </form>
+            )}
           </div>
 
           {/* The three pictures share one row on wide screens, all the same height. */}

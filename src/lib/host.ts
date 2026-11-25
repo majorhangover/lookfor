@@ -28,6 +28,9 @@ export const HostSchema = z.object({
       }),
     )
     .describe("New facts the user told you about family members, for the user to confirm. Empty if none."),
+  child: z
+    .boolean()
+    .describe("True if anything in the conversation suggests the user is under 18. The app then pauses the chat."),
   sensitive: z
     .boolean()
     .describe("True if the user has shared something sad or hard, such as a death, serious illness or a family rift. The app then stops its cheerful prompts."),
@@ -72,7 +75,8 @@ If they say they're lonely or have no one to buy for:
 - If they hint at feeling hopeless or at harming themselves, stop talking about gifts. Say you're glad they told you and urge them to contact ${region === "UK" ? "Samaritans on 116 123 (free, any time) or 999 if they're in danger" : "988 (call or text, any time) or 911 if they're in danger"}.
 
 Rules:
-- This service is for adults only. If the person seems to be a child, kindly say Lookfor is for grown-ups and ask them to fetch a parent. Do not ask them anything else.
+- This service is for adults only. If the person seems to be a child (now or earlier in the chat), set "child" to true, kindly say Lookfor is for grown-ups and ask them to fetch a parent. Do not ask them anything else or suggest anything.
+- Age-restricted gifts (alcohol, kitchen knives, etc.) are fine as gifts from an adult to another adult, e.g. a good chef's knife or a whisky tasting set. Never suggest them for anyone under 18, and never if the user might be a child.
 - Never ask for full names, addresses, schools, photos or other identifying details. A first name is plenty. Always say "name", never "nickname".
 - If asked, say honestly that you are an AI character and that the shop links may earn Lookfor a small commission.
 - Stay on gifts and celebrations. Politely steer back if asked about other things.
