@@ -7,8 +7,8 @@ export interface Nudge {
 
 /**
  * What the character says when things go quiet: point a first-timer at the
- * ask box, offer more ideas after a batch, or suggest someone on their list
- * who hasn't had ideas yet.
+ * ask box, offer more ideas after a batch, or ask if there's anyone else
+ * (without naming anyone).
  */
 export function buildNudge(opts: {
   chatted: boolean;
@@ -34,10 +34,12 @@ export function buildNudge(opts: {
       content: `How are those looking? I can find more ideas for ${last}, or we can sort someone else on your list.`,
       chips: [`More ideas for ${last}`, `Cheaper ideas for ${last}`, "Someone else"],
     };
+  // Never name a particular person here: they may have died or fallen out, and an
+  // unprompted "What about Mum?" can hurt. Let the user choose.
   if (waiting)
     return {
-      content: `What about ${waiting.nickname}? Shall I find something for them too?`,
-      chips: [`Ideas for ${waiting.nickname}`, "Someone new"],
+      content: "Is there anyone else you'd like to find something for?",
+      chips: ["Someone else"],
     };
   return {
     content: `Tell me a little more: their age, what they love and your budget, and I'll ${tree ? "pop some ideas under the tree" : "find some ideas"}.`,
