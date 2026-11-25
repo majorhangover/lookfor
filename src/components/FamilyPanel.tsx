@@ -31,10 +31,18 @@ export default function FamilyPanel({
   family,
   setFamily,
   currency = "£",
+  onFind,
+  earlierCount,
+  onShowEarlier,
 }: {
   family: Person[];
   setFamily: (f: Person[]) => void;
   currency?: string;
+  /** Ask the character for (more) gift ideas for this person. */
+  onFind?: (p: Person) => void;
+  /** How many ideas this person has had earlier in this visit. */
+  earlierCount?: (p: Person) => number;
+  onShowEarlier?: (p: Person) => void;
 }) {
   const [editing, setEditing] = useState<Person | null>(null);
   const [showMore, setShowMore] = useState(false);
@@ -183,6 +191,21 @@ export default function FamilyPanel({
                 )}
                 {p.interests && <div className="text-slate-600">Likes {p.interests}</div>}
                 {p.budget && <div className="text-slate-600">Budget {p.budget}</div>}
+                {onFind && (
+                  <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <button
+                      className="rounded-full bg-amber-400 px-3 py-1 text-xs font-bold text-slate-900 shadow-sm hover:bg-amber-300"
+                      onClick={() => onFind(p)}
+                    >
+                      🎁 Find gifts for {p.nickname}
+                    </button>
+                    {(earlierCount?.(p) ?? 0) > 0 && (
+                      <button className="text-xs text-slate-600 underline" onClick={() => onShowEarlier?.(p)}>
+                        See the {earlierCount!(p)} ideas from earlier
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
               <span className="absolute right-2 top-2 flex gap-2">
                 <button
