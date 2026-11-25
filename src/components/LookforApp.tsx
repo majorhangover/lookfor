@@ -19,6 +19,8 @@ import { playJingle } from "@/lib/jingle";
 import { giftSharePath } from "@/lib/share";
 import { examplePrompts } from "@/lib/examples";
 import { applyProfileUpdate, isSaved, toggleSavedGift } from "@/lib/profile";
+import { track } from "@/lib/tracking";
+import { CookieSettings } from "./CookieBanner";
 import { CHARACTERS, OCCASIONS, getOccasion, seasonalOccasion, upcomingBirthdays } from "@/lib/occasions";
 import type { ChatMessage, GiftIdea, Person, ProfileUpdate, Region, HostResponse } from "@/lib/types";
 
@@ -144,7 +146,10 @@ export default function LookforApp() {
           href={g.url}
           target="_blank"
           rel="sponsored nofollow noopener noreferrer"
-          onClick={() => account.logGifts("clicked", [g], occasionId)}
+          onClick={() => {
+            account.logGifts("clicked", [g], occasionId);
+            track("GiftClick", { occasion: occasionId, idea: g.title });
+          }}
           className="absolute inset-0 z-0 rounded-xl"
           aria-label={`${g.title}: see options and prices`}
         />
@@ -293,7 +298,18 @@ export default function LookforApp() {
         setCelebrate((c) => c + 1);
       }
       if (data.profileUpdates?.length) setPending((p) => [...p, ...data!.profileUpdates]);
-      if (data.gifts?.length) account.logGifts("shown", data.gifts, occasionKey);
+      if (data.gifts?.length) {
+        account.logGifts("shown", data.gifts, occasionKey);
+        // Retargeting (only if the visitor accepted cookies): broad info only, no nicknames or ages.
+        const relationships = [
+          ...new Set(
+            data.gifts
+              .map((g) => family.find((p) => p.nickname.toLowerCase() === g.forPerson.toLowerCase())?.relationship)
+              .filter((r): r is string => !!r),
+          ),
+        ];
+        track("GiftIdeas", { occasion: occasionKey, relationships, ideas: data.gifts.map((g) => g.title) });
+      }
     } catch (e) {
       setTurns([
         ...next,
@@ -814,6 +830,7 @@ export default function LookforApp() {
         <a className="underline hover:text-white" href="/privacy" target="_blank" rel="noopener">
           Privacy
         </a>
+        <CookieSettings className="ml-1 underline hover:text-white before:mr-1 before:content-['·']" />
       </footer>
     </div>
   );
