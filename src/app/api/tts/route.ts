@@ -30,7 +30,8 @@ export async function GET(request: Request) {
   )?.trim();
   if (!voice) return new Response(null, { status: 204 });
 
-  const speed = Number(process.env.ELEVENLABS_SPEED);
+  // A touch quicker than normal by default, so replies don't drag. ELEVENLABS_SPEED overrides it.
+  const speed = Number(process.env.ELEVENLABS_SPEED || 1.1);
   const upstream = await fetch(
     `https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voice)}/stream?output_format=mp3_44100_64`,
     {

@@ -805,8 +805,8 @@ export default function LookforApp() {
         </aside>
       </main>
       <footer className="mx-auto max-w-6xl px-4 pb-6 text-center text-xs text-white/70">
-        AI characters: check age ratings and details before you buy. As an Amazon Associate we earn from qualifying
-        purchases. ·{" "}
+        AI characters: check age ratings and details before you buy. We may earn a small commission when you buy
+        through our links. ·{" "}
         <a className="underline hover:text-white" href="/about" target="_blank" rel="noopener">
           How it works
         </a>{" "}
