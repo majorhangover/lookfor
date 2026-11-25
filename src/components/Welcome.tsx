@@ -91,8 +91,8 @@ export default function Welcome({
             <p className="mt-4 text-lg">
               {santa ? (
                 <>
-                  Hi, I&apos;m <b>Pip</b>, Santa&apos;s helper! Looks like you&apos;re in the{" "}
-                  {guess === "UK" ? "UK 🇬🇧" : "US 🇺🇸"}, so I&apos;ll check Amazon {guess} for Santa.
+                  Ho ho ho! Santa knows where you are: the {guess === "UK" ? "UK 🇬🇧" : "US 🇺🇸"}! I&apos;ll find your
+                  gift ideas on Amazon {guess}.
                 </>
               ) : (
                 <>
@@ -170,7 +170,7 @@ export default function Welcome({
           </Link>
         </p>
       </>,
-      santa,
+      santa && (!guess || choosing),
     );
   }
 
