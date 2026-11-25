@@ -16,6 +16,7 @@ import EmptySack from "./EmptySack";
 import { useLocalState } from "./useLocalState";
 import { useHostVoice } from "./useHostVoice";
 import { playJingle } from "@/lib/jingle";
+import { giftSharePath } from "@/lib/share";
 import { examplePrompts } from "@/lib/examples";
 import { applyProfileUpdate, isSaved, toggleSavedGift } from "@/lib/profile";
 import { CHARACTERS, OCCASIONS, getOccasion, seasonalOccasion, upcomingBirthdays } from "@/lib/occasions";
@@ -111,6 +112,25 @@ export default function LookforApp() {
 
   const tree = character.id === "santa";
 
+  // Share a Lookfor page for the gift (not the Amazon link, which must be
+  // clicked from our site). Phones open the share menu; elsewhere we copy it.
+  const [sharedTitle, setSharedTitle] = useState<string | null>(null);
+  const shareGift = async (g: GiftIdea) => {
+    const url = `${window.location.origin}${giftSharePath(g, region)}`;
+    const text = `Gift idea: ${g.title}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: text, text, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      setSharedTitle(g.title);
+      setTimeout(() => setSharedTitle(null), 2500);
+    } catch {
+      // Cancelled by the user, or sharing isn't available: nothing to do.
+    }
+  };
+
   const giftCard = (g: GiftIdea, j: number, drop = false) => {
     const saved = isSaved(family, g);
     return (
@@ -160,6 +180,13 @@ export default function LookforApp() {
               }`}
             >
               {saved ? `♥ Saved for ${g.forPerson}` : `♡ Save for ${g.forPerson}`}
+            </button>
+            <button
+              type="button"
+              onClick={() => shareGift(g)}
+              className="pointer-events-auto relative z-10 rounded-full border border-slate-300 px-3 py-1 font-semibold text-slate-700 hover:border-emerald-500"
+            >
+              {sharedTitle === g.title ? "✓ Link copied" : "↗ Share"}
             </button>
           </div>
           <span className="mt-1 block text-xs text-slate-500">Ad · affiliate link</span>
