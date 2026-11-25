@@ -317,8 +317,9 @@ export default function LookforApp() {
 
   return (
     <div className="min-h-screen transition-colors" style={bg}>
-      <header className="relative mx-auto flex max-w-6xl justify-end gap-2 px-4 pt-3 text-white">
-        <div className="flex items-center gap-2 text-sm">
+      {/* Phones: buttons top right, big logo below. Wide screens: logo top left, buttons top right. */}
+      <header className="relative mx-auto flex max-w-7xl flex-col gap-2 px-4 pt-3 text-white lg:flex-row-reverse lg:items-center lg:justify-between lg:pb-2">
+        <div className="flex items-center gap-2 self-end text-sm lg:self-auto">
           {/* Country: shows which Amazon store the gift links go to, and switches it. */}
           <div className="relative">
             <button
@@ -423,13 +424,11 @@ export default function LookforApp() {
             </>
           )}
         </div>
-      </header>
-      <div className="px-4">
         <Logo />
-      </div>
+      </header>
       {/* Phones: one column. Wide screens: occasions across the top, the ask box across the page under them, then three columns (people, chat, gifts), each with its picture above it, all in one row. */}
-      <main className="mx-auto grid max-w-7xl grid-cols-1 gap-x-5 gap-y-3 p-4 [grid-template-areas:'nav'_'stage'_'name'_'chat'_'ask'_'treeicon'_'gifts'_'peopleicon'_'people'] lg:grid-cols-[300px_minmax(0,1fr)_340px] lg:grid-rows-[auto_auto_auto_auto_1fr] lg:[grid-template-areas:'nav_nav_nav'_'ask_ask_ask'_'peopleicon_stage_treeicon'_'._name_.'_'people_chat_gifts']">
-          <nav className="flex flex-wrap justify-center gap-2 [grid-area:nav]" aria-label="Occasion">
+      <main className="mx-auto grid max-w-7xl grid-cols-1 gap-x-5 gap-y-3 p-4 [grid-template-areas:'nav'_'stage'_'name'_'chat'_'ask'_'treeicon'_'gifts'_'peopleicon'_'people'] lg:grid-cols-3 lg:grid-rows-[auto_auto_auto_auto_auto_1fr] lg:[grid-template-areas:'nav_nav_nav'_'ask_ask_ask'_'stage_chat_chat'_'name_chat_chat'_'people_treeicon_treeicon'_'people_gifts_gifts']">
+          <nav className="flex flex-wrap content-start justify-center gap-2 [grid-area:nav] lg:self-start" aria-label="Occasion">
             {OCCASIONS.map((o) => (
               <button
                 key={o.id}
@@ -499,7 +498,7 @@ export default function LookforApp() {
 
           {/* The three pictures share one row on wide screens, all the same height. */}
           <div className="flex justify-center self-end [grid-area:stage]">
-            <div className="h-52 w-52 md:h-56 md:w-56">
+            <div className="h-52 w-52 md:h-56 md:w-56 lg:h-64 lg:w-64">
               <Character
                 id={character.id}
                 mouth={voice.mouth}
@@ -511,7 +510,7 @@ export default function LookforApp() {
               />
             </div>
           </div>
-          <div aria-hidden className="flex h-44 items-end justify-center self-end [grid-area:peopleicon] md:h-48">
+          <div aria-hidden className="flex h-44 items-end justify-center self-end [grid-area:peopleicon] md:h-48 lg:hidden">
             <div className="grid grid-cols-4 place-items-center">
               {(["grandma", "dad", "girl", "grandad", "mum", "boy", "baby", "friend"] as const).map((id, i) => (
                 <div
@@ -543,9 +542,9 @@ export default function LookforApp() {
               {voiceOn ? "🔊 Voice on" : "🔇 Hear my voice"}
             </button>
           </div>
-          <div className="flex min-w-0 flex-col gap-3 [grid-area:chat]">
+          <div className="flex min-w-0 flex-col gap-3 [grid-area:chat] lg:h-0 lg:min-h-full">
 
-          <div ref={chatBox} className={`min-h-0 flex-1 space-y-3 overflow-y-auto rounded-2xl bg-white/90 p-4 text-slate-800 shadow-lg max-h-[45vh]`}>
+          <div ref={chatBox} className={`min-h-0 flex-1 space-y-3 overflow-y-auto rounded-2xl bg-white/90 p-4 text-slate-800 shadow-lg max-h-[45vh] lg:max-h-none`}>
             {turns.map((t, i) => (
               <div key={i} className={t.role === "user" ? "text-right" : ""}>
                 <div
@@ -566,8 +565,7 @@ export default function LookforApp() {
                       onClick={flashGifts}
                     >
                       {tree ? `🎁 I've popped ${t.gifts.length} under the tree ` : `🎁 ${t.gifts.length} gift ideas `}
-                      <span className="lg:hidden">↓</span>
-                      <span className="hidden lg:inline">→</span>
+                      <span>↓</span>
                     </button>
                   </div>
                 )}
@@ -726,7 +724,7 @@ export default function LookforApp() {
                 </div>
               )}
               <h2 className="mb-2 text-lg font-bold">{tree ? "🎄 Under the tree" : "🎁 Gift ideas"}</h2>
-              <div key={`gifts-${giftSets.length}`} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+              <div key={`gifts-${giftSets.length}`} className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {latestGifts.map((g, j) => giftCard(g, j, true))}
               </div>
               <button
@@ -741,7 +739,7 @@ export default function LookforApp() {
                   <summary className="cursor-pointer text-sm font-semibold text-slate-600">
                     Earlier ideas ({earlierGifts.reduce((n, t) => n + (t.gifts?.length ?? 0), 0)})
                   </summary>
-                  <div className="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                  <div className="mt-2 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                     {earlierGifts.flatMap((t) => t.gifts ?? []).map((g, j) => giftCard(g, j))}
                   </div>
                 </details>
@@ -750,9 +748,10 @@ export default function LookforApp() {
           )}
           </div>
 
-        <aside className="flex flex-col gap-4 self-start [grid-area:people]">
+        {/* Wide screens: the people box fills the space beside the occasions and chat bar, and scrolls inside. */}
+        <aside className="flex flex-col gap-4 self-start [grid-area:people] lg:h-0 lg:max-h-[40rem] lg:min-h-full lg:self-stretch lg:overflow-y-auto lg:rounded-2xl">
           {birthdays.length > 0 && (
-            <section className="rounded-2xl bg-white/90 p-4 text-sm text-slate-800 shadow-lg">
+            <section className="rounded-2xl bg-white/90 p-4 text-sm text-slate-800 shadow-lg lg:hidden">
               <h2 className="mb-1 font-bold">Coming up</h2>
               <ul>
                 {birthdays.map((b) => (
@@ -774,7 +773,16 @@ export default function LookforApp() {
               </ul>
             </section>
           )}
-          <FamilyPanel family={family} setFamily={setFamily} currency={region === "UK" ? "£" : "$"} />
+          <FamilyPanel
+            family={family}
+            setFamily={setFamily}
+            currency={region === "UK" ? "£" : "$"}
+            upcoming={Object.fromEntries(birthdays.map((b) => [b.nickname, b.when]))}
+            onFindGifts={(name) => {
+              send(`Gift ideas for ${name}'s birthday, please`, "birthday");
+              document.getElementById("ask")?.scrollIntoView({ behavior: "smooth", block: "center" });
+            }}
+          />
         </aside>
       </main>
       <footer className="mx-auto max-w-6xl px-4 pb-6 text-center text-xs text-white/70">

@@ -51,11 +51,11 @@ export default function Logo() {
     // A full page load (not a client-side link) so clicking the logo always
     // returns to the default home page: today's occasion and a fresh chat.
     // eslint-disable-next-line @next/next/no-html-link-for-pages
-    <a href="/" aria-label="Lookfor home" className="relative mx-auto block h-36 w-full max-w-5xl select-none sm:h-44">
+    <a href="/" aria-label="Lookfor home" className="relative mx-auto block h-36 w-full max-w-5xl select-none sm:h-44 lg:mx-0 lg:h-auto lg:w-auto">
       {FACES.map((f, i) => (
         <div
           key={f.id}
-          className={`logo-face absolute ${f.wide ? "hidden sm:block" : ""}`}
+          className={`logo-face absolute lg:hidden ${f.wide ? "hidden sm:block" : ""}`}
           style={{
             left: `${f.x}%`,
             top: `${f.y}%`,
@@ -68,10 +68,10 @@ export default function Logo() {
           <Face id={f.id} />
         </div>
       ))}
-      <div className="absolute inset-0 flex items-center justify-center text-white">
+      <div className="absolute inset-0 flex items-center justify-center text-white lg:static">
         {/* The tagline is sized from the logo's font size and justified, so it spans the word exactly. */}
         <div
-          className={`${outfit.className} inline-flex flex-col text-6xl leading-none drop-shadow-[0_3px_10px_rgba(0,0,0,0.35)] sm:text-7xl md:text-8xl`}
+          className={`${outfit.className} inline-flex flex-col text-6xl leading-none drop-shadow-[0_3px_10px_rgba(0,0,0,0.35)] sm:text-7xl md:text-8xl lg:text-6xl`}
         >
           <h1 className="tracking-tight">
             L<Eye />

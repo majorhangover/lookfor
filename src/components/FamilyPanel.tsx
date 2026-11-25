@@ -29,15 +29,27 @@ export default function FamilyPanel({
   family,
   setFamily,
   currency = "£",
+  upcoming = {},
+  onFindGifts,
 }: {
   family: Person[];
   setFamily: (f: Person[]) => void;
   currency?: string;
+  /** Nickname → when their birthday is ("in 8 days"), for birthdays coming up. */
+  upcoming?: Record<string, string>;
+  onFindGifts?: (nickname: string) => void;
 }) {
   const [editing, setEditing] = useState<Person | null>(null);
   const [showMore, setShowMore] = useState(false);
   const [birthdayError, setBirthdayError] = useState(false);
   const [justAdded, setJustAdded] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  // With lots of people, offer a search box.
+  const q = query.trim().toLowerCase();
+  const shown =
+    family.length > 4 && q
+      ? family.filter((p) => `${p.nickname} ${p.relationship} ${p.interests}`.toLowerCase().includes(q))
+      : family;
   const nameInput = useRef<HTMLInputElement>(null);
 
   const start = (p: Person | null) => {
@@ -101,7 +113,7 @@ export default function FamilyPanel({
   );
 
   return (
-    <section className="rounded-2xl bg-white/90 p-4 text-slate-800 shadow-lg">
+    <section className="flex min-h-0 flex-col rounded-2xl bg-white/90 p-4 text-slate-800 shadow-lg lg:h-full">
       <div className="mb-2 flex items-center justify-between">
         <h2 className="text-lg font-bold">My people</h2>
         {!editing && (
@@ -122,8 +134,21 @@ export default function FamilyPanel({
         </p>
       )}
 
+      {family.length > 4 && !editing && (
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={`Search ${family.length} people`}
+          aria-label="Search my people"
+          className="mb-2 w-full rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm"
+        />
+      )}
+      {q && shown.length === 0 && <p className="text-sm text-slate-500">No one matches “{query}”.</p>}
+
+      {/* Beyond a few people the list scrolls, so the page layout stays put. */}
       <ul className="space-y-2">
-        {family.map((p) => {
+        {shown.map((p) => {
           const age = displayAge(p);
           return (
             <li key={p.id} className="relative rounded-xl bg-slate-50 p-2 text-sm">
@@ -134,6 +159,19 @@ export default function FamilyPanel({
                   {age && <span className="text-slate-500"> · {age}</span>}
                   {p.birthday && <span className="text-slate-500"> · 🎂 {formatBirthday(p.birthday)}</span>}
                 </div>
+                {upcoming[p.nickname] && (
+                  <div className="mt-0.5 text-xs font-semibold text-emerald-800">
+                    🎂 Birthday {upcoming[p.nickname]}
+                    {onFindGifts && (
+                      <>
+                        {" · "}
+                        <button className="underline" onClick={() => onFindGifts(p.nickname)}>
+                          Find gifts
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
                 {/* Saved gifts first, always on show, so they are easy to find again. */}
                 {(p.savedGifts?.length ?? 0) > 0 && (
                   <div className="my-1.5">
