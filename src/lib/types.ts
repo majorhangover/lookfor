@@ -54,4 +54,6 @@ export interface HostResponse {
   reply: string;
   gifts: GiftIdea[];
   profileUpdates: ProfileUpdate[];
+  /** The user shared something sad, so the character stops its cheerful prompts. */
+  sensitive?: boolean;
 }
