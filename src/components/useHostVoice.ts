@@ -1,5 +1,6 @@
 "use client";
 
+import { sayMoney } from "@/lib/sayMoney";
 import { useCallback, useRef, useState } from "react";
 import type { CharacterId } from "@/lib/occasions";
 import type { Region } from "@/lib/types";
@@ -73,8 +74,10 @@ export function useHostVoice(region: Region, character: CharacterId, pitch: numb
   );
 
   const speak = useCallback(
-    (text: string, speaker: CharacterId = character) => {
+    (said: string, speaker: CharacterId = character) => {
       stop();
+      // Prices in words, so "£40" is never read out as "40 dollars".
+      const text = sayMoney(said);
       // Stream the voice: the <audio> element starts playing as soon as the
       // first chunk arrives. A 204 (no voice set up) or any error falls back
       // to the browser's own voice.
