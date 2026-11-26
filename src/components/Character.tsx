@@ -201,16 +201,16 @@ interface Person {
 
 /** The grown-up hosts for every occasion except Christmas. Ids stay the same so saved choices and voices keep working. */
 const PEOPLE: Record<Exclude<CharacterId, "santa">, Person> = {
-  bear: { skin: "#c68642", hair: "#2b1a12", style: "curly", top: "#7c3aed", extras: ["hoops"], lip: "#8a2c3a" },
-  bunny: { skin: "#ffdbac", hair: "#e0b458", style: "bob", top: "#16a34a", extras: ["daisy", "cardigan"], lip: "#b4505a" },
-  cupid: { skin: "#e0ac69", hair: "#5a1e12", style: "long", top: "#be123c", extras: ["heart", "studs"], lip: "#9f1239" },
-  penguin: { skin: "#f1c27d", hair: "#9ca3af", style: "short", top: "#1e293b", extras: ["collar", "bowtie"] },
-  hen: { skin: "#ffe0c7", hair: "#9a4a24", style: "bun", top: "#db2777", extras: ["pearls", "cardigan"], lip: "#b4505a" },
-  dog: { skin: "#c68642", hair: "#3b2314", style: "short", top: "#1d4ed8", extras: ["cap", "beard"] },
-  dove: { skin: "#6b3e26", hair: "#1a1a1a", style: "updo", top: "#f5e6c8", extras: ["flowers", "studs"], lip: "#7a2b33" },
-  stork: { skin: "#f3d2b3", hair: "#7a5230", style: "ponytail", top: "#0284c7", extras: ["studs"], lip: "#b4505a" },
+  bear: { skin: "#c68642", hair: "#2b1a12", style: "curly", top: "#f59e0b", extras: ["hoops"], lip: "#8a2c3a" },
+  bunny: { skin: "#ffdbac", hair: "#e0b458", style: "bob", top: "#a78bfa", extras: ["daisy", "cardigan"], lip: "#b4505a" },
+  cupid: { skin: "#e0ac69", hair: "#5a1e12", style: "long", top: "#f8fafc", extras: ["heart", "studs"], lip: "#9f1239" },
+  penguin: { skin: "#f1c27d", hair: "#9ca3af", style: "short", top: "#d6d3d1", extras: ["collar", "bowtie"] },
+  hen: { skin: "#ffe0c7", hair: "#9a4a24", style: "bun", top: "#0d9488", extras: ["pearls", "cardigan"], lip: "#b4505a" },
+  dog: { skin: "#c68642", hair: "#3b2314", style: "short", top: "#dc2626", extras: ["cap", "beard"] },
+  dove: { skin: "#6b3e26", hair: "#1a1a1a", style: "updo", top: "#1e3a8a", extras: ["flowers", "studs"], lip: "#7a2b33" },
+  stork: { skin: "#f3d2b3", hair: "#7a5230", style: "ponytail", top: "#facc15", extras: ["studs"], lip: "#b4505a" },
   fox: { skin: "#ffdbac", hair: "#c2410c", style: "short", top: "#15803d", extras: ["stubble", "collar"] },
-  lou: { skin: "#f1c27d", hair: "#3b2314", style: "short", top: "#0d9488", extras: ["glasses"] },
+  lou: { skin: "#f1c27d", hair: "#3b2314", style: "short", top: "#e11d48", extras: ["glasses"] },
 };
 
 function PersonParts({ p, open, speaking, blink, lookUp, browLift, mouthY }: FaceProps & { p: Person }) {
