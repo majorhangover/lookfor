@@ -107,6 +107,8 @@ export default function Face({ id }: { id: FaceId }) {
         {id === "santa" && (
           <g>
             <path d="M26 44 Q34 12 62 14 Q80 18 82 40 L74 42 Q70 26 58 24 Q40 24 34 46 Z" fill="#d62828" />
+            {/* The hat covers the top of his head, down to the fur band */}
+            <path d="M27 44 Q28 28 50 28 Q72 28 73 44 Z" fill="#d62828" />
             <rect x="25" y="38" width="50" height="10" rx="5" fill="#fff" />
             <circle cx="81" cy="41" r="6" fill="#fff" />
           </g>
