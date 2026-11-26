@@ -4,8 +4,8 @@ import { CookieSettings } from "./CookieBanner";
 /** The small print at the very bottom of every chat page, under the occasion paragraph. */
 export default function SiteFooter() {
   return (
-    <footer className="bg-slate-900 px-4 pb-6 text-center text-xs text-white/60">
-      <div className="mx-auto max-w-6xl border-t border-white/10 pt-4">
+    <footer className="bg-slate-950 px-6 py-6 text-center text-xs text-white/60">
+      <div className="mx-auto max-w-3xl">
         Lookfor is for adults (18+). By chatting you agree to our{" "}
         <Link className="underline hover:text-white" href="/privacy">
           privacy notice
