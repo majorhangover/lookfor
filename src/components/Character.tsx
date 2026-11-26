@@ -56,40 +56,16 @@ export default function Character({
   }, []);
 
   const open = Math.max(0, Math.min(1, mouth));
-  const eyeRy = blink ? 1 : 9;
   const lookUp = thinking ? -4 : 0;
   const browLift = speaking ? -3 - open * 4 : thinking ? -5 : 0;
-  const hand = {
-    santa: { sleeve: "#d62828", cuff: "#fff", mitt: "#1f7a3a" },
-    bear: { sleeve: "#c08552", cuff: "#c08552", mitt: "#e8b98a" },
-    bunny: { sleeve: "#f8f4f0", cuff: "#f8f4f0", mitt: "#f9b4c8" },
-    cupid: { sleeve: "#ffe0c7", cuff: "#ffe0c7", mitt: "#ffe0c7" },
-    penguin: { sleeve: "#1f2937", cuff: "#1f2937", mitt: "#1f2937" },
-    hen: { sleeve: "#fff7ed", cuff: "#fde68a", mitt: "#fff7ed" },
-    dog: { sleeve: "#1e3a8a", cuff: "#1e3a8a", mitt: "#d6a36b" },
-    dove: { sleeve: "#f8fafc", cuff: "#e2e8f0", mitt: "#f8fafc" },
-    stork: { sleeve: "#f8fafc", cuff: "#e2e8f0", mitt: "#f8fafc" },
-    fox: { sleeve: "#ea580c", cuff: "#fff", mitt: "#3b2314" },
-    lou: { sleeve: "#0d9488", cuff: "#0d9488", mitt: "#f1c27d" },
-  }[id];
-  const skin = {
-    santa: "#ffd9b8",
-    bear: "#c08552",
-    bunny: "#f8f4f0",
-    cupid: "#ffe0c7",
-    penguin: "#1f2937",
-    hen: "#fff7ed",
-    dog: "#d6a36b",
-    dove: "#f8fafc",
-    stork: "#f8fafc",
-    fox: "#ea580c",
-    lou: "#f1c27d",
-  }[id];
-
-  const mouthY = id === "santa" ? 213 : 205;
+  const person = id === "santa" ? null : PEOPLE[id];
+  const hand = person
+    ? { sleeve: person.top, cuff: person.top, mitt: person.skin }
+    : { sleeve: "#d62828", cuff: "#fff", mitt: "#1f7a3a" };
+  const mouthY = person ? 192 : 213;
 
   return (
-    <svg viewBox="0 0 300 320" className="w-full h-full" role="img" aria-label={`Cartoon ${id}`}>
+    <svg viewBox="0 0 300 320" className="w-full h-full" role="img" aria-label={`Cartoon ${id === "santa" ? "Santa" : "host"}`}>
       <defs>
         <radialGradient id="cheek" cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor="#ff8a8a" stopOpacity="0.9" />
@@ -112,237 +88,11 @@ export default function Character({
       )}
 
       <g className={`char-body ${speaking ? "char-speaking" : ""}`}>
-
-      {/* Behind the head */}
-      {id === "bunny" && (
-        <g>
-          <ellipse cx="112" cy="60" rx="22" ry="62" fill="#f8f4f0" transform="rotate(-12 112 60)" />
-          <ellipse cx="112" cy="62" rx="11" ry="46" fill="#f9b4c8" transform="rotate(-12 112 62)" />
-          <ellipse cx="188" cy="60" rx="22" ry="62" fill="#f8f4f0" transform="rotate(12 188 60)" />
-          <ellipse cx="188" cy="62" rx="11" ry="46" fill="#f9b4c8" transform="rotate(12 188 62)" />
-        </g>
-      )}
-      {id === "bear" && (
-        <g>
-          <circle cx="88" cy="105" r="28" fill="#c08552" />
-          <circle cx="88" cy="105" r="15" fill="#e8b98a" />
-          <circle cx="212" cy="105" r="28" fill="#c08552" />
-          <circle cx="212" cy="105" r="15" fill="#e8b98a" />
-        </g>
-      )}
-      {id === "cupid" && (
-        <g fill="#fff" opacity="0.95">
-          <path d="M70 190 Q20 150 30 110 Q55 140 80 150 Q50 120 60 95 Q85 130 95 150 Z" />
-          <path d="M230 190 Q280 150 270 110 Q245 140 220 150 Q250 120 240 95 Q215 130 205 150 Z" />
-        </g>
-      )}
-      {id === "dove" && (
-        <g fill="#e2e8f0">
-          <path d="M70 200 Q15 170 22 118 Q50 150 78 158 Q42 128 48 98 Q80 135 95 155 Z" />
-          <path d="M230 200 Q285 170 278 118 Q250 150 222 158 Q258 128 252 98 Q220 135 205 155 Z" />
-        </g>
-      )}
-      {id === "fox" && (
-        <g>
-          <path d="M80 130 L72 40 L135 98 Z" fill="#ea580c" />
-          <path d="M88 118 L84 66 L120 100 Z" fill="#3b2314" />
-          <path d="M220 130 L228 40 L165 98 Z" fill="#ea580c" />
-          <path d="M212 118 L216 66 L180 100 Z" fill="#3b2314" />
-        </g>
-      )}
-      {id === "dog" && (
-        <g fill="#7c4a24">
-          <ellipse cx="74" cy="170" rx="24" ry="52" transform="rotate(18 74 170)" />
-          <ellipse cx="226" cy="170" rx="24" ry="52" transform="rotate(-18 226 170)" />
-        </g>
-      )}
-      {id === "santa" && (
-        <g>
-          <path d="M70 120 Q95 20 190 30 Q250 40 262 110 L240 118 Q225 70 185 62 Q120 60 100 125 Z" fill="#d62828" />
-          <circle cx="262" cy="118" r="20" fill="#fff" className="char-pompom" />
-        </g>
-      )}
-
-      {/* Head */}
-      <ellipse cx="150" cy="165" rx="78" ry="74" fill={skin} />
-
-      {/* Hair and hats */}
-      {/* Santa's hat comes down over the top of his head, then the fur band */}
-      {id === "santa" && <path d="M70 124 Q74 72 150 66 Q226 72 230 124 Z" fill="#d62828" />}
-      {id === "santa" && <rect x="62" y="104" width="176" height="34" rx="17" fill="#fff" />}
-      {id === "bear" && (
-        <g>
-          <path d="M150 20 L120 98 L180 98 Z" fill="#facc15" />
-          <path d="M135 60 L165 60 M128 78 L172 78" stroke="#ec4899" strokeWidth="7" />
-          <circle cx="150" cy="20" r="10" fill="#ec4899" />
-          <ellipse cx="150" cy="200" rx="38" ry="30" fill="#e8b98a" />
-        </g>
-      )}
-      {id === "cupid" && (
-        <g fill="#f6c453">
-          {[95, 120, 150, 180, 205].map((x, i) => (
-            <circle key={i} cx={x} cy={i % 2 ? 100 : 108} r="20" />
-          ))}
-          <path d="M150 62 C150 52 136 50 136 60 C136 68 150 74 150 78 C150 74 164 68 164 60 C164 50 150 52 150 62 Z" fill="#e11d48" />
-        </g>
-      )}
-      {id === "penguin" && (
-        <g>
-          <path d="M150 100 C98 100 84 150 92 190 Q100 238 150 238 Q200 238 208 190 C216 150 202 100 150 100 Z" fill="#fff" />
-          <path d="M150 112 C150 100 132 98 132 110 C132 120 150 126 150 132 C150 126 168 120 168 110 C168 98 150 100 150 112 Z" fill="#ec4899" transform="rotate(-18 150 115) translate(-40 -16)" />
-        </g>
-      )}
-      {id === "hen" && (
-        <g>
-          <circle cx="126" cy="98" r="18" fill="#dc2626" />
-          <circle cx="150" cy="86" r="22" fill="#dc2626" />
-          <circle cx="174" cy="98" r="18" fill="#dc2626" />
-          <ellipse cx="150" cy="104" rx="44" ry="14" fill="#fff7ed" />
-          <g transform="translate(206 118)">
-            {[0, 72, 144, 216, 288].map((a) => (
-              <ellipse key={a} cx="0" cy="-10" rx="7" ry="11" fill="#f9a8d4" transform={`rotate(${a})`} />
-            ))}
-            <circle r="6" fill="#facc15" />
-          </g>
-        </g>
-      )}
-      {id === "dog" && (
-        <g>
-          <ellipse cx="150" cy="200" rx="40" ry="30" fill="#f1d3ae" />
-          <ellipse cx="118" cy="158" rx="20" ry="18" fill="#7c4a24" opacity="0.55" />
-          <path d="M70 128 Q74 70 150 70 Q226 70 230 128 Q190 112 150 112 Q110 112 70 128 Z" fill="#64748b" />
-          <path d="M60 128 Q150 100 252 124 Q248 140 238 140 Q150 120 66 142 Q58 138 60 128 Z" fill="#475569" />
-          <path d="M100 96 Q150 82 200 96" stroke="#475569" strokeWidth="3" fill="none" />
-        </g>
-      )}
-      {id === "dove" && (
-        <g>
-          {[100, 122, 150, 178, 200].map((x, i) => (
-            <circle key={x} cx={x} cy={i % 2 ? 98 : 106} r="11" fill={i % 2 ? "#fde68a" : "#fbcfe8"} />
-          ))}
-          {[111, 164, 189].map((x) => (
-            <ellipse key={x} cx={x} cy="110" rx="9" ry="5" fill="#86efac" />
-          ))}
-        </g>
-      )}
-      {id === "stork" && (
-        <g>
-          <path d="M72 162 Q66 82 150 80 Q234 82 228 162 Q214 124 150 122 Q86 124 72 162 Z" fill="#bae6fd" />
-          <path d="M72 162 Q110 140 150 140 Q190 140 228 162" stroke="#7dd3fc" strokeWidth="6" fill="none" />
-          <path d="M228 162 Q244 200 222 230" stroke="#f9a8d4" strokeWidth="6" fill="none" strokeLinecap="round" />
-          <path d="M222 230 l-12 6 m12 -6 l2 13" stroke="#f9a8d4" strokeWidth="5" strokeLinecap="round" />
-        </g>
-      )}
-      {id === "fox" && (
-        <g fill="#fff">
-          <path d="M150 178 Q120 168 82 180 Q86 228 150 238 Q214 228 218 180 Q180 168 150 178 Z" />
-        </g>
-      )}
-      {id === "lou" && (
-        <g>
-          <path d="M72 150 Q70 85 150 82 Q230 85 228 150 Q205 112 150 112 Q95 112 72 150 Z" fill="#3b2314" />
-          <circle cx="118" cy="160" r="19" fill="none" stroke="#0e7490" strokeWidth="5" />
-          <circle cx="182" cy="160" r="19" fill="none" stroke="#0e7490" strokeWidth="5" />
-          <path d="M137 158 L163 158" stroke="#0e7490" strokeWidth="5" />
-        </g>
-      )}
-
-      {/* Eyebrows (Santa) */}
-      {id === "santa" && (
-        <g style={{ transform: `translateY(${browLift}px)`, transition: "transform 120ms" }}>
-          <path d="M100 140 Q118 128 134 140" stroke="#fff" strokeWidth="9" fill="none" strokeLinecap="round" />
-          <path d="M166 140 Q182 128 200 140" stroke="#fff" strokeWidth="9" fill="none" strokeLinecap="round" />
-        </g>
-      )}
-      {id !== "santa" && (
-        <g
-          style={{ transform: `translateY(${browLift}px)`, transition: "transform 120ms" }}
-          stroke={id === "bunny" || id === "dove" || id === "stork" || id === "hen" ? "#9ca3af" : id === "penguin" ? "#e5e7eb" : "#3b2314"}
-          strokeWidth="4"
-          strokeLinecap="round"
-          fill="none"
-          opacity={id === "lou" ? 0 : 0.7}
-        >
-          <path d="M106 138 Q118 132 130 138" />
-          <path d="M170 138 Q182 132 194 138" />
-        </g>
-      )}
-
-      {/* Eyes */}
-      <ellipse cx="118" cy={160 + lookUp} rx="7" ry={eyeRy} fill="#2b2b2b" />
-      <ellipse cx="182" cy={160 + lookUp} rx="7" ry={eyeRy} fill="#2b2b2b" />
-      {!blink && (
-        <g fill="#fff">
-          <circle cx="120.5" cy={156 + lookUp} r="2.2" />
-          <circle cx="184.5" cy={156 + lookUp} r="2.2" />
-        </g>
-      )}
-
-      {/* Cheeks */}
-      <circle cx="98" cy="190" r="20" fill="url(#cheek)" />
-      <circle cx="202" cy="190" r="20" fill="url(#cheek)" />
-
-      {/* Santa's beard */}
-      {id === "santa" && (
-        <path
-          d="M72 175 Q70 270 150 300 Q230 270 228 175 Q210 205 185 200 Q150 240 115 200 Q90 205 72 175 Z"
-          fill="#fff"
-        />
-      )}
-
-      {/* Mouth: a smile at rest, opening with speech */}
-      {open < 0.08 && !speaking ? (
-        <path
-          d={`M${136} ${mouthY - 2} Q150 ${mouthY + 10} ${164} ${mouthY - 2}`}
-          stroke="#7a1f1f"
-          strokeWidth="4"
-          fill="none"
-          strokeLinecap="round"
-        />
-      ) : (
-        <>
-          <ellipse cx="150" cy={mouthY} rx={14 + open * 4} ry={3 + open * 13} fill="#7a1f1f" />
-          {open > 0.35 && <ellipse cx="150" cy={mouthY + 3 + open * 6} rx="8" ry={open * 5} fill="#e76f6f" />}
-        </>
-      )}
-
-      {/* Moustache and noses */}
-      {id === "santa" && (
-        <path d="M150 196 Q120 178 96 200 Q118 214 150 202 Q182 214 204 200 Q180 178 150 196 Z" fill="#f4f4f4" />
-      )}
-      {id === "santa" && <ellipse cx="150" cy="184" rx="14" ry="12" fill="#f4a19a" />}
-      {(id === "bear" || id === "dog" || id === "fox") && <ellipse cx="150" cy="184" rx="14" ry="10" fill="#3b2314" />}
-      {(id === "penguin" || id === "dove") && <path d="M138 178 L162 178 L150 194 Z" fill="#f59e0b" />}
-      {id === "hen" && (
-        <g>
-          <path d="M136 176 L164 176 L150 196 Z" fill="#f59e0b" />
-          <ellipse cx="150" cy="232" rx="8" ry="12" fill="#dc2626" />
-        </g>
-      )}
-      {id === "stork" && <path d="M138 174 Q150 168 162 174 L152 200 Q150 204 148 200 Z" fill="#fb923c" />}
-      {id === "dog" && <path d="M90 240 L150 250 L210 240 L205 262 Q150 274 95 262 Z" fill="#1e3a8a" />}
-      {id === "fox" && (
-        <g fill="#0d9488">
-          <path d="M150 252 L120 238 L120 266 Z" />
-          <path d="M150 252 L180 238 L180 266 Z" />
-          <circle cx="150" cy="252" r="7" />
-        </g>
-      )}
-      {id === "penguin" && (
-        <g fill="#be185d">
-          <path d="M150 252 L124 240 L124 264 Z" />
-          <path d="M150 252 L176 240 L176 264 Z" />
-          <circle cx="150" cy="252" r="6" />
-        </g>
-      )}
-      {id === "bunny" && <path d="M142 180 L158 180 L150 190 Z" fill="#f472b6" />}
-      {(id === "cupid" || id === "lou") && <ellipse cx="150" cy="184" rx="8" ry="6" fill="#e5a882" />}
-      {id === "bunny" && (
-        <g stroke="#9ca3af" strokeWidth="2">
-          <path d="M120 188 L85 182 M120 194 L85 198 M180 188 L215 182 M180 194 L215 198" />
-        </g>
-      )}
-      {id === "lou" && <path d="M95 236 Q150 262 205 236 L215 262 Q150 285 85 262 Z" fill="#0d9488" />}
+        {person ? (
+          <PersonParts p={person} open={open} speaking={speaking} blink={blink} lookUp={lookUp} browLift={browLift} mouthY={mouthY} />
+        ) : (
+          <SantaParts open={open} speaking={speaking} blink={blink} lookUp={lookUp} browLift={browLift} mouthY={mouthY} />
+        )}
       </g>
 
       {/* Waving hand */}
@@ -383,5 +133,237 @@ export default function Character({
         </g>
       )}
     </svg>
+  );
+}
+
+type FaceProps = { open: number; speaking: boolean; blink: boolean; lookUp: number; browLift: number; mouthY: number };
+
+function Mouth({ open, speaking, mouthY, lip = "#7a1f1f", width = 14 }: { open: number; speaking: boolean; mouthY: number; lip?: string; width?: number }) {
+  return open < 0.08 && !speaking ? (
+    <path
+      d={`M${150 - width} ${mouthY - 2} Q150 ${mouthY + 9} ${150 + width} ${mouthY - 2}`}
+      stroke={lip}
+      strokeWidth="4"
+      fill="none"
+      strokeLinecap="round"
+    />
+  ) : (
+    <>
+      <ellipse cx="150" cy={mouthY} rx={width - 2 + open * 4} ry={3 + open * 11} fill="#7a1f1f" />
+      {open > 0.35 && <ellipse cx="150" cy={mouthY + 3 + open * 5} rx="7" ry={open * 4} fill="#e76f6f" />}
+    </>
+  );
+}
+
+function SantaParts({ open, speaking, blink, lookUp, browLift, mouthY }: FaceProps) {
+  const eyeRy = blink ? 1 : 9;
+  return (
+    <>
+      <path d="M70 120 Q95 20 190 30 Q250 40 262 110 L240 118 Q225 70 185 62 Q120 60 100 125 Z" fill="#d62828" />
+      <circle cx="262" cy="118" r="20" fill="#fff" className="char-pompom" />
+      <ellipse cx="150" cy="165" rx="78" ry="74" fill="#ffd9b8" />
+      {/* The hat comes down over the top of his head, then the fur band */}
+      <path d="M70 124 Q74 72 150 66 Q226 72 230 124 Z" fill="#d62828" />
+      <rect x="62" y="104" width="176" height="34" rx="17" fill="#fff" />
+      <g style={{ transform: `translateY(${browLift}px)`, transition: "transform 120ms" }}>
+        <path d="M100 140 Q118 128 134 140" stroke="#fff" strokeWidth="9" fill="none" strokeLinecap="round" />
+        <path d="M166 140 Q182 128 200 140" stroke="#fff" strokeWidth="9" fill="none" strokeLinecap="round" />
+      </g>
+      <ellipse cx="118" cy={160 + lookUp} rx="7" ry={eyeRy} fill="#2b2b2b" />
+      <ellipse cx="182" cy={160 + lookUp} rx="7" ry={eyeRy} fill="#2b2b2b" />
+      {!blink && (
+        <g fill="#fff">
+          <circle cx="120.5" cy={156 + lookUp} r="2.2" />
+          <circle cx="184.5" cy={156 + lookUp} r="2.2" />
+        </g>
+      )}
+      <circle cx="98" cy="190" r="20" fill="url(#cheek)" />
+      <circle cx="202" cy="190" r="20" fill="url(#cheek)" />
+      <path d="M72 175 Q70 270 150 300 Q230 270 228 175 Q210 205 185 200 Q150 240 115 200 Q90 205 72 175 Z" fill="#fff" />
+      <Mouth open={open} speaking={speaking} mouthY={mouthY} />
+      <path d="M150 196 Q120 178 96 200 Q118 214 150 202 Q182 214 204 200 Q180 178 150 196 Z" fill="#f4f4f4" />
+      <ellipse cx="150" cy="184" rx="14" ry="12" fill="#f4a19a" />
+    </>
+  );
+}
+
+type Hair = "short" | "long" | "bob" | "bun" | "curly" | "updo" | "ponytail";
+type Extra = "glasses" | "beard" | "stubble" | "cap" | "pearls" | "bowtie" | "tie" | "daisy" | "flowers" | "heart" | "hoops" | "studs" | "collar" | "cardigan";
+
+interface Person {
+  skin: string;
+  hair: string;
+  style: Hair;
+  top: string;
+  extras: Extra[];
+  lip?: string;
+}
+
+/** The grown-up hosts for every occasion except Christmas. Ids stay the same so saved choices and voices keep working. */
+const PEOPLE: Record<Exclude<CharacterId, "santa">, Person> = {
+  bear: { skin: "#c68642", hair: "#2b1a12", style: "curly", top: "#7c3aed", extras: ["hoops"], lip: "#8a2c3a" },
+  bunny: { skin: "#ffdbac", hair: "#e0b458", style: "bob", top: "#16a34a", extras: ["daisy", "cardigan"], lip: "#b4505a" },
+  cupid: { skin: "#e0ac69", hair: "#5a1e12", style: "long", top: "#be123c", extras: ["heart", "studs"], lip: "#9f1239" },
+  penguin: { skin: "#f1c27d", hair: "#9ca3af", style: "short", top: "#1e293b", extras: ["collar", "bowtie"] },
+  hen: { skin: "#ffe0c7", hair: "#9a4a24", style: "bun", top: "#db2777", extras: ["pearls", "cardigan"], lip: "#b4505a" },
+  dog: { skin: "#c68642", hair: "#3b2314", style: "short", top: "#1d4ed8", extras: ["cap", "beard"] },
+  dove: { skin: "#6b3e26", hair: "#1a1a1a", style: "updo", top: "#f5e6c8", extras: ["flowers", "studs"], lip: "#7a2b33" },
+  stork: { skin: "#f3d2b3", hair: "#7a5230", style: "ponytail", top: "#0284c7", extras: ["studs"], lip: "#b4505a" },
+  fox: { skin: "#ffdbac", hair: "#c2410c", style: "short", top: "#15803d", extras: ["stubble", "collar"] },
+  lou: { skin: "#f1c27d", hair: "#3b2314", style: "short", top: "#0d9488", extras: ["glasses"] },
+};
+
+function PersonParts({ p, open, speaking, blink, lookUp, browLift, mouthY }: FaceProps & { p: Person }) {
+  const has = (e: Extra) => p.extras.includes(e);
+  const eyeRy = blink ? 1 : 6.5;
+  const shade = "rgba(0,0,0,0.12)";
+  return (
+    <>
+      {/* Hair behind the head */}
+      {p.style === "long" && <path d="M80 150 Q72 62 150 62 Q228 62 220 150 L230 262 Q150 280 70 262 Z" fill={p.hair} />}
+      {p.style === "bob" && <path d="M82 150 Q76 64 150 64 Q224 64 218 150 L222 212 Q206 222 194 210 L106 210 Q94 222 78 212 Z" fill={p.hair} />}
+      {p.style === "curly" && (
+        <g fill={p.hair}>
+          {[[88, 110], [80, 140], [80, 172], [86, 202], [212, 110], [220, 140], [220, 172], [214, 202], [100, 84], [200, 84], [124, 70], [150, 64], [176, 70]].map(([x, y]) => (
+            <circle key={`${x}-${y}`} cx={x} cy={y} r="24" />
+          ))}
+        </g>
+      )}
+      {p.style === "ponytail" && <path d="M206 112 Q252 120 244 196 Q238 230 222 238 Q232 190 214 150 Z" fill={p.hair} />}
+      {p.style === "bun" && <circle cx="150" cy="70" r="24" fill={p.hair} />}
+      {p.style === "updo" && <ellipse cx="150" cy="68" rx="34" ry="24" fill={p.hair} />}
+
+      {/* Shoulders and neck */}
+      <path d="M44 320 Q48 258 108 244 L192 244 Q252 258 256 320 Z" fill={p.top} />
+      {has("cardigan") && (
+        <g fill="#000" opacity="0.14">
+          <path d="M108 244 L140 320 L120 320 L96 248 Z" />
+          <path d="M192 244 L160 320 L180 320 L204 248 Z" />
+        </g>
+      )}
+      <path d="M130 200 L130 246 Q150 262 170 246 L170 200 Z" fill={p.skin} />
+      <path d="M130 214 Q150 232 170 214 L170 226 Q150 240 130 226 Z" fill={shade} />
+      {has("collar") && (
+        <g>
+          <path d="M126 240 L150 264 L174 240 L188 248 L150 286 L112 248 Z" fill="#fff" />
+        </g>
+      )}
+      {has("bowtie") && (
+        <g fill="#db2777">
+          <path d="M150 262 L130 252 L130 274 Z" />
+          <path d="M150 262 L170 252 L170 274 Z" />
+          <circle cx="150" cy="263" r="5" />
+        </g>
+      )}
+      {has("pearls") && (
+        <g fill="#fdfaf3" stroke="#e7dccb" strokeWidth="0.8">
+          {[-4, -3, -2, -1, 0, 1, 2, 3, 4].map((i) => (
+            <circle key={i} cx={150 + i * 7} cy={256 - Math.abs(i) * Math.abs(i) * 0.9 + 2} r="3.4" />
+          ))}
+        </g>
+      )}
+      {has("heart") && (
+        <g>
+          <path d="M128 246 Q150 266 172 246" stroke="#fcd34d" strokeWidth="1.6" fill="none" />
+          <path d="M150 262 C150 257 143 256 143 261 C143 265 150 268 150 271 C150 268 157 265 157 261 C157 256 150 257 150 262 Z" fill="#fcd34d" />
+        </g>
+      )}
+
+      {/* Ears and head */}
+      <ellipse cx="89" cy="156" rx="9" ry="14" fill={p.skin} />
+      <ellipse cx="211" cy="156" rx="9" ry="14" fill={p.skin} />
+      <ellipse cx="150" cy="148" rx="62" ry="72" fill={p.skin} />
+      {has("hoops") && (
+        <g stroke="#fbbf24" strokeWidth="3" fill="none">
+          <circle cx="88" cy="180" r="9" />
+          <circle cx="212" cy="180" r="9" />
+        </g>
+      )}
+      {has("studs") && (
+        <g fill="#fde68a">
+          <circle cx="89" cy="168" r="3.5" />
+          <circle cx="211" cy="168" r="3.5" />
+        </g>
+      )}
+
+      {/* Hair in front */}
+      {(p.style === "short") && <path d="M86 150 Q80 72 150 70 Q220 72 214 150 Q210 112 192 102 Q160 112 120 100 Q94 108 86 150 Z" fill={p.hair} />}
+      {(p.style === "long" || p.style === "bob" || p.style === "ponytail") && (
+        <path d="M86 150 Q82 72 150 70 Q218 72 214 150 Q206 108 178 96 Q150 118 110 112 Q94 122 86 150 Z" fill={p.hair} />
+      )}
+      {(p.style === "bun" || p.style === "updo") && (
+        <path d="M88 146 Q84 80 150 78 Q216 80 212 146 Q204 104 150 98 Q96 104 88 146 Z" fill={p.hair} />
+      )}
+      {p.style === "curly" && (
+        <g fill={p.hair}>
+          {[[104, 100], [128, 88], [152, 84], [176, 88], [198, 102]].map(([x, y]) => (
+            <circle key={`${x}-${y}`} cx={x} cy={y} r="20" />
+          ))}
+        </g>
+      )}
+      {has("cap") && (
+        <g>
+          <path d="M84 120 Q86 66 150 64 Q214 66 216 120 Q182 104 150 104 Q118 104 84 120 Z" fill="#64748b" />
+          <path d="M80 122 Q150 92 236 116 Q232 132 220 130 Q150 112 86 134 Q76 130 80 122 Z" fill="#475569" />
+          <path d="M104 86 Q150 74 196 86" stroke="#475569" strokeWidth="3" fill="none" />
+        </g>
+      )}
+      {has("daisy") && (
+        <g transform="translate(196 104)">
+          {[0, 45, 90, 135, 180, 225, 270, 315].map((a) => (
+            <ellipse key={a} cx="0" cy="-9" rx="4.5" ry="8" fill="#fff" transform={`rotate(${a})`} />
+          ))}
+          <circle r="5.5" fill="#facc15" />
+        </g>
+      )}
+      {has("flowers") && (
+        <g>
+          {[[118, 74], [134, 60], [150, 56], [166, 60], [182, 74]].map(([x, y], i) => (
+            <circle key={x} cx={x} cy={y} r="6.5" fill={i % 2 ? "#fef3c7" : "#fff"} />
+          ))}
+          {[[126, 66], [174, 66]].map(([x, y]) => (
+            <ellipse key={x} cx={x} cy={y} rx="6" ry="3.5" fill="#86efac" />
+          ))}
+        </g>
+      )}
+
+      {/* Brows, eyes, nose */}
+      <g
+        style={{ transform: `translateY(${browLift}px)`, transition: "transform 120ms" }}
+        stroke={p.hair}
+        strokeWidth="4.5"
+        strokeLinecap="round"
+        fill="none"
+      >
+        <path d="M112 134 Q124 128 138 133" />
+        <path d="M162 133 Q176 128 188 134" />
+      </g>
+      <ellipse cx="126" cy={152 + lookUp} rx="5.5" ry={eyeRy} fill="#2b2b2b" />
+      <ellipse cx="174" cy={152 + lookUp} rx="5.5" ry={eyeRy} fill="#2b2b2b" />
+      {!blink && (
+        <g fill="#fff">
+          <circle cx="127.8" cy={149.5 + lookUp} r="1.7" />
+          <circle cx="175.8" cy={149.5 + lookUp} r="1.7" />
+        </g>
+      )}
+      {has("glasses") && (
+        <g fill="none" stroke="#0e7490" strokeWidth="4">
+          <rect x="106" y="138" width="40" height="30" rx="11" />
+          <rect x="154" y="138" width="40" height="30" rx="11" />
+          <path d="M146 150 Q150 146 154 150" />
+        </g>
+      )}
+      <path d="M151 156 Q146 172 142 176 Q149 180 157 177" stroke="#000" strokeOpacity="0.22" strokeWidth="3" fill="none" strokeLinecap="round" />
+      <circle cx="110" cy="178" r="13" fill="url(#cheek)" opacity="0.45" />
+      <circle cx="190" cy="178" r="13" fill="url(#cheek)" opacity="0.45" />
+
+      {has("beard") && (
+        <path d="M90 160 Q90 236 150 240 Q210 236 210 160 Q204 196 180 202 Q150 194 120 202 Q96 196 90 160 Z" fill={p.hair} />
+      )}
+      {has("stubble") && (
+        <path d="M94 170 Q98 226 150 232 Q202 226 206 170 Q200 204 150 210 Q100 204 94 170 Z" fill={p.hair} opacity="0.35" />
+      )}
+      <Mouth open={open} speaking={speaking} mouthY={mouthY} lip={p.lip} width={13} />
+    </>
   );
 }
