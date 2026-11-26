@@ -412,7 +412,8 @@ export default function LookforApp() {
   const inWelcome = !adult;
   const [nudges, setNudges] = useState(0);
   const lastTurn = turns[turns.length - 1];
-  const quiet = account.ready && !inWelcome && !busy && !voice.speaking && !input && !hush && pending.length === 0 && nudges < 3 && !lastTurn?.nudge;
+  // No nudge before the first message: the rotating example in the ask box already shows what to type.
+  const quiet = chatted && account.ready && !inWelcome && !busy && !voice.speaking && !input && !hush && pending.length === 0 && nudges < 3 && !lastTurn?.nudge;
   const speakNudge = voice.speak;
   useEffect(() => {
     if (!quiet) return;
@@ -673,13 +674,6 @@ export default function LookforApp() {
               </button>
             </form>
             )}
-            <p className="mt-2 text-center text-xs text-white/70">
-              Lookfor is for adults (18+). By chatting you agree to our{" "}
-              <a className="underline" href="/privacy">
-                privacy notice
-              </a>
-              .
-            </p>
           </div>
 
           {/* The three pictures share one row on wide screens, all the same height. */}
@@ -1035,6 +1029,11 @@ export default function LookforApp() {
         </aside>
       </main>
       <footer className="mx-auto max-w-6xl px-4 pb-6 text-center text-xs text-white/70">
+        Lookfor is for adults (18+). By chatting you agree to our{" "}
+        <a className="underline hover:text-white" href="/privacy">
+          privacy notice
+        </a>
+        .{" "}
         AI characters: check age ratings and details before you buy. We may earn a small commission when you buy
         through our links. ·{" "}
         <a className="underline hover:text-white" href="/about">
