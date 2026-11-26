@@ -33,6 +33,30 @@ export function playJingle(volume = 0.18) {
   }
 }
 
+/**
+ * For every occasion except Christmas: a soft rising chime (no sleigh bells,
+ * no Christmas tune), so a Valentine's or birthday gift still gets a little
+ * "ta-da".
+ */
+export function playChime(volume = 0.16) {
+  try {
+    const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    if (!AC) return;
+    ctx ??= new AC();
+    const ac = ctx;
+    if (ac.state === "suspended") void ac.resume();
+    const now = ac.currentTime + 0.05;
+    const master = ac.createGain();
+    master.gain.value = volume;
+    master.connect(ac.destination);
+    // C, E, G, then a high C: a bright major arpeggio.
+    const notes: [number, number][] = [[523.25, 0], [659.25, 0.12], [783.99, 0.24], [1046.5, 0.4]];
+    for (const [freq, at] of notes) bell(ac, master, freq, now + at);
+  } catch {
+    // Sound is a nice extra; never let it break the page.
+  }
+}
+
 function bell(ac: AudioContext, out: AudioNode, freq: number, at: number) {
   // A bell is a few bright partials that fade quickly.
   for (const [mult, level] of [[1, 0.6], [2.76, 0.25], [5.4, 0.12]] as const) {

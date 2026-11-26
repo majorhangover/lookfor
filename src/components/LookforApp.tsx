@@ -16,7 +16,7 @@ import EmptySack from "./EmptySack";
 import { useLocalState } from "./useLocalState";
 import { useSessionState } from "./useSessionState";
 import { useHostVoice } from "./useHostVoice";
-import { playJingle } from "@/lib/jingle";
+import { playChime, playJingle } from "@/lib/jingle";
 import { giftSharePath } from "@/lib/share";
 import { examplePrompts } from "@/lib/examples";
 import { applyProfileUpdate, isSaved, toggleSavedGift } from "@/lib/profile";
@@ -345,8 +345,9 @@ export default function LookforApp() {
       if (!spoken && voiceOn) voice.speak(data.reply, speaker);
       if (data.gifts?.length) {
         setWaveKey((k) => k + 1);
-        // Jingle and celebrate, to draw the eye to the new ideas.
-        playJingle();
+        // Jingle (Christmas) or chime (other occasions) and celebrate, to draw the eye to the new ideas.
+        if (speaker === "santa") playJingle();
+        else playChime();
         setCelebrate((c) => c + 1);
       }
       if (data.sensitive) setHush(true);
