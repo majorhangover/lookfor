@@ -56,7 +56,7 @@ export function useHostVoice(region: Region, character: CharacterId, pitch: numb
       const u = new SpeechSynthesisUtterance(text);
       u.lang = region === "UK" ? "en-GB" : "en-US";
       const voices = speechSynthesis.getVoices().filter((v) => v.lang.startsWith(u.lang.slice(0, 2)));
-      const deep = pitch < 0.9 ? voices.find((v) => /male|daniel|george|arthur|fred|alex/i.test(v.name)) : undefined;
+      const deep = pitch < 0.9 ? voices.find((v) => /\bmale\b|daniel|george|arthur|fred|alex/i.test(v.name)) : undefined;
       if (deep || voices[0]) u.voice = deep || voices[0];
       u.pitch = pitch;
       u.rate = 0.92;
