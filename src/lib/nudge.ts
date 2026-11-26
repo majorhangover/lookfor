@@ -22,7 +22,7 @@ export function buildNudge(opts: {
   if (!chatted)
     return {
       content:
-        'Psst! Pop who you\'re shopping for in the box up there ☝️ Something like "my nan, 80, loves gardening".',
+        'Psst! Try "my nan, 80, loves gardening" in the box up there ☝️',
       chips: [],
     };
   const lower = giftedNames.map((n) => n.toLowerCase());
