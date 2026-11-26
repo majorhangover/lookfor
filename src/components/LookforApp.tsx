@@ -1016,7 +1016,10 @@ export default function LookforApp() {
             setFamily={setFamily}
             currency={region === "UK" ? "£" : "$"}
             onFind={(p) => {
-              send(ideasFor(p.nickname).length ? `More gift ideas for ${p.nickname}, please` : `Gift ideas for ${p.nickname}, please`);
+              // Name the occasion, so the ideas suit it (e.g. Christmas, not Valentine's, for a partner).
+              const what = occasion.id === "any" ? "gift ideas" : `${occasion.label} gift ideas`;
+              const ask = ideasFor(p.nickname).length ? `More ${what}` : what[0].toUpperCase() + what.slice(1);
+              send(`${ask} for ${p.nickname}, please`);
               document.getElementById("ask")?.scrollIntoView({ behavior: "smooth", block: "center" });
             }}
             earlierCount={(p) =>
