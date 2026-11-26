@@ -586,9 +586,9 @@ export default function LookforApp() {
         <Logo />
       </div>
       {/* Phones: one column, Santa above the ask box and his replies straight under it.
-          Wide screens: Santa to the left of the ask box, the tree under him, the chat directly
-          under the box with My people beside it, and the gift ideas full width below (under the tree). */}
-      <main className="mx-auto grid max-w-7xl grid-cols-1 gap-x-5 gap-y-3 p-4 [grid-template-areas:'nav'_'stage'_'name'_'ask'_'chat'_'treeicon'_'gifts'_'peopleicon'_'people'] lg:grid-cols-[240px_minmax(0,1fr)_300px] lg:grid-rows-[auto_auto_auto_auto_1fr_auto] lg:[grid-template-areas:'nav_nav_nav'_'stage_ask_ask'_'name_chat_peopleicon'_'treeicon_chat_people'_'treeicon_chat_people'_'gifts_gifts_gifts']">
+          Wide screens: Santa to the left of the ask box and the tree to the right, the chat
+          directly under the box with My people beside it, and the gift ideas full width below. */}
+      <main className="mx-auto grid max-w-7xl grid-cols-1 gap-x-5 gap-y-3 p-4 [grid-template-areas:'nav'_'stage'_'name'_'ask'_'chat'_'treeicon'_'gifts'_'peopleicon'_'people'] lg:grid-cols-[240px_minmax(0,1fr)_300px] lg:grid-rows-[auto_auto_auto_1fr_auto] lg:[grid-template-areas:'nav_nav_nav'_'stage_ask_treeicon'_'name_chat_people'_'peopleicon_chat_people'_'gifts_gifts_gifts']">
           <nav className="flex flex-wrap justify-center gap-2 [grid-area:nav] lg:mb-6" aria-label="Occasion">
             {OCCASIONS.map((o) => (
               <button
@@ -706,7 +706,7 @@ export default function LookforApp() {
               />
             </div>
           </div>
-          <div aria-hidden className="flex h-44 items-center justify-center self-end [grid-area:peopleicon] md:h-48 lg:h-auto lg:self-start">
+          <div aria-hidden className="flex h-44 items-center justify-center self-end [grid-area:peopleicon] md:h-48 lg:self-start">
             <div className="flex flex-col items-center">
               {([
                 ["grandma", "dad", "girl"],
@@ -732,7 +732,7 @@ export default function LookforApp() {
           </div>
           <div
             aria-hidden
-            className={`mt-6 flex h-44 justify-center self-end [grid-area:treeicon] md:h-48 lg:mt-0 lg:self-end ${giftSets.length ? "" : "hidden lg:flex"}`}
+            className={`mt-6 flex h-44 justify-center self-end [grid-area:treeicon] md:h-48 lg:mt-0 lg:self-center ${giftSets.length ? "" : "hidden lg:flex"}`}
           >
             <div className={`relative h-full w-36 md:w-40 ${celebrate ? "tree-shake" : ""}`}>
               {tree ? (
