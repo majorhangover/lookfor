@@ -4,25 +4,22 @@ import Face, { type FaceId } from "./Face";
 const outfit = Outfit({ subsets: ["latin"], weight: ["800"] });
 
 /**
- * The Lookfor banner: the name in the middle, with our characters mixed in
- * among friends and family. Positions are percentages of the banner.
+ * The Lookfor banner: the name in the middle, with Santa mixed in among
+ * the people you shop for. Positions are percentages of the banner.
  */
 const FACES: { id: FaceId; x: number; y: number; size: number; tilt: number; wide?: boolean }[] = [
   // Left side
   { id: "santa", x: 4, y: 18, size: 78, tilt: -8 },
   { id: "grandma", x: 14, y: 58, size: 56, tilt: 6, wide: true },
   { id: "girl", x: 20, y: 8, size: 48, tilt: 10, wide: true },
-  { id: "bear", x: 25, y: 56, size: 62, tilt: -6, wide: true },
+  { id: "friend", x: 26, y: 54, size: 54, tilt: -6, wide: true },
   { id: "baby", x: 0, y: 66, size: 44, tilt: 12, wide: true },
-  { id: "cupid", x: 29, y: 0, size: 44, tilt: -10, wide: true },
   // Right side
   { id: "lou", x: 84, y: 14, size: 74, tilt: 8 },
-  { id: "dad", x: 75, y: 56, size: 58, tilt: -6, wide: true },
-  { id: "bunny", x: 72, y: 2, size: 52, tilt: 6, wide: true },
-  { id: "mum", x: 67, y: 58, size: 52, tilt: 8, wide: true },
+  { id: "dad", x: 74, y: 4, size: 58, tilt: -6, wide: true },
+  { id: "mum", x: 70, y: 56, size: 52, tilt: 8, wide: true },
   { id: "grandad", x: 93, y: 64, size: 46, tilt: -10, wide: true },
-  { id: "boy", x: 67, y: 4, size: 42, tilt: -8, wide: true },
-  { id: "friend", x: 95, y: 34, size: 36, tilt: 12, wide: true },
+  { id: "boy", x: 64, y: 4, size: 42, tilt: -8, wide: true },
 ];
 
 /** An "o" with a pupil in it, so the "oo" in Lookfor looks out at you. */
