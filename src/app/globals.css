@@ -142,6 +142,17 @@ body {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-5px); }
 }
+/* The gold stars beside "Talk to Santa!": each one fades and grows in turn. */
+.twinkle-star {
+  transform-box: fill-box;
+  animation: twinkle-star 1.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px rgba(253, 230, 138, 0.9));
+}
+@keyframes twinkle-star {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+
 .tree-star-lit {
   filter: drop-shadow(0 0 6px #fde047) drop-shadow(0 0 14px #facc15);
   animation: tree-star 2s ease-in-out infinite;
@@ -179,7 +190,7 @@ body {
   100% { transform: translateY(130px) rotate(10deg); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .char-body, .char-pompom, .char-hand.char-waving, .char-point, .tree-light, .tree-star-lit, .ask-glow, .ask-nudge, .gift-drop, .gift-celebrate, .tree-shake, .tree-sway, .people-bob, .tree-hop, .tree-glow { animation: none; }
+  .char-body, .char-pompom, .char-hand.char-waving, .char-point, .tree-light, .tree-star-lit, .ask-glow, .ask-nudge, .gift-drop, .gift-celebrate, .tree-shake, .tree-sway, .people-bob, .tree-hop, .tree-glow, .twinkle-star { animation: none; }
   .sparkle-fall { display: none; }
   .gift-confetti { display: none; }
   .tree-sparkle { animation: none; opacity: 0.8; }

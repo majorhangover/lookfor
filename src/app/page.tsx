@@ -1,5 +1,6 @@
 import ClientApp from "@/components/ClientApp";
 import OccasionBlurb from "@/components/OccasionBlurb";
+import SiteFooter from "@/components/SiteFooter";
 
 // Structured data so search engines understand what Lookfor is.
 const jsonLd = {
@@ -21,6 +22,7 @@ export default function Home() {
       <ClientApp />
       {/* Plain words about the site, in the page itself, so search engines can read them. */}
       <OccasionBlurb />
+      <SiteFooter />
     </>
   );
 }

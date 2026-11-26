@@ -25,7 +25,6 @@ import { track } from "@/lib/tracking";
 import { buildNudge } from "@/lib/nudge";
 import VoiceBubble from "./VoiceBubble";
 import ProfileBuilder from "./ProfileBuilder";
-import { CookieSettings } from "./CookieBanner";
 import { occasionPath } from "@/lib/occasionPages";
 import { CHARACTERS, OCCASIONS, getOccasion, seasonalOccasion, upcomingBirthdays } from "@/lib/occasions";
 import type { ChatMessage, GiftIdea, Person, ProfileUpdate, Region, HostResponse } from "@/lib/types";
@@ -41,7 +40,7 @@ interface Turn extends ChatMessage {
 }
 
 export default function LookforApp({ initialOccasion }: { initialOccasion?: string }) {
-  // "adult" now means "we know which shop to use" (from the IP, or the welcome step); the 18+ note sits under the chat box.
+  // "adult" now means "we know which shop to use" (from the IP, or the welcome step); the 18+ note is in the site footer.
   const [adult, setAdult] = useLocalState("lookfor.adult", false);
   const [, setWelcomed] = useLocalState("lookfor.welcomed", false);
   const [savePromptHidden, setSavePromptHidden] = useLocalState("lookfor.savePromptHidden", false);
@@ -641,10 +640,14 @@ export default function LookforApp({ initialOccasion }: { initialOccasion?: stri
             }`}
           >
             <label htmlFor="ask" className="mb-3 block text-center text-white">
-              <span
-                className={`${outfit.className} block bg-gradient-to-r from-amber-200 via-yellow-300 to-amber-200 bg-clip-text text-2xl leading-tight text-transparent drop-shadow sm:text-3xl lg:text-4xl`}
-              >
-                ✨ Talk to {firstName}! ✨
+              <span className="flex items-center justify-center gap-2 sm:gap-3">
+                <TwinkleStars />
+                <span
+                  className={`${outfit.className} bg-gradient-to-r from-amber-200 via-yellow-300 to-amber-200 bg-clip-text text-2xl leading-tight text-transparent drop-shadow sm:text-3xl lg:text-4xl`}
+                >
+                  Talk to {firstName}!
+                </span>
+                <TwinkleStars flip />
               </span>
               <span className="mt-1 block text-sm text-white/90 lg:text-base">
                 Tell {firstName} who you’re shopping for, and the gift ideas will appear like magic.
@@ -1066,23 +1069,29 @@ export default function LookforApp({ initialOccasion }: { initialOccasion?: stri
           </div>
         </aside>
       </main>
-      <footer className="mx-auto max-w-6xl px-4 pb-6 text-center text-xs text-white/70">
-        Lookfor is for adults (18+). By chatting you agree to our{" "}
-        <Link className="underline hover:text-white" href="/privacy">
-          privacy notice
-        </Link>
-        .{" "}
-        AI characters: check age ratings and details before you buy. We may earn a small commission when you buy
-        through our links. ·{" "}
-        <Link className="underline hover:text-white" href="/about">
-          How it works
-        </Link>{" "}
-        ·{" "}
-        <Link className="underline hover:text-white" href="/privacy">
-          Privacy
-        </Link>
-        <CookieSettings className="ml-1 underline hover:text-white before:mr-1 before:content-['·']" />
-      </footer>
     </div>
+  );
+}
+
+/** A little cluster of gold stars that twinkle in turn, either side of the chat heading. */
+function TwinkleStars({ flip = false }: { flip?: boolean }) {
+  const star = "M12 0 L14.6 9.4 L24 12 L14.6 14.6 L12 24 L9.4 14.6 L0 12 L9.4 9.4 Z";
+  const stars = [
+    { x: 14, y: 4, s: 1, d: "0s" },
+    { x: 2, y: 16, s: 0.6, d: "0.6s" },
+    { x: 22, y: 22, s: 0.45, d: "1.1s" },
+  ];
+  return (
+    <svg viewBox="0 0 40 40" className={`h-7 w-7 shrink-0 sm:h-9 sm:w-9 ${flip ? "-scale-x-100" : ""}`} aria-hidden>
+      {stars.map((st, i) => (
+        <path
+          key={i}
+          d={star}
+          fill="#fde68a"
+          className="twinkle-star"
+          style={{ transform: `translate(${st.x}px, ${st.y}px) scale(${st.s})`, animationDelay: st.d }}
+        />
+      ))}
+    </svg>
   );
 }
