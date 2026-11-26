@@ -585,14 +585,11 @@ export default function LookforApp() {
       <div className="px-4">
         <Logo />
       </div>
-      {/* Phones: one column. Wide screens: occasions across the top, the ask box across the page under them, then three columns (people, chat, gifts), each with its picture above it, all in one row. */}
-      {/* Once there are ideas, they get a full-width row of their own under the chat. */}
-      <main className={`mx-auto grid max-w-7xl grid-cols-1 gap-x-5 gap-y-3 p-4 [grid-template-areas:'nav'_'ask'_'stage'_'name'_'chat'_'treeicon'_'gifts'_'peopleicon'_'people'] lg:grid-cols-[300px_minmax(0,1fr)_340px] ${
-          giftSets.length
-            ? "lg:grid-rows-[auto_auto_auto_auto_auto_1fr] lg:[grid-template-areas:'nav_nav_nav'_'ask_ask_ask'_'peopleicon_stage_treeicon'_'._name_.'_'people_chat_chat'_'gifts_gifts_gifts']"
-            : "lg:grid-rows-[auto_auto_auto_auto_1fr] lg:[grid-template-areas:'nav_nav_nav'_'ask_ask_ask'_'peopleicon_stage_treeicon'_'._name_.'_'people_chat_gifts']"
-        }`}>
-          <nav className="flex flex-wrap justify-center gap-2 [grid-area:nav]" aria-label="Occasion">
+      {/* Phones: one column, Santa above the ask box and his replies straight under it.
+          Wide screens: Santa to the left of the ask box and the tree to the right, the chat
+          directly under the box with My people beside it, and the gift ideas full width below. */}
+      <main className="mx-auto grid max-w-7xl grid-cols-1 gap-x-5 gap-y-3 p-4 [grid-template-areas:'nav'_'stage'_'name'_'ask'_'chat'_'treeicon'_'gifts'_'peopleicon'_'people'] lg:grid-cols-[240px_minmax(0,1fr)_300px] lg:grid-rows-[auto_auto_auto_1fr_auto] lg:[grid-template-areas:'nav_nav_nav'_'stage_ask_treeicon'_'name_chat_people'_'peopleicon_chat_people'_'gifts_gifts_gifts']">
+          <nav className="flex flex-wrap justify-center gap-2 [grid-area:nav] lg:mb-6" aria-label="Occasion">
             {OCCASIONS.map((o) => (
               <button
                 key={o.id}
@@ -689,9 +686,8 @@ export default function LookforApp() {
             </p>
           </div>
 
-          {/* The three pictures share one row on wide screens, all the same height. */}
-          <div className="flex justify-center self-end [grid-area:stage]">
-            <div className="relative h-52 w-52 md:h-56 md:w-56">
+          <div className="flex justify-center self-end [grid-area:stage] lg:self-center">
+            <div className="relative h-40 w-40 md:h-52 md:w-52">
               <VoiceBubble
                 on={voiceOn}
                 speaking={voice.speaking}
@@ -710,7 +706,7 @@ export default function LookforApp() {
               />
             </div>
           </div>
-          <div aria-hidden className="flex h-44 items-center justify-center self-end [grid-area:peopleicon] md:h-48">
+          <div aria-hidden className="flex h-44 items-center justify-center self-end [grid-area:peopleicon] md:h-48 lg:self-start">
             <div className="flex flex-col items-center">
               {([
                 ["grandma", "dad", "girl"],
@@ -736,7 +732,7 @@ export default function LookforApp() {
           </div>
           <div
             aria-hidden
-            className={`mt-6 flex h-44 justify-center self-end [grid-area:treeicon] md:h-48 lg:mt-0 ${giftSets.length ? "" : "hidden lg:flex"}`}
+            className={`mt-6 flex h-44 justify-center self-end [grid-area:treeicon] md:h-48 lg:mt-0 lg:self-center ${giftSets.length ? "" : "hidden lg:flex"}`}
           >
             <div className={`relative h-full w-36 md:w-40 ${celebrate ? "tree-shake" : ""}`}>
               {tree ? (
@@ -749,7 +745,7 @@ export default function LookforApp() {
             </div>
           </div>
 
-          <div className="-mt-2 flex items-center justify-center gap-2 text-sm text-white/90 [grid-area:name]">
+          <div className="-mt-2 flex items-start justify-center gap-2 text-sm text-white/90 [grid-area:name] lg:mt-0">
             <span className="font-medium">{character.name}</span>
           </div>
           <div className="flex min-w-0 flex-col gap-3 [grid-area:chat]">
@@ -879,7 +875,7 @@ export default function LookforApp() {
 
           <div className="flex min-w-0 flex-col self-start [grid-area:gifts]">
           {giftSets.length === 0 && (
-            <section className="hidden rounded-2xl border-2 border-dashed border-white/40 p-6 text-center text-white/90 lg:block">
+            <section className="mx-auto hidden w-full max-w-xl rounded-2xl border-2 border-dashed border-white/40 p-6 text-center text-white/90 lg:block">
               {tree && (
                 <div className="mx-auto mb-2 h-28 w-44">
                   <EmptySack />
