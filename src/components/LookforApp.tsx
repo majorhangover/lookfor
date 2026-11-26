@@ -38,7 +38,7 @@ interface Turn extends ChatMessage {
 }
 
 export default function LookforApp() {
-  // "adult" doubles as "has told us where they are": both are answered on the first welcome step.
+  // "adult" now means "we know which shop to use" (from the IP, or the welcome step); the 18+ note sits under the chat box.
   const [adult, setAdult] = useLocalState("lookfor.adult", false);
   const [, setWelcomed] = useLocalState("lookfor.welcomed", false);
   const [savePromptHidden, setSavePromptHidden] = useLocalState("lookfor.savePromptHidden", false);
@@ -377,6 +377,30 @@ export default function LookforApp() {
   // When things go quiet, the character speaks up: points to the ask box, offers
   // more ideas, or suggests someone else. At most 3 times, and never while busy or typing.
   // Only the one-tap country step; accounts are offered later, never as a pop-up.
+  // Where we can tell the country from the IP address, skip the welcome step
+  // entirely: the shop is set quietly and can be changed from the flag in the
+  // header. The welcome step only appears when we can't tell (VPNs, elsewhere).
+  const [whereChecked, setWhereChecked] = useState(false);
+  useEffect(() => {
+    if (adult) return;
+    let live = true;
+    fetch("/api/where")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { region?: Region | null } | null) => {
+        if (!live) return;
+        if (d?.region) {
+          setRegion(d.region);
+          setAdult(true);
+          setWelcomed(true);
+        }
+        setWhereChecked(true);
+      })
+      .catch(() => live && setWhereChecked(true));
+    return () => {
+      live = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [adult]);
   const inWelcome = !adult;
   const [nudges, setNudges] = useState(0);
   const lastTurn = turns[turns.length - 1];
@@ -406,6 +430,7 @@ export default function LookforApp() {
 
   // Returning signed-in users, and anyone who has skipped, go straight to the chat.
   if (!account.ready) return null;
+  if (inWelcome && !whereChecked) return null;
   if (inWelcome) {
     return (
       <Welcome
@@ -642,6 +667,13 @@ export default function LookforApp() {
               </button>
             </form>
             )}
+            <p className="mt-2 text-center text-xs text-white/70">
+              Lookfor is for adults (18+). By chatting you agree to our{" "}
+              <a className="underline" href="/privacy" target="_blank" rel="noopener">
+                privacy notice
+              </a>
+              .
+            </p>
           </div>
 
           {/* The three pictures share one row on wide screens, all the same height. */}
