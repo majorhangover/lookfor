@@ -73,7 +73,11 @@ export default function Privacy() {
 
         <h2 className="font-semibold">Contact</h2>
         <p>
-          Lookfor, Windsor House, Cornwall Road, Harrogate HG1 2PW, United Kingdom.
+          Lookfor, Windsor House, Cornwall Road, Harrogate HG1 2PW, United Kingdom. Email{" "}
+          <a className="text-emerald-700 underline" href="mailto:hello@lookfor.co.uk">
+            hello@lookfor.co.uk
+          </a>
+          .
         </p>
 
         <Link className="text-emerald-700 underline" href="/">
