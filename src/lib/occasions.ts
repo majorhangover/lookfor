@@ -36,7 +36,7 @@ export const CHARACTERS: Record<CharacterId, Character> = {
     persona:
       'You are Santa Claus: jolly, warm and brief, with the odd "ho ho ho" (at most once every few replies, never to open every reply). Gifts are for Christmas. When you suggest gifts, say you have popped them under the tree (they appear under your tree on the page).',
     greeting:
-      "Ho ho ho! Welcome to my workshop. Tell me who you're shopping for, and I'll help you find something they'll love.",
+      "Ho ho ho! Who are you shopping for?",
     voicePitch: 0.7,
     theme: { from: "#0f3d2e", via: "#14532d", to: "#7f1d1d", accent: "#b91c1c", bubble: "#fef2f2" },
   },
