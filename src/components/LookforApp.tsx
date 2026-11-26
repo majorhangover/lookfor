@@ -1,6 +1,6 @@
 "use client";
 
-import { Outfit } from "next/font/google";
+import { Fraunces } from "next/font/google";
 import { useEffect, useRef, useState } from "react";
 import AccountPanel from "./AccountPanel";
 import Welcome from "./Welcome";
@@ -9,7 +9,6 @@ import { useAccount } from "./useAccount";
 import Character from "./Character";
 import Logo from "./Logo";
 import ChristmasTree from "./ChristmasTree";
-import Face from "./Face";
 import Flag from "./Flag";
 import Present from "./Present";
 import EmptySack from "./EmptySack";
@@ -27,7 +26,7 @@ import { CookieSettings } from "./CookieBanner";
 import { CHARACTERS, OCCASIONS, getOccasion, seasonalOccasion, upcomingBirthdays } from "@/lib/occasions";
 import type { ChatMessage, GiftIdea, Person, ProfileUpdate, Region, HostResponse } from "@/lib/types";
 
-const outfit = Outfit({ subsets: ["latin"], weight: ["800"] });
+const display = Fraunces({ subsets: ["latin"], weight: ["500", "600"] });
 
 interface Turn extends ChatMessage {
   gifts?: GiftIdea[];
@@ -173,7 +172,7 @@ export default function LookforApp() {
     return (
       <div
         key={j}
-        className={`group relative rounded-xl border border-slate-200 bg-white p-3 text-sm transition hover:-translate-y-0.5 hover:border-amber-400 hover:shadow-md ${tree ? "pt-6" : ""} ${drop ? "gift-drop" : ""}`}
+        className={`group relative rounded-xl border border-slate-200 bg-white p-3 text-sm transition hover:border-slate-400 hover:shadow-md ${drop ? "gift-drop" : ""}`}
         style={drop ? { animationDelay: `${0.25 + j * 0.22}s` } : undefined}
       >
         {/* The whole card opens Amazon; the save button sits above the link. */}
@@ -188,18 +187,6 @@ export default function LookforApp() {
           className="absolute inset-0 z-0 rounded-xl"
           aria-label={`${g.title}: see options and prices`}
         />
-        {tree && (
-          <>
-            <span
-              aria-hidden
-              className="pointer-events-none absolute inset-x-0 top-0 h-3 rounded-t-xl"
-              style={{ background: ["#b91c1c", "#15803d", "#ca8a04", "#7c3aed"][j % 4] }}
-            />
-            <span aria-hidden className="pointer-events-none absolute -top-3 left-1/2 -translate-x-1/2 text-2xl">
-              🎀
-            </span>
-          </>
-        )}
         <div className="pointer-events-none relative">
           <div className="flex items-start justify-between gap-2">
             <b className="group-hover:underline">{g.title}</b>
@@ -208,7 +195,7 @@ export default function LookforApp() {
           <div className="text-slate-500">For {g.forPerson}</div>
           <p className="mt-1">{g.reason}</p>
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            <span className="inline-block rounded-full bg-amber-400 px-3 py-1 font-semibold text-slate-900 group-hover:bg-amber-500">
+            <span className="inline-block rounded-full bg-slate-900 px-3 py-1 font-semibold text-white group-hover:bg-slate-700">
               See options and prices
             </span>
             <button
@@ -371,7 +358,8 @@ export default function LookforApp() {
   };
 
   const bg = {
-    background: `linear-gradient(160deg, ${character.theme.from} 0%, ${character.theme.via} 50%, ${character.theme.to} 100%)`,
+    // Calm and grown-up: a deep tone of the occasion's colour, without the bright end.
+    background: `linear-gradient(180deg, ${character.theme.from} 0%, ${character.theme.from} 40%, ${character.theme.via} 100%)`,
   };
 
   // When things go quiet, the character speaks up: points to the ask box, offers
@@ -495,7 +483,7 @@ export default function LookforApp() {
             title={account.email ? `Signed in as ${account.email}` : undefined}
             className={`rounded-full px-3 py-1 font-semibold shadow ${
               account.enabled && !account.email
-                ? "bg-amber-400 text-slate-900 hover:bg-amber-300"
+                ? "bg-amber-200 text-slate-900 hover:bg-amber-100"
                 : "bg-white/20 text-white hover:bg-white/30"
             }`}
             onClick={() => setMenuOpen(!menuOpen)}
@@ -508,7 +496,7 @@ export default function LookforApp() {
                 <span className="max-w-[12rem] truncate">{account.email}</span>
               </span>
             ) : (
-              "✨ Free account"
+              "Free account"
             )}
           </button>
           {menuOpen && (
@@ -557,7 +545,7 @@ export default function LookforApp() {
                 key={o.id}
                 onClick={() => changeOccasion(o.id)}
                 className={`rounded-full px-3 py-1 text-sm ${
-                  o.id === occasionId ? "bg-white font-semibold text-slate-900" : "bg-white/20 text-white hover:bg-white/30"
+                  o.id === occasionId ? "bg-white font-medium text-slate-900" : "border border-white/20 text-white/85 hover:bg-white/10"
                 }`}
               >
                 {o.label}
@@ -566,18 +554,18 @@ export default function LookforApp() {
           </nav>
 
           <div
-            className={`rounded-3xl border-2 border-amber-300/70 bg-white/10 p-3 shadow-[0_0_40px_rgba(252,211,77,0.25)] backdrop-blur-sm [grid-area:ask] sm:p-4 lg:mt-2 ${
-              !chatted || lastTurn?.nudge ? "ask-glow" : yourTurn ? "ask-nudge" : ""
+            className={`rounded-2xl border border-white/15 bg-white/[0.06] p-4 [grid-area:ask] sm:p-5 lg:mt-2 ${
+              yourTurn ? "ask-nudge" : ""
             }`}
           >
             <label htmlFor="ask" className="mb-3 block text-center text-white">
               <span
-                className={`${outfit.className} block bg-gradient-to-r from-amber-200 via-yellow-300 to-amber-200 bg-clip-text text-2xl leading-tight text-transparent drop-shadow sm:text-3xl lg:text-4xl`}
+                className={`${display.className} block text-2xl font-medium leading-tight text-white sm:text-3xl`}
               >
-                ✨ Talk to {firstName}! ✨
+                Ask {firstName}
               </span>
               <span className="mt-1 block text-sm text-white/90 lg:text-base">
-                Tell {firstName} who you’re shopping for, and the gift ideas will appear like magic.
+                Who are you shopping for? Tell us what they love and your budget, and we’ll suggest ideas.
               </span>
             </label>
             {helpBox && (
@@ -612,7 +600,7 @@ export default function LookforApp() {
                 <button
                   type="button"
                   aria-label={voice.listening ? "Stop listening" : `Talk to ${character.name}`}
-                  className={`rounded-full px-4 text-xl ${voice.listening ? "bg-amber-400" : "bg-white/90"}`}
+                  className={`rounded-xl px-4 text-xl ${voice.listening ? "bg-amber-200" : "bg-white/90"}`}
                   onClick={() => (voice.listening ? voice.stopListening() : voice.listen((text) => send(text)))}
                 >
                   🎤
@@ -620,7 +608,7 @@ export default function LookforApp() {
               )}
               <input
                 id="ask"
-                className="min-w-0 flex-1 rounded-full bg-white px-4 py-3 text-slate-800 shadow-lg outline-none ring-4 ring-amber-300/60 focus:ring-amber-300 lg:px-6 lg:py-4 lg:text-lg"
+                className="min-w-0 flex-1 rounded-xl bg-white px-4 py-3 text-slate-800 outline-none ring-2 ring-transparent focus:ring-amber-200 lg:px-5 lg:py-3.5 lg:text-lg"
                 placeholder={`e.g. ${example.slice(0, typed)}${typed < example.length ? "|" : ""}`}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -628,12 +616,13 @@ export default function LookforApp() {
               />
               <button
                 aria-label={`Ask ${firstName}`}
-                className="shrink-0 rounded-full bg-gradient-to-b from-amber-300 to-amber-500 px-5 font-bold text-slate-900 shadow-lg ring-2 ring-white/70 transition hover:scale-105 disabled:cursor-not-allowed disabled:hover:scale-100 lg:px-7 lg:text-lg"
+                className="shrink-0 rounded-xl bg-amber-200 px-5 font-semibold text-slate-900 transition hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-80 lg:px-6 lg:text-lg"
                 disabled={busy || !input.trim()}
               >
                 {busy ? "…" : (
                   <>
-                    <span className="hidden sm:inline">Ask {firstName} </span>🎁
+                    <span className="hidden sm:inline">Ask {firstName}</span>
+                    <span className="sm:hidden">Ask</span>
                   </>
                 )}
               </button>
@@ -662,19 +651,7 @@ export default function LookforApp() {
               />
             </div>
           </div>
-          <div aria-hidden className="flex h-44 items-end justify-center self-end [grid-area:peopleicon] md:h-48">
-            <div className="grid grid-cols-4 place-items-center">
-              {(["grandma", "dad", "girl", "grandad", "mum", "boy", "baby", "friend"] as const).map((id, i) => (
-                <div
-                  key={id}
-                  className={`-m-1 h-16 w-16 md:h-[4.5rem] md:w-[4.5rem] ${i >= 4 ? "-mt-3 translate-x-6" : ""}`}
-                  style={{ rotate: `${((i * 5) % 3) * 6 - 6}deg` }}
-                >
-                  <Face id={id} />
-                </div>
-              ))}
-            </div>
-          </div>
+          <div aria-hidden className="hidden [grid-area:peopleicon] lg:block" />
           <div
             aria-hidden
             className={`mt-6 flex h-44 justify-center self-end [grid-area:treeicon] md:h-48 lg:mt-0 ${giftSets.length ? "" : "hidden lg:flex"}`}
@@ -872,7 +849,7 @@ export default function LookforApp() {
           {giftSets.length > 0 && (
             <section
               ref={giftsRef}
-              className={`relative scroll-mt-4 rounded-2xl p-4 text-slate-800 shadow-lg ${tree ? "bg-white/95 ring-4 ring-red-700/70" : "bg-white/90"} ${celebrate ? "gift-celebrate" : ""}`}
+              className={`relative scroll-mt-4 rounded-2xl p-4 text-slate-800 shadow-lg bg-white ${celebrate ? "gift-celebrate" : ""}`}
             >
               {celebrate > 0 && (
                 <div aria-hidden className="pointer-events-none absolute inset-x-0 -top-2 z-20 h-0" key={`confetti-${celebrate}`}>
@@ -892,16 +869,16 @@ export default function LookforApp() {
                   ))}
                 </div>
               )}
-              <h2 className="mb-2 text-lg font-bold">{tree ? "🎄 Under the tree" : "🎁 Gift ideas"}</h2>
+              <h2 className={`${display.className} mb-3 text-xl font-medium`}>{tree ? "Under the tree" : "Gift ideas"}</h2>
               <div key={`gifts-${giftSets.length}`} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
                 {latestGifts.map((g, j) => giftCard(g, j, true))}
               </div>
               <button
-                className="mt-3 w-full rounded-full bg-gradient-to-b from-amber-300 to-amber-500 px-4 py-2 text-sm font-bold text-slate-900 shadow ring-2 ring-white/70 transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
+                className="mt-3 w-full rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-slate-500 disabled:cursor-not-allowed disabled:opacity-60"
                 disabled={busy}
                 onClick={() => send("Show me more ideas, please. Different ones from those you've already suggested.")}
               >
-                {busy ? `${firstName} is thinking…` : "🎁 Show me more ideas"}
+                {busy ? `${firstName} is thinking…` : "Show me more ideas"}
               </button>
               {earlierByPerson.size > 0 && (
                 <div className="mt-3 space-y-2">

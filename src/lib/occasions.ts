@@ -38,7 +38,7 @@ export const CHARACTERS: Record<CharacterId, Character> = {
     greeting:
       "Ho ho ho! Welcome to my workshop. Tell me who you're shopping for, and I'll help you find something they'll love.",
     voicePitch: 0.7,
-    theme: { from: "#0f3d2e", via: "#14532d", to: "#7f1d1d", accent: "#b91c1c", bubble: "#fef2f2" },
+    theme: { from: "#0c2219", via: "#143528", to: "#7f1d1d", accent: "#8f1d1d", bubble: "#f5f1ea" },
   },
   bear: {
     id: "bear",
