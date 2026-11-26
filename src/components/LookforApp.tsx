@@ -14,6 +14,7 @@ import Flag from "./Flag";
 import Present from "./Present";
 import EmptySack from "./EmptySack";
 import { useLocalState } from "./useLocalState";
+import { useSessionState } from "./useSessionState";
 import { useHostVoice } from "./useHostVoice";
 import { playJingle } from "@/lib/jingle";
 import { giftSharePath } from "@/lib/share";
@@ -66,10 +67,13 @@ export default function LookforApp() {
     setPending(pending.filter((u) => !mine.includes(u)));
     setSavedNote(name);
   };
-  const [occasionId, setOccasionId] = useState(() => seasonalOccasion());
+  // The chat is kept for this tab, so a trip to How it works or Privacy and back doesn't lose it.
+  const [occasionId, setOccasionId] = useSessionState("lookfor.occasion", () => seasonalOccasion());
   const occasion = getOccasion(occasionId);
   const character = CHARACTERS[occasion.character];
-  const [turns, setTurns] = useState<Turn[]>([{ role: "assistant", content: character.greeting }]);
+  const [turns, setTurns] = useSessionState<Turn[]>("lookfor.turns", () => [
+    { role: "assistant", content: character.greeting },
+  ]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   // Bumped to make the character wave: on arrival, on a new occasion, and with each reply.
@@ -512,8 +516,6 @@ export default function LookforApp() {
           </div>
           <a
             href="/about"
-            target="_blank"
-            rel="noopener"
             className="rounded-full bg-white/20 px-3 py-1 font-semibold text-white shadow hover:bg-white/30"
           >
             How it works
@@ -669,7 +671,7 @@ export default function LookforApp() {
             )}
             <p className="mt-2 text-center text-xs text-white/70">
               Lookfor is for adults (18+). By chatting you agree to our{" "}
-              <a className="underline" href="/privacy" target="_blank" rel="noopener">
+              <a className="underline" href="/privacy">
                 privacy notice
               </a>
               .
@@ -1023,11 +1025,11 @@ export default function LookforApp() {
       <footer className="mx-auto max-w-6xl px-4 pb-6 text-center text-xs text-white/70">
         AI characters: check age ratings and details before you buy. We may earn a small commission when you buy
         through our links. ·{" "}
-        <a className="underline hover:text-white" href="/about" target="_blank" rel="noopener">
+        <a className="underline hover:text-white" href="/about">
           How it works
         </a>{" "}
         ·{" "}
-        <a className="underline hover:text-white" href="/privacy" target="_blank" rel="noopener">
+        <a className="underline hover:text-white" href="/privacy">
           Privacy
         </a>
         <CookieSettings className="ml-1 underline hover:text-white before:mr-1 before:content-['·']" />

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import CloseButton from "@/components/CloseButton";
 import { CookieSettings } from "@/components/CookieBanner";
 
 export const metadata = { title: "Privacy · Lookfor" };
@@ -6,7 +7,8 @@ export const metadata = { title: "Privacy · Lookfor" };
 export default function Privacy() {
   return (
     <main className="mx-auto max-w-2xl p-6">
-      <article className="space-y-4 rounded-2xl bg-white/95 p-6 text-slate-800 shadow-lg">
+      <article className="relative space-y-4 rounded-2xl bg-white/95 p-6 text-slate-800 shadow-lg">
+        <CloseButton />
         <h1 className="text-2xl font-bold">Privacy notice</h1>
         <p className="text-sm text-slate-500">Draft for review before launch.</p>
 

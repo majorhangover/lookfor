@@ -161,11 +161,11 @@ export default function Welcome({
         )}
         <p className="mt-5 text-xs text-slate-500">
           Lookfor is for adults. By continuing you confirm you&apos;re 18 or over and agree to our{" "}
-          <Link className="underline" href="/privacy" target="_blank" rel="noopener">
+          <Link className="underline" href="/privacy">
             privacy notice
           </Link>
           .{" "}
-          <Link className="underline" href="/about" target="_blank" rel="noopener">
+          <Link className="underline" href="/about">
             How Lookfor works
           </Link>
         </p>
