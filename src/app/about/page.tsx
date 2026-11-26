@@ -97,9 +97,9 @@ export default function About() {
           <Link className="rounded-full bg-red-700 px-5 py-2 font-semibold text-white hover:opacity-90" href="/">
             Start finding gifts
           </Link>
-          <a className="underline" href="/privacy">
+          <Link className="underline" href="/privacy">
             Privacy notice
-          </a>
+          </Link>
         </footer>
       </article>
     </main>

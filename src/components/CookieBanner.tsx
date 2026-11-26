@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CONSENT_EVENT, PIXEL_ID, getConsent, loadPixel, setConsent, type Consent } from "@/lib/tracking";
 
@@ -31,9 +32,9 @@ export default function CookieBanner() {
     >
       <p className="min-w-0 flex-1">
         🍪 Can we use a few optional cookies? They help us show Lookfor to more people.{" "}
-        <a className="underline" href="/privacy">
+        <Link className="underline" href="/privacy">
           Details
-        </a>
+        </Link>
       </p>
       <div className="flex shrink-0 justify-end gap-2">
         <button

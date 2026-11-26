@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Outfit } from "next/font/google";
 import { useEffect, useRef, useState } from "react";
 import AccountPanel from "./AccountPanel";
@@ -25,6 +26,7 @@ import { buildNudge } from "@/lib/nudge";
 import VoiceBubble from "./VoiceBubble";
 import ProfileBuilder from "./ProfileBuilder";
 import { CookieSettings } from "./CookieBanner";
+import { occasionPath } from "@/lib/occasionPages";
 import { CHARACTERS, OCCASIONS, getOccasion, seasonalOccasion, upcomingBirthdays } from "@/lib/occasions";
 import type { ChatMessage, GiftIdea, Person, ProfileUpdate, Region, HostResponse } from "@/lib/types";
 
@@ -38,7 +40,7 @@ interface Turn extends ChatMessage {
   chips?: string[];
 }
 
-export default function LookforApp() {
+export default function LookforApp({ initialOccasion }: { initialOccasion?: string }) {
   // "adult" now means "we know which shop to use" (from the IP, or the welcome step); the 18+ note sits under the chat box.
   const [adult, setAdult] = useLocalState("lookfor.adult", false);
   const [, setWelcomed] = useLocalState("lookfor.welcomed", false);
@@ -74,6 +76,19 @@ export default function LookforApp() {
   const [turns, setTurns] = useSessionState<Turn[]>("lookfor.turns", () => [
     { role: "assistant", content: character.greeting },
   ]);
+  // Arriving on an occasion's own page (e.g. /birthday) opens that host, with a fresh chat if it's a change.
+  const [openedPage, setOpenedPage] = useState(false);
+  if (!openedPage) {
+    setOpenedPage(true);
+    if (initialOccasion && initialOccasion !== occasionId) {
+      setOccasionId(initialOccasion);
+      setTurns([{ role: "assistant", content: CHARACTERS[getOccasion(initialOccasion).character].greeting }]);
+    }
+  }
+  // Let the words under the app follow the occasion.
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("lookfor:occasion", { detail: occasionId }));
+  }, [occasionId]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   // Bumped to make the character wave: on arrival, on a new occasion, and with each reply.
@@ -120,9 +135,15 @@ export default function LookforApp() {
   const birthdays = upcomingBirthdays(family);
   const account = useAccount(family, setFamily, region);
 
+  /** Show the occasion's own web address, without reloading, so a refresh or a shared link opens the same host. */
+  const showOccasionUrl = (id: string) => {
+    const path = occasionPath(id);
+    if (window.location.pathname !== path) window.history.replaceState(window.history.state, "", path);
+  };
   const changeOccasion = (id: string) => {
     voice.stop();
     setOccasionId(id);
+    showOccasionUrl(id);
     setWaveKey((k) => k + 1);
     const next = CHARACTERS[getOccasion(id).character];
     // A new host starts a fresh conversation; the family list is kept.
@@ -291,6 +312,7 @@ export default function LookforApp() {
     if (startOccasion) {
       voice.stop();
       setOccasionId(startOccasion);
+      showOccasionUrl(startOccasion);
       setWaveKey((k) => k + 1);
     }
     const next: Turn[] = [...base, { role: "user", content }];
@@ -532,12 +554,12 @@ export default function LookforApp() {
               </>
             )}
           </div>
-          <a
+          <Link
             href="/about"
             className="rounded-full bg-white/20 px-3 py-1 font-semibold text-white shadow hover:bg-white/30"
           >
             How it works
-          </a>
+          </Link>
           <button
             aria-expanded={menuOpen}
             title={account.email ? `Signed in as ${account.email}` : undefined}
@@ -1046,19 +1068,19 @@ export default function LookforApp() {
       </main>
       <footer className="mx-auto max-w-6xl px-4 pb-6 text-center text-xs text-white/70">
         Lookfor is for adults (18+). By chatting you agree to our{" "}
-        <a className="underline hover:text-white" href="/privacy">
+        <Link className="underline hover:text-white" href="/privacy">
           privacy notice
-        </a>
+        </Link>
         .{" "}
         AI characters: check age ratings and details before you buy. We may earn a small commission when you buy
         through our links. ·{" "}
-        <a className="underline hover:text-white" href="/about">
+        <Link className="underline hover:text-white" href="/about">
           How it works
-        </a>{" "}
+        </Link>{" "}
         ·{" "}
-        <a className="underline hover:text-white" href="/privacy">
+        <Link className="underline hover:text-white" href="/privacy">
           Privacy
-        </a>
+        </Link>
         <CookieSettings className="ml-1 underline hover:text-white before:mr-1 before:content-['·']" />
       </footer>
     </div>
