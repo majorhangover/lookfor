@@ -168,7 +168,9 @@ export default function LookforApp() {
     }
   };
 
-  const giftCard = (g: GiftIdea, j: number, drop = false) => {
+  // When every idea on show is for the same person, say so once in the heading instead of on each card.
+  const oneRecipient = new Set(latestGifts.map((g) => g.forPerson)).size === 1 ? latestGifts[0].forPerson : null;
+  const giftCard = (g: GiftIdea, j: number, drop = false, showFor = !oneRecipient) => {
     const saved = isSaved(family, g);
     return (
       <div
@@ -205,31 +207,37 @@ export default function LookforApp() {
             <b className="group-hover:underline">{g.title}</b>
             <span className="shrink-0 text-slate-500">{g.priceBand}</span>
           </div>
-          <div className="text-slate-500">For {g.forPerson}</div>
-          <p className="mt-1">{g.reason}</p>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
+          <p className="text-slate-600">
+            {showFor && <span className="text-slate-500">For {g.forPerson} · </span>}
+            {g.reason}
+          </p>
+          <div className="mt-2 flex items-center gap-1.5">
             <span className="inline-block rounded-full bg-amber-400 px-3 py-1 font-semibold text-slate-900 group-hover:bg-amber-500">
-              See options and prices
+              See options
             </span>
             <button
               type="button"
               aria-pressed={saved}
+              aria-label={saved ? `Saved for ${g.forPerson}` : `Save for ${g.forPerson}`}
+              title={saved ? `Saved for ${g.forPerson}` : `Save for ${g.forPerson}`}
               onClick={() => setFamily(toggleSavedGift(family, g, occasionId))}
-              className={`pointer-events-auto relative z-10 rounded-full border px-3 py-1 font-semibold ${
+              className={`pointer-events-auto relative z-10 flex h-8 w-8 items-center justify-center rounded-full border text-base ${
                 saved ? "border-rose-600 bg-rose-50 text-rose-700" : "border-slate-300 text-slate-700 hover:border-rose-400"
               }`}
             >
-              {saved ? `♥ Saved for ${g.forPerson}` : `♡ Save for ${g.forPerson}`}
+              {saved ? "♥" : "♡"}
             </button>
             <button
               type="button"
+              aria-label="Share this idea"
+              title={sharedTitle === g.title ? "Link copied" : "Share"}
               onClick={() => shareGift(g)}
-              className="pointer-events-auto relative z-10 rounded-full border border-slate-300 px-3 py-1 font-semibold text-slate-700 hover:border-emerald-500"
+              className="pointer-events-auto relative z-10 flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 text-slate-700 hover:border-emerald-500"
             >
-              {sharedTitle === g.title ? "✓ Link copied" : "↗ Share"}
+              {sharedTitle === g.title ? "✓" : "↗"}
             </button>
+            <span className="ml-auto text-[11px] leading-tight text-slate-400">Ad · affiliate link</span>
           </div>
-          <span className="mt-1 block text-xs text-slate-500">Ad · affiliate link</span>
         </div>
       </div>
     );
@@ -927,8 +935,15 @@ export default function LookforApp() {
                   ))}
                 </div>
               )}
-              <h2 className="mb-2 text-lg font-bold">{tree ? "🎄 Under the tree" : "🎁 Gift ideas"}</h2>
-              <div key={`gifts-${giftSets.length}`} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+              <h2 className="mb-2 text-lg font-bold">
+                {tree ? "🎄 Under the tree" : "🎁 Gift ideas"}
+                {oneRecipient && <span className="font-normal text-slate-500"> for {oneRecipient}</span>}
+              </h2>
+              {/* On wide screens the ideas sit in their own scrolling box, so the page stays put. */}
+              <div
+                key={`gifts-${giftSets.length}`}
+                className={`grid gap-3 sm:grid-cols-2 lg:-mr-2 lg:max-h-[min(62vh,34rem)] lg:grid-cols-1 lg:overflow-y-auto lg:pr-2 ${tree ? "pt-3" : ""}`}
+              >
                 {latestGifts.map((g, j) => giftCard(g, j, true))}
               </div>
               <button
@@ -957,7 +972,7 @@ export default function LookforApp() {
                         For {name} ({list.length})
                       </summary>
                       <div className="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-                        {list.map((g, j) => giftCard(g, j))}
+                        {list.map((g, j) => giftCard(g, j, false, false))}
                       </div>
                     </details>
                   ))}
