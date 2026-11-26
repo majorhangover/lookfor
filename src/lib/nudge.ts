@@ -26,7 +26,7 @@ export function buildNudge(opts: {
   if (last && (count % 2 === 0 || !waiting))
     return {
       content: `How are those looking? I can find more ideas for ${last}, or we can sort someone else on your list.`,
-      chips: [`More ideas for ${last}`, `Cheaper ideas for ${last}`, "Someone else"],
+      chips: ["More ideas", "Cheaper ideas", "Someone else"],
     };
   // Never name a particular person here: they may have died or fallen out, and an
   // unprompted "What about Mum?" can hurt. Let the user choose.

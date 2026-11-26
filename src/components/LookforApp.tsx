@@ -670,9 +670,24 @@ export default function LookforApp({ initialOccasion }: { initialOccasion?: stri
               </div>
             )}
             {childLock ? (
-              <p className="rounded-2xl bg-white/90 px-4 py-3 text-center font-semibold text-slate-800 shadow-lg">
-                Lookfor is for grown-ups. Please ask a parent or guardian to help you.
-              </p>
+              <div className="flex items-center gap-3 rounded-2xl bg-white/90 py-3 pl-4 pr-3 text-slate-800 shadow-lg">
+                <p className="flex-1 text-center font-semibold">
+                  Lookfor is for grown-ups. Please ask a parent or guardian to help you.
+                </p>
+                {/* A grown-up can unlock the chat again; the host is told so it doesn't lock straight back. */}
+                <button
+                  type="button"
+                  className="flex shrink-0 items-center gap-1 rounded-full bg-slate-800 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-700"
+                  aria-label="I'm a grown-up: unlock the chat"
+                  onClick={() => {
+                    setChildLock(false);
+                    sessionStorage.removeItem("lookfor.child");
+                    setTurns((ts) => [...ts, { role: "user", content: "I'm a grown-up (18 or over), so please carry on." }]);
+                  }}
+                >
+                  <span aria-hidden>✕</span> I&apos;m 18+
+                </button>
+              </div>
             ) : (
             <form
               className="flex gap-2"
@@ -771,7 +786,7 @@ export default function LookforApp({ initialOccasion }: { initialOccasion?: stri
                   <ChristmasTree lit={giftSets.length > 0} />
                 </div>
               ) : (
-                <Present color={character.theme.accent} />
+                <Present host={occasion.character} />
               )}
               {/* When ideas arrive, the tree shakes loose a shower of sparkles onto them below. */}
               {celebrate > 0 && (
