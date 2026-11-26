@@ -8,6 +8,24 @@ const Query = z.object({
 });
 
 /**
+ * ElevenLabs ready-made voices to match each host, so the women don't speak
+ * in Santa's voice. An ELEVENLABS_VOICE_<CHARACTER> setting in Vercel still
+ * wins. Santa keeps ELEVENLABS_VOICE_SANTA or ELEVENLABS_VOICE_ID.
+ */
+const DEFAULT_VOICES: Partial<Record<CharacterId, string>> = {
+  bear: "EXAVITQu4vr4xnSDxMaL", // Bella: Sarah, warm female
+  bunny: "Xb7hH8MSUJpSbSDYk0k2", // Daisy: Alice, British female
+  cupid: "XrExE9yKIg1WjnnlVkGX", // Rosa: Matilda, warm female
+  penguin: "JBFqnCBsd6RMkjVDRZzb", // Henry: George, older British male
+  hen: "pFZP5JQG7iQjIQuC4Bku", // Maggie: Lily, British female
+  dog: "onwK4e9ZLuTAKqWW03F9", // Barney: Daniel, British male
+  dove: "XB0fDUnXU5powFXDhCwa", // Darcy: Charlotte, elegant female
+  stork: "cgSgspJ2msm6clMCkdW9", // Stella: Jessica, bright female
+  fox: "N2lVS1w4EtoT3dr4eOWO", // Finn: Callum, male
+  lou: "nPczCjzI2devNBz1zQrb", // Lou: Brian, friendly male
+};
+
+/**
  * Character voices, streamed so playback starts as soon as the first audio
  * arrives. The browser loads this as an <audio> source:
  *   /api/tts?text=...&character=santa
@@ -25,8 +43,11 @@ export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
   const parsed = Query.safeParse({ text: params.get("text") ?? "", character: params.get("character") ?? undefined });
   if (!parsed.success) return new Response(null, { status: 400 });
+  const character = parsed.data.character;
   const voice = (
-    process.env[`ELEVENLABS_VOICE_${parsed.data.character.toUpperCase()}`] || process.env.ELEVENLABS_VOICE_ID
+    process.env[`ELEVENLABS_VOICE_${character.toUpperCase()}`] ||
+    DEFAULT_VOICES[character] ||
+    process.env.ELEVENLABS_VOICE_ID
   )?.trim();
   if (!voice) return new Response(null, { status: 204 });
 
