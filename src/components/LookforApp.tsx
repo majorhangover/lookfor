@@ -771,7 +771,7 @@ export default function LookforApp({ initialOccasion }: { initialOccasion?: stri
                   <ChristmasTree lit={giftSets.length > 0} />
                 </div>
               ) : (
-                <Present color={character.theme.accent} />
+                <Present host={occasion.character} />
               )}
               {/* When ideas arrive, the tree shakes loose a shower of sparkles onto them below. */}
               {celebrate > 0 && (
