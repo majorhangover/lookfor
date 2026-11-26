@@ -40,7 +40,7 @@ interface Turn extends ChatMessage {
 export default function LookforApp() {
   // "adult" doubles as "has told us where they are": both are answered on the first welcome step.
   const [adult, setAdult] = useLocalState("lookfor.adult", false);
-  const [welcomed, setWelcomed] = useLocalState("lookfor.welcomed", false);
+  const [, setWelcomed] = useLocalState("lookfor.welcomed", false);
   const [savePromptHidden, setSavePromptHidden] = useLocalState("lookfor.savePromptHidden", false);
   const [region, setRegion] = useLocalState<Region>("lookfor.region", () =>
     navigator.language === "en-US" ? "US" : "UK",
@@ -376,7 +376,8 @@ export default function LookforApp() {
 
   // When things go quiet, the character speaks up: points to the ask box, offers
   // more ideas, or suggests someone else. At most 3 times, and never while busy or typing.
-  const inWelcome = !adult || (!welcomed && account.enabled && !account.email);
+  // Only the one-tap country step; accounts are offered later, never as a pop-up.
+  const inWelcome = !adult;
   const [nudges, setNudges] = useState(0);
   const lastTurn = turns[turns.length - 1];
   const quiet = account.ready && !inWelcome && !busy && !voice.speaking && !input && !hush && pending.length === 0 && nudges < 3 && !lastTurn?.nudge;
@@ -414,7 +415,9 @@ export default function LookforApp() {
         onWhere={(r) => {
           setRegion(r);
           setAdult(true);
-          if (!account.enabled) setWelcomed(true);
+          setWelcomed(true);
+          // Start the main page at the top (the welcome screen may have been scrolled on phones).
+          setTimeout(() => window.scrollTo(0, 0), 0);
         }}
         onDone={() => setWelcomed(true)}
       />
