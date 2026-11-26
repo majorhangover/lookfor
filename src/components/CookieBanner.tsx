@@ -30,7 +30,7 @@ export default function CookieBanner() {
       className="fixed inset-x-3 bottom-3 z-[100] mx-auto flex max-w-xl flex-col gap-3 rounded-2xl bg-white p-4 text-sm text-slate-800 shadow-2xl ring-1 ring-black/10 sm:bottom-5 sm:flex-row sm:items-center"
     >
       <p className="min-w-0 flex-1">
-        🍪 We use cookies for ads on Facebook and Instagram.{" "}
+        🍪 Can we use a few optional cookies? They help us show Lookfor to more people.{" "}
         <a className="underline" href="/privacy" target="_blank" rel="noopener">
           Details
         </a>
@@ -46,7 +46,7 @@ export default function CookieBanner() {
           className="rounded-full bg-emerald-700 px-4 py-2 font-semibold text-white hover:bg-emerald-800"
           onClick={() => setConsent("yes")}
         >
-          Accept cookies
+          Accept
         </button>
       </div>
     </div>
