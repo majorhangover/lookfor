@@ -586,7 +586,12 @@ export default function LookforApp() {
         <Logo />
       </div>
       {/* Phones: one column. Wide screens: occasions across the top, the ask box across the page under them, then three columns (people, chat, gifts), each with its picture above it, all in one row. */}
-      <main className="mx-auto grid max-w-7xl grid-cols-1 gap-x-5 gap-y-3 p-4 [grid-template-areas:'nav'_'ask'_'stage'_'name'_'chat'_'treeicon'_'gifts'_'peopleicon'_'people'] lg:grid-cols-[300px_minmax(0,1fr)_340px] lg:grid-rows-[auto_auto_auto_auto_1fr] lg:[grid-template-areas:'nav_nav_nav'_'ask_ask_ask'_'peopleicon_stage_treeicon'_'._name_.'_'people_chat_gifts']">
+      {/* Once there are ideas, they get a full-width row of their own under the chat. */}
+      <main className={`mx-auto grid max-w-7xl grid-cols-1 gap-x-5 gap-y-3 p-4 [grid-template-areas:'nav'_'ask'_'stage'_'name'_'chat'_'treeicon'_'gifts'_'peopleicon'_'people'] lg:grid-cols-[300px_minmax(0,1fr)_340px] ${
+          giftSets.length
+            ? "lg:grid-rows-[auto_auto_auto_auto_auto_1fr] lg:[grid-template-areas:'nav_nav_nav'_'ask_ask_ask'_'peopleicon_stage_treeicon'_'._name_.'_'people_chat_chat'_'gifts_gifts_gifts']"
+            : "lg:grid-rows-[auto_auto_auto_auto_1fr] lg:[grid-template-areas:'nav_nav_nav'_'ask_ask_ask'_'peopleicon_stage_treeicon'_'._name_.'_'people_chat_gifts']"
+        }`}>
           <nav className="flex flex-wrap justify-center gap-2 [grid-area:nav]" aria-label="Occasion">
             {OCCASIONS.map((o) => (
               <button
@@ -939,15 +944,11 @@ export default function LookforApp() {
                 {tree ? "🎄 Under the tree" : "🎁 Gift ideas"}
                 {oneRecipient && <span className="font-normal text-slate-500"> for {oneRecipient}</span>}
               </h2>
-              {/* On wide screens the ideas sit in their own scrolling box, so the page stays put. */}
-              <div
-                key={`gifts-${giftSets.length}`}
-                className={`grid gap-3 sm:grid-cols-2 lg:-mr-2 lg:max-h-[min(62vh,34rem)] lg:grid-cols-1 lg:overflow-y-auto lg:pr-2 ${tree ? "pt-3" : ""}`}
-              >
+              <div key={`gifts-${giftSets.length}`} className="grid gap-x-3 gap-y-5 pt-3 sm:grid-cols-2 lg:grid-cols-3">
                 {latestGifts.map((g, j) => giftCard(g, j, true))}
               </div>
               <button
-                className="mt-3 w-full rounded-full bg-gradient-to-b from-amber-300 to-amber-500 px-4 py-2 text-sm font-bold text-slate-900 shadow ring-2 ring-white/70 transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
+                className="mx-auto mt-4 block w-full max-w-sm rounded-full bg-gradient-to-b from-amber-300 to-amber-500 px-4 py-2 text-sm font-bold text-slate-900 shadow ring-2 ring-white/70 transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
                 disabled={busy}
                 onClick={() => send("Show me more ideas, please. Different ones from those you've already suggested.")}
               >
@@ -971,7 +972,7 @@ export default function LookforApp() {
                       <summary className="cursor-pointer text-sm font-semibold text-slate-700">
                         For {name} ({list.length})
                       </summary>
-                      <div className="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                      <div className="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                         {list.map((g, j) => giftCard(g, j, false, false))}
                       </div>
                     </details>
