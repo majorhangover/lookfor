@@ -412,7 +412,8 @@ export default function LookforApp() {
   const inWelcome = !adult;
   const [nudges, setNudges] = useState(0);
   const lastTurn = turns[turns.length - 1];
-  const quiet = account.ready && !inWelcome && !busy && !voice.speaking && !input && !hush && pending.length === 0 && nudges < 3 && !lastTurn?.nudge;
+  // No nudge before the first message: the rotating example in the ask box already shows what to type.
+  const quiet = chatted && account.ready && !inWelcome && !busy && !voice.speaking && !input && !hush && pending.length === 0 && nudges < 3 && !lastTurn?.nudge;
   const speakNudge = voice.speak;
   useEffect(() => {
     if (!quiet) return;
