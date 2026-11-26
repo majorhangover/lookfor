@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ClientApp from "@/components/ClientApp";
 import OccasionBlurb from "@/components/OccasionBlurb";
+import SiteFooter from "@/components/SiteFooter";
 import { OCCASION_PAGES } from "@/lib/occasionPages";
 
 // One page per occasion (/christmas, /birthday ...), each with its own words for search engines.
@@ -32,6 +33,7 @@ export default async function OccasionPage({ params }: { params: Params }) {
     <>
       <ClientApp occasion={occasion} />
       <OccasionBlurb initial={occasion} />
+      <SiteFooter />
     </>
   );
 }
