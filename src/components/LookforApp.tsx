@@ -467,8 +467,20 @@ export default function LookforApp() {
     }, 50);
   };
   const toggleVoice = () => {
-    if (voiceOn) voice.stop();
-    setVoiceOn(!voiceOn);
+    if (voiceOn) {
+      voice.stop();
+      setVoiceOn(false);
+      return;
+    }
+    setVoiceOn(true);
+    // Say something straight away so turning the voice on feels alive: the
+    // last reply if there is a chat, otherwise a hello and how to talk back.
+    const last = [...turns].reverse().find((t) => t.role === "assistant" && !t.nudge);
+    const chatted = turns.some((t) => t.role === "user");
+    const howTo = voice.canListen
+      ? "Type in the box, or tap the microphone and just tell me."
+      : "Just type in the box and tell me.";
+    voice.speak(chatted && last ? last.content : `${character.greeting} ${howTo}`, character.id);
   };
 
   const showSavePrompt =
