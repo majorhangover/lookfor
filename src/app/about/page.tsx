@@ -1,4 +1,5 @@
 import Link from "next/link";
+import CloseButton from "@/components/CloseButton";
 
 export const metadata = {
   title: "How it works · Lookfor",
@@ -29,8 +30,9 @@ export default function About() {
       className="min-h-screen p-6"
       style={{ background: "linear-gradient(160deg, #0f3d2e 0%, #14532d 50%, #7f1d1d 100%)" }}
     >
-      <article className="mx-auto max-w-2xl space-y-6 rounded-3xl bg-white/95 p-6 text-slate-800 shadow-xl md:p-8">
-        <header className="space-y-2 text-center">
+      <article className="relative mx-auto max-w-2xl space-y-6 rounded-3xl bg-white/95 p-6 text-slate-800 shadow-xl md:p-8">
+        <CloseButton />
+        <header className="space-y-2 px-8 text-center">
           <h1 className="text-3xl font-bold text-red-700">How Lookfor works</h1>
           <p className="text-lg">Gift ideas for everyone you buy for, whatever the occasion.</p>
         </header>
@@ -95,7 +97,7 @@ export default function About() {
           <Link className="rounded-full bg-red-700 px-5 py-2 font-semibold text-white hover:opacity-90" href="/">
             Start finding gifts
           </Link>
-          <a className="underline" href="/privacy" target="_blank" rel="noopener">
+          <a className="underline" href="/privacy">
             Privacy notice
           </a>
         </footer>

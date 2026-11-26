@@ -31,7 +31,7 @@ export default function CookieBanner() {
     >
       <p className="min-w-0 flex-1">
         🍪 Can we use a few optional cookies? They help us show Lookfor to more people.{" "}
-        <a className="underline" href="/privacy" target="_blank" rel="noopener">
+        <a className="underline" href="/privacy">
           Details
         </a>
       </p>
