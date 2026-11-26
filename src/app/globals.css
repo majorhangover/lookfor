@@ -101,6 +101,32 @@ body {
 .tree-star {
   filter: drop-shadow(0 0 4px #fde047);
 }
+.tree-hop {
+  transform-origin: bottom center;
+  animation: tree-hop 0.6s ease-in-out 3;
+}
+@keyframes tree-hop {
+  0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+  25% { transform: translateY(-10px) rotate(-5deg) scale(1.06); }
+  50% { transform: translateY(0) rotate(0deg) scale(1); }
+  75% { transform: translateY(-6px) rotate(5deg) scale(1.04); }
+}
+.tree-glow {
+  animation: tree-glow 2.4s ease-in-out infinite;
+}
+@keyframes tree-glow {
+  0%, 100% { filter: drop-shadow(0 0 6px rgba(253, 224, 71, 0.35)); }
+  50% { filter: drop-shadow(0 0 22px rgba(253, 224, 71, 0.85)); }
+}
+.sparkle-fall {
+  opacity: 0;
+  animation: sparkle-fall 1.8s ease-in forwards;
+}
+@keyframes sparkle-fall {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.6) rotate(0deg); }
+  15% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--dx), 320px) scale(1.1) rotate(200deg); }
+}
 .tree-sway {
   transform-origin: bottom center;
   animation: tree-sway 3.2s ease-in-out infinite;
@@ -153,7 +179,8 @@ body {
   100% { transform: translateY(130px) rotate(10deg); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .char-body, .char-pompom, .char-hand.char-waving, .char-point, .tree-light, .tree-star-lit, .ask-glow, .ask-nudge, .gift-drop, .gift-celebrate, .tree-shake, .tree-sway, .people-bob { animation: none; }
+  .char-body, .char-pompom, .char-hand.char-waving, .char-point, .tree-light, .tree-star-lit, .ask-glow, .ask-nudge, .gift-drop, .gift-celebrate, .tree-shake, .tree-sway, .people-bob, .tree-hop, .tree-glow { animation: none; }
+  .sparkle-fall { display: none; }
   .gift-confetti { display: none; }
   .tree-sparkle { animation: none; opacity: 0.8; }
   .char-motion { display: none; }

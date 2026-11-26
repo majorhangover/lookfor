@@ -256,10 +256,6 @@ export default function LookforApp() {
 
   // A short celebration on the gift panel (and the tree) to draw the eye.
   const [celebrate, setCelebrate] = useState(0);
-  const flashGifts = () => {
-    setCelebrate((c) => c + 1);
-    showGifts();
-  };
   useEffect(() => {
     if (!celebrate) return;
     const t = setTimeout(() => setCelebrate(0), 2600);
@@ -586,7 +582,7 @@ export default function LookforApp() {
         <Logo />
       </div>
       {/* Phones: one column. Wide screens: occasions across the top, the ask box across the page under them, then three columns (people, chat, gifts), each with its picture above it, all in one row. */}
-      <main className="mx-auto grid max-w-7xl grid-cols-1 gap-x-5 gap-y-3 p-4 [grid-template-areas:'nav'_'ask'_'stage'_'name'_'chat'_'treeicon'_'gifts'_'peopleicon'_'people'] lg:grid-cols-[300px_minmax(0,1fr)_340px] lg:grid-rows-[auto_auto_auto_auto_1fr] lg:[grid-template-areas:'nav_nav_nav'_'ask_ask_ask'_'peopleicon_stage_treeicon'_'._name_.'_'people_chat_gifts']">
+      <main className="mx-auto grid max-w-7xl grid-cols-1 gap-x-5 gap-y-3 p-4 [grid-template-areas:'nav'_'ask'_'stage'_'chat'_'treeicon'_'gifts'_'peopleicon'_'people'] lg:grid-cols-[300px_minmax(0,1fr)_340px] lg:grid-rows-[auto_auto_auto_1fr] lg:[grid-template-areas:'nav_nav_nav'_'ask_ask_ask'_'peopleicon_stage_treeicon'_'people_chat_gifts']">
           <nav className="flex flex-wrap justify-center gap-2 [grid-area:nav]" aria-label="Occasion">
             {OCCASIONS.map((o) => (
               <button
@@ -733,7 +729,9 @@ export default function LookforApp() {
             aria-hidden
             className={`mt-6 flex h-44 justify-center self-end [grid-area:treeicon] md:h-48 lg:mt-0 ${giftSets.length ? "" : "hidden lg:flex"}`}
           >
-            <div className={`relative h-full w-36 md:w-40 ${celebrate ? "tree-shake" : ""}`}>
+            <div
+              className={`relative h-full w-36 md:w-40 ${celebrate ? "tree-hop" : ""} ${giftSets.length ? "tree-glow" : ""}`}
+            >
               {tree ? (
                 <div className="tree-sway absolute inset-0">
                   <ChristmasTree lit={giftSets.length > 0} />
@@ -741,12 +739,27 @@ export default function LookforApp() {
               ) : (
                 <Present color={character.theme.accent} />
               )}
+              {/* When ideas arrive, the tree shakes loose a shower of sparkles onto them below. */}
+              {celebrate > 0 && (
+                <div className="pointer-events-none absolute inset-x-0 top-1/3 z-30 h-0" key={`sparkle-${celebrate}`}>
+                  {Array.from({ length: 16 }, (_, i) => (
+                    <span
+                      key={i}
+                      className="sparkle-fall absolute text-base"
+                      style={{
+                        left: `${10 + ((i * 41) % 80)}%`,
+                        animationDelay: `${(i % 8) * 0.12}s`,
+                        ["--dx" as string]: `${((i * 29) % 60) - 30}px`,
+                      }}
+                    >
+                      {["✨", "⭐", "❄️", "✦"][i % 4]}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
-          <div className="-mt-2 flex items-center justify-center gap-2 text-sm text-white/90 [grid-area:name]">
-            <span className="font-medium">{character.name}</span>
-          </div>
           <div className="flex min-w-0 flex-col gap-3 [grid-area:chat]">
 
           <div ref={chatBox} className={`min-h-0 flex-1 space-y-3 overflow-y-auto rounded-2xl bg-white/90 p-4 text-slate-800 shadow-lg max-h-[45vh]`}>
@@ -774,19 +787,6 @@ export default function LookforApp() {
                         {c}
                       </button>
                     ))}
-                  </div>
-                )}
-                {t.gifts && t.gifts.length > 0 && (
-                  <div className="mt-1">
-                    <button
-                      className="rounded-full px-3 py-1 text-sm font-semibold text-white hover:opacity-90"
-                      style={{ background: character.theme.accent }}
-                      onClick={flashGifts}
-                    >
-                      {tree ? `🎁 I've popped ${t.gifts.length} under the tree ` : `🎁 ${t.gifts.length} gift ideas `}
-                      <span className="lg:hidden">↓</span>
-                      <span className="hidden lg:inline">→</span>
-                    </button>
                   </div>
                 )}
               </div>
@@ -939,11 +939,7 @@ export default function LookforApp() {
                 {tree ? "🎄 Under the tree" : "🎁 Gift ideas"}
                 {oneRecipient && <span className="font-normal text-slate-500"> for {oneRecipient}</span>}
               </h2>
-              {/* On wide screens the ideas sit in their own scrolling box, so the page stays put. */}
-              <div
-                key={`gifts-${giftSets.length}`}
-                className={`grid gap-3 sm:grid-cols-2 lg:-mr-2 lg:max-h-[min(62vh,34rem)] lg:grid-cols-1 lg:overflow-y-auto lg:pr-2 ${tree ? "pt-3" : ""}`}
-              >
+              <div key={`gifts-${giftSets.length}`} className="grid gap-x-3 gap-y-5 pt-3 sm:grid-cols-2 lg:grid-cols-1">
                 {latestGifts.map((g, j) => giftCard(g, j, true))}
               </div>
               <button
