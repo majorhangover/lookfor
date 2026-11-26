@@ -760,9 +760,10 @@ export default function LookforApp() {
             </div>
           </div>
 
-          <div className="flex min-w-0 flex-col gap-3 [grid-area:chat]">
+          {/* On wide screens the chat fills its column to line up with the ideas beside it, and scrolls inside. */}
+          <div className="flex min-w-0 flex-col gap-3 [grid-area:chat] lg:relative lg:min-h-[26rem]">
 
-          <div ref={chatBox} className={`min-h-0 flex-1 space-y-3 overflow-y-auto rounded-2xl bg-white/90 p-4 text-slate-800 shadow-lg max-h-[45vh]`}>
+          <div ref={chatBox} className="min-h-0 flex-1 space-y-3 overflow-y-auto rounded-2xl bg-white/90 p-4 text-slate-800 shadow-lg max-h-[45vh] lg:absolute lg:inset-0 lg:max-h-none">
             {turns.map((t, i) => (
               <div key={i} className={t.role === "user" ? "text-right" : ""}>
                 <div
