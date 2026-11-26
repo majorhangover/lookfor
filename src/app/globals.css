@@ -98,6 +98,24 @@ body {
   0%, 100% { opacity: 0; transform: scale(0.3); }
   50% { opacity: 1; transform: scale(1); }
 }
+.tree-star {
+  filter: drop-shadow(0 0 4px #fde047);
+}
+.tree-sway {
+  transform-origin: bottom center;
+  animation: tree-sway 3.2s ease-in-out infinite;
+}
+@keyframes tree-sway {
+  0%, 100% { transform: rotate(-1.2deg); }
+  50% { transform: rotate(1.2deg); }
+}
+.people-bob {
+  animation: people-bob 3.6s ease-in-out infinite;
+}
+@keyframes people-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
 .tree-star-lit {
   filter: drop-shadow(0 0 6px #fde047) drop-shadow(0 0 14px #facc15);
   animation: tree-star 2s ease-in-out infinite;
@@ -135,7 +153,7 @@ body {
   100% { transform: translateY(130px) rotate(10deg); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .char-body, .char-pompom, .char-hand.char-waving, .char-point, .tree-light, .tree-star-lit, .ask-glow, .ask-nudge, .gift-drop, .gift-celebrate, .tree-shake { animation: none; }
+  .char-body, .char-pompom, .char-hand.char-waving, .char-point, .tree-light, .tree-star-lit, .ask-glow, .ask-nudge, .gift-drop, .gift-celebrate, .tree-shake, .tree-sway, .people-bob { animation: none; }
   .gift-confetti { display: none; }
   .tree-sparkle { animation: none; opacity: 0.8; }
   .char-motion { display: none; }

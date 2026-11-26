@@ -662,15 +662,26 @@ export default function LookforApp() {
               />
             </div>
           </div>
-          <div aria-hidden className="flex h-44 items-end justify-center self-end [grid-area:peopleicon] md:h-48">
-            <div className="grid grid-cols-4 place-items-center">
-              {(["grandma", "dad", "girl", "grandad", "mum", "boy", "baby", "friend"] as const).map((id, i) => (
-                <div
-                  key={id}
-                  className={`-m-1 h-16 w-16 md:h-[4.5rem] md:w-[4.5rem] ${i >= 4 ? "-mt-3 translate-x-6" : ""}`}
-                  style={{ rotate: `${((i * 5) % 3) * 6 - 6}deg` }}
-                >
-                  <Face id={id} />
+          <div aria-hidden className="flex h-44 items-center justify-center self-end [grid-area:peopleicon] md:h-48">
+            <div className="flex flex-col items-center">
+              {([
+                ["grandma", "dad", "girl"],
+                ["grandad", "mum"],
+                ["boy", "baby", "friend"],
+              ] as const).map((row, r) => (
+                <div key={r} className={`flex ${r ? "-mt-3" : ""}`}>
+                  {row.map((id, c) => {
+                    const i = r * 3 + c;
+                    return (
+                      <div
+                        key={id}
+                        className="people-bob -mx-0.5 h-16 w-16 md:h-[4.5rem] md:w-[4.5rem]"
+                        style={{ rotate: `${((i * 5) % 3) * 6 - 6}deg`, animationDelay: `${-(i * 0.7) % 3.6}s` }}
+                      >
+                        <Face id={id} />
+                      </div>
+                    );
+                  })}
                 </div>
               ))}
             </div>
@@ -680,7 +691,13 @@ export default function LookforApp() {
             className={`mt-6 flex h-44 justify-center self-end [grid-area:treeicon] md:h-48 lg:mt-0 ${giftSets.length ? "" : "hidden lg:flex"}`}
           >
             <div className={`relative h-full w-36 md:w-40 ${celebrate ? "tree-shake" : ""}`}>
-              {tree ? <ChristmasTree lit={giftSets.length > 0} /> : <Present color={character.theme.accent} />}
+              {tree ? (
+                <div className="tree-sway absolute inset-0">
+                  <ChristmasTree lit={giftSets.length > 0} />
+                </div>
+              ) : (
+                <Present color={character.theme.accent} />
+              )}
             </div>
           </div>
 
