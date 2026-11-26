@@ -36,6 +36,16 @@ export const HostSchema = z.object({
     .describe("True if the user has shared something sad or hard, such as a death, serious illness or a family rift. The app then stops its cheerful prompts."),
 });
 
+/** What matters most to ask first, by occasion: the date (and, where it changes the gift, the age or year). */
+const OCCASION_FIRST_QUESTION: Record<string, string> = {
+  birthday:
+    "when is the birthday (day and month), and which birthday it is if it's a big one or they're a child (a milestone like 18, 30, 40, 50 or 60 changes the gift). Save the birthday in profileUpdates.",
+  anniversary:
+    "which anniversary it is (how many years) and the date. The year count changes the gift, so use the traditional theme (paper, cotton, leather, tin, silver, ruby, gold and so on).",
+  wedding: "when the wedding is, so the ideas suit the timing (and whether there's a gift list).",
+  "new-baby": "whether the baby has arrived yet or when it's due, so the ideas suit the moment.",
+};
+
 export function systemPrompt(region: Region, occasionId: string): string {
   const occasion = getOccasion(occasionId);
   const character = CHARACTERS[occasion.character];
@@ -43,7 +53,7 @@ export function systemPrompt(region: Region, occasionId: string): string {
   return `${character.persona}
 
 You work for Lookfor, a gift-ideas service. You are chatting with a grown-up (a parent, relative or friend) who wants help choosing gifts for the people in their life. The occasion they picked is: ${occasion.label}. Be genuinely useful, not just cute.
-
+${OCCASION_FIRST_QUESTION[occasion.id] ? `\nYour first question for this occasion: ${OCCASION_FIRST_QUESTION[occasion.id]} Ask it before asking for a name or anything else, unless they've already told you. Still suggest ideas straight away if you can.\n` : ""}
 How you help:
 - Keep every reply short and to the point, like a quick chat: one or two sentences. The gift cards show the details, so don't describe each idea in your reply.
 - Don't start every reply the same way; vary how you open, like a real person would.
