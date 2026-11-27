@@ -22,6 +22,7 @@ import { giftSharePath } from "@/lib/share";
 import { examplePrompts } from "@/lib/examples";
 import { applyProfileUpdate, isSaved, toggleSavedGift } from "@/lib/profile";
 import { track } from "@/lib/tracking";
+import { track as stat } from "@vercel/analytics";
 import { buildNudge } from "@/lib/nudge";
 import VoiceBubble from "./VoiceBubble";
 import ProfileBuilder from "./ProfileBuilder";
@@ -210,6 +211,7 @@ export default function LookforApp({ initialOccasion }: { initialOccasion?: stri
           onClick={() => {
             account.logGifts("clicked", [g], occasionId);
             track("GiftClick", { occasion: occasionId, idea: g.title });
+            stat("Shop click", { occasion: occasionId, region });
           }}
           className="absolute inset-0 z-0 rounded-xl"
           aria-label={`${g.title}: see options and prices`}
@@ -296,6 +298,8 @@ export default function LookforApp({ initialOccasion }: { initialOccasion?: stri
   const send = async (text: string, startOccasion?: string) => {
     const content = text.trim();
     if (!content || busy || childLock) return;
+    // Anonymous usage count only: never the message text.
+    stat("Chat message", { occasion: startOccasion ?? occasionId, region });
     setSavedNote(null);
     // A safety net in case the reply doesn't flag it: sad news means no cheerful nudges.
     if (/(suicid|kill myself|killing myself|take my own life|taking my own life|end my life|ending my life|end it all|self[- ]?harm|hurt myself|hurting myself|want to die|better off dead|overdos\w*)/i.test(content)) {
@@ -380,6 +384,7 @@ export default function LookforApp({ initialOccasion }: { initialOccasion?: stri
       if (data.profileUpdates?.length) setPending((p) => [...p, ...data!.profileUpdates]);
       if (data.gifts?.length) {
         account.logGifts("shown", data.gifts, occasionKey);
+        stat("Ideas shown", { occasion: occasionKey, region, count: data.gifts.length });
         // Retargeting (only if the visitor accepted cookies): broad info only, no nicknames or ages.
         const relationships = [
           ...new Set(

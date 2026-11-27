@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
@@ -48,6 +49,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col">
         {children}
         <CookieBanner />
+        {/* Cookieless visitor stats (Vercel Web Analytics): pages, referrers, countries, devices. */}
+        <Analytics />
       </body>
     </html>
   );
