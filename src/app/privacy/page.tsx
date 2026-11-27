@@ -65,6 +65,13 @@ export default function Privacy() {
           nothing is sent. You can change your mind at any time: <CookieSettings className="underline" />.
         </p>
 
+        <h2 className="font-semibold">Visitor statistics</h2>
+        <p>
+          We count visits using Vercel Web Analytics, which uses no cookies and doesn&apos;t identify you. It tells us
+          things like which pages are viewed, which site sent you, your country and device type, and how many chats,
+          gift ideas and shop clicks there are for each occasion. It never includes what you type.
+        </p>
+
         <h2 className="font-semibold">Shopping links</h2>
         <p>
           Gift links go to online shops, such as Amazon. As an Amazon Associate we earn from qualifying purchases, at no extra cost to you.
